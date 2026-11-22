@@ -136,7 +136,7 @@ function draw(){
    if(document.activeElement!==input)input.value=state.names[i];
  }
  document.getElementById('undo').disabled=history.length===0;
- document.querySelectorAll('[data-count]').forEach(btn=>btn.setAttribute('aria-pressed',String(Number(btn.dataset.count)===state.count)));
+ document.querySelectorAll('.team-count button[data-count]').forEach(btn=>btn.setAttribute('aria-pressed',String(Number(btn.dataset.count)===state.count)));
 }
 function checkpoint(){history.push([...state.scores]);if(history.length>100)history.shift()}
 function change(team,delta){
@@ -146,7 +146,7 @@ function change(team,delta){
  checkpoint();state.scores[team]=next;persist();draw();
  document.getElementById('announce').textContent=state.names[team]+' '+next+'점';
 }
-document.querySelectorAll('[data-count]').forEach(btn=>btn.addEventListener('click',()=>{
+document.querySelectorAll('.team-count button[data-count]').forEach(btn=>btn.addEventListener('click',()=>{
  const count=Number(btn.dataset.count);
  if(count===state.count)return;
  state.count=count;persist();buildTeams();
