@@ -246,3 +246,4 @@ labelsForm.addEventListener('submit', event => {
 if (restored !== state) write(key, state);
 rows.replaceChildren(...state.labels.map(createLabelRow));
 drawDeck();
+for (const button of [pick, reset, add, apply]) button.disabled = false;

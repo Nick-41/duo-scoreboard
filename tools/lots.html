@@ -101,8 +101,8 @@
         </div>
         <div id="tickets" class="tickets"></div>
         <div class="ticket-actions">
-          <button id="pick" type="button" class="btn primary">무작위로 한 장</button>
-          <button id="reset" type="button" class="btn">다시 섞기</button>
+          <button id="pick" disabled type="button" class="btn primary">무작위로 한 장</button>
+          <button id="reset" disabled type="button" class="btn">다시 섞기</button>
         </div>
         <p id="result" class="draw-result" role="status">번호표를 고르세요.</p>
         <details id="drawHistory" hidden>
@@ -115,14 +115,14 @@
           <h2 id="labelsHeading">항목 목록</h2>
           <span id="labelCount" class="muted">2~24개</span>
         </div>
-        <button id="addLabel" class="btn" type="button">＋ 항목 추가</button>
+        <button id="addLabel" disabled class="btn" type="button">＋ 항목 추가</button>
         <div id="labelRows" class="label-rows"></div>
-        <button id="applyLabels" class="btn" type="submit">목록 적용</button>
+        <button id="applyLabels" disabled class="btn" type="submit">목록 적용</button>
         <p id="listNote" class="muted list-note" hidden>변경한 목록을 적용하면 새 판으로 시작합니다.</p>
         <p id="listError" class="error" role="alert"></p>
       </form>
     </div>
   </main>
-  <script type="module" src="../assets/lots.js?v=tickets"></script>
+  <script type="module" src="../assets/lots.js?v=tickets-2"></script>
 </body>
 </html>
