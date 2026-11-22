@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5fc">
+  <meta name="description" content="항목을 입력하고 룰렛을 돌려 하나를 무작위로 고릅니다.">
+  <title>룰렛 · 모아덱</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+  <link rel="stylesheet" href="../assets/brand.css">
+  <link rel="stylesheet" href="../assets/utility.css">
+  <script src="../assets/tool-theme.js"></script>
+  <style>
+    .wheel-area { position: relative; width: min(100%, 415px); margin: 8px auto 0; isolation: isolate; }
+    #wheel { display: block; width: 100%; height: auto; border-radius: 50%; box-shadow: 0 7px 24px #160e3533; }
+    .needle { position: absolute; z-index: 2; top: -8px; left: calc(50% - 12px); width: 24px; height: 29px; background: var(--accent); clip-path: polygon(0 0, 100% 0, 50% 100%); }
+    .hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 9%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #f8efff; background: #503383; box-shadow: 0 2px 7px #301d5d44; }
+    .play-panel .result { text-align: center; color: var(--success); }
+  </style>
+</head>
+<body data-tool="roulette">
+  <main class="shell">
+    <header><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>룰렛</h1></header>
+    <div class="play-grid">
+      <section class="panel play-panel" aria-label="룰렛">
+        <div class="wheel-area">
+          <span class="needle" aria-hidden="true"></span>
+          <canvas id="wheel" width="720" height="720" aria-hidden="true"></canvas>
+          <span class="hub" aria-hidden="true"></span>
+        </div>
+        <p id="result" class="result" role="status"></p>
+        <button id="spin" class="btn primary" type="button">돌리기</button>
+      </section>
+      <form id="labelsForm" class="panel list-form">
+        <label for="labels">항목 목록 (2~12개)</label>
+        <textarea id="labels" class="field" rows="4" maxlength="1100" placeholder="한 줄에 하나씩 입력하세요" spellcheck="false"></textarea>
+        <button class="btn" type="submit">목록 적용</button>
+        <p id="listError" class="error" role="alert"></p>
+      </form>
+    </div>
+  </main>
+  <script type="module" src="../assets/roulette.js"></script>
+</body>
+</html>

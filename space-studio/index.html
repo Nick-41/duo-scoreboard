@@ -33,6 +33,9 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
   padding:10px max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
 }
 .s-surface { width:100%; }
+/* The small viewport stays stable as Safari hides its address bar or opens the keyboard. */
+html { scrollbar-gutter:stable; }
+.s-viewport-measure { position:fixed; top:0; width:0; height:100vh; height:100svh; visibility:hidden; pointer-events:none; }
 .s-board {
   position:relative;
   width:min(100%, 360px);
@@ -87,6 +90,7 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
 <link rel="stylesheet" href="../assets/brand.css">
 </head><body>
 <div id="space-v111">
+ <div class="s-viewport-measure" data-viewport-measure aria-hidden="true"></div>
 
  <header class="s-hd"><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>공간 배치 스튜디오</h1></header>
  <div class="s-tools">
@@ -147,13 +151,18 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
  const zoomOut=$('[data-action="zoom-out"]'),zoomIn=$('[data-action="zoom-in"]');
  const zoomOutput=$('[data-zoom]'),editButton=$('[data-action="edit"]');
  const minZoom=0.6;
- let zoom=1, visibleZoom=1;
+ const viewportMeasure=$('[data-viewport-measure]');
+ let zoom=1, visibleZoom=1, previousSize;
  function sizeBoard(){
   const width=surface.clientWidth;
   if(!width)return;
-  const roomRatio=state.room.w/state.room.h;
-  const boardTop=surface.getBoundingClientRect().top+window.scrollY;
-  const fitHeight=clamp(Math.floor(window.innerHeight-boardTop-18),100,570);
+  const viewportHeight=viewportMeasure.offsetHeight;
+  const {w,h}=state.room;
+  const size=[width,viewportHeight,w,h,zoom];
+  if(previousSize&&size.every((value,index)=>value===previousSize[index]))return;
+  previousSize=size;
+  const roomRatio=w/h;
+  const fitHeight=clamp(viewportHeight-surface.offsetTop-18,100,570);
   const fitWidth=Math.min(width, fitHeight*roomRatio);
   const boardWidth=Math.min(width, fitWidth*zoom);
   visibleZoom=boardWidth/fitWidth;
@@ -354,7 +363,13 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
  board.addEventListener('pointercancel',e=>{if(drag&&drag.mode==='pointer'&&drag.pid===e.pointerId)end()});
  board.addEventListener('dragstart',e=>e.preventDefault());board.addEventListener('contextmenu',e=>e.preventDefault());
  draw();
- window.addEventListener('resize',sizeBoard);
+ if('ResizeObserver' in window){
+  const measure=new ResizeObserver(sizeBoard);
+  measure.observe(viewportMeasure);
+  measure.observe(surface);
+ }else{
+  window.addEventListener('resize',sizeBoard);
+ }
  globalThis.__effect?.(()=>{const incoming=globalThis.__bindings?.value;if(!incoming||drag)return;const normalized=validate(incoming);if(normalized&&normalized.updatedAt>state.updatedAt){state=normalized;close();draw()}});
 })();
 </script></body></html>

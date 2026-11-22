@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5fc">
+  <meta name="description" content="번호표를 골라 정해진 항목을 중복 없이 한 장씩 뽑습니다.">
+  <title>제비뽑기 · 모아덱</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+  <link rel="stylesheet" href="../assets/brand.css">
+  <link rel="stylesheet" href="../assets/utility.css">
+  <script src="../assets/tool-theme.js"></script>
+  <style>
+    .ticket-top { justify-content: space-between; }
+    .tickets { display: grid; grid-template-columns: repeat(auto-fit, minmax(66px, 1fr)); gap: 8px; }
+    .ticket { min-height: 62px; padding: 4px 6px; border: 1px dashed var(--accent); border-radius: 12px; background: var(--wash); color: var(--accent); font-size: 19px; font-weight: 850; overflow-wrap: anywhere; }
+    .ticket.revealed { border-style: solid; border-color: var(--line); background: var(--bg); color: var(--ink); font-size: 13px; }
+    .ticket.revealed[aria-disabled="true"] { opacity: 1; }
+    .ticket.latest { border-color: var(--accent); animation: reveal .31s ease-out; }
+    @keyframes reveal { 0% { transform: scale(.86); } 70% { transform: scale(1.04); } }
+    @media (prefers-reduced-motion: reduce) { .ticket.latest { animation: none; } }
+    .ticket-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    summary { cursor: pointer; padding-block: 9px; color: var(--muted); font-weight: 650; }
+    .history { margin: 0; padding-left: 24px; overflow-wrap: anywhere; }
+    .history li { padding-block: 3px; }
+  </style>
+</head>
+<body data-tool="lots">
+  <main class="shell">
+    <header><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>제비뽑기</h1></header>
+    <div class="play-grid">
+      <section class="panel play-panel" aria-label="제비뽑기">
+        <div class="row ticket-top">
+          <h2>번호표</h2>
+          <span id="remaining" class="muted"></span>
+        </div>
+        <div id="tickets" class="tickets"></div>
+        <p id="result" class="result" role="status"></p>
+        <div class="ticket-actions">
+          <button id="pick" type="button" class="btn primary">무작위로 한 장</button>
+          <button id="reset" type="button" class="btn">다시 섞기</button>
+        </div>
+        <details id="drawHistory" hidden>
+          <summary>뽑은 순서</summary>
+          <ol id="history" class="history"></ol>
+        </details>
+      </section>
+      <form id="labelsForm" class="panel list-form">
+        <label for="labels">항목 목록 (2~24개)</label>
+        <textarea id="labels" class="field" rows="4" maxlength="1100" placeholder="한 줄에 하나씩 입력하세요" spellcheck="false"></textarea>
+        <button class="btn" type="submit">목록 적용</button>
+        <p id="listError" class="error" role="alert"></p>
+      </form>
+    </div>
+  </main>
+  <script type="module" src="../assets/lots.js"></script>
+</body>
+</html>

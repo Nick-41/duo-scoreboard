@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5fc">
+  <meta name="description" content="한 기기에서 투표하고 득표수와 득표율을 집계하세요.">
+  <title>투표판 · 모아덱</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+  <link rel="stylesheet" href="../assets/brand.css">
+  <link rel="stylesheet" href="../assets/utility.css">
+  <link rel="stylesheet" href="../assets/tally.css">
+  <script src="../assets/tool-theme.js"></script>
+</head>
+<body data-tool="vote">
+  <main class="shell">
+    <header><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>투표판</h1></header>
+    <section class="panel tally-top" aria-label="투표판 설정">
+      <h2 id="topicDisplay" hidden></h2><label id="topicField" class="topic" hidden>투표 주제<input id="topic" class="field" maxlength="70" placeholder="주제를 입력하세요"></label>
+      <p id="total" class="result"></p>
+      <div class="row">
+        <button type="button" id="edit" class="btn" aria-pressed="false">선택지 편집</button>
+        <button type="button" id="add" class="btn primary" hidden>＋ 선택지 추가</button>
+        <button type="button" id="undo" class="btn" disabled>실행 취소</button>
+        <button type="button" id="reset" class="btn" disabled>득표수 초기화</button>
+      </div>
+      <p id="saved" class="muted">이 기기에서 투표를 집계합니다.</p>
+      <p id="activity" class="sr-only" role="status"></p>
+    </section>
+    <section id="entries" class="tally-grid" aria-label="투표 선택지"></section>
+    <dialog id="confirmReset">
+      <form method="dialog">
+        <h2>득표수를 초기화할까요?</h2>
+        <p class="muted">선택지와 주제는 보관됩니다.</p>
+        <div class="row">
+          <button type="submit" value="cancel" class="btn" autofocus>취소</button>
+          <button type="submit" value="reset" class="btn primary">초기화</button>
+        </div>
+      </form>
+    </dialog>
+  </main>
+  <template id="entryTemplate">
+    <article class="panel tally-item">
+      <h2 data-role="label"></h2>
+      <div class="row item-edit" hidden>
+        <input type="text" maxlength="40" class="field" data-role="name">
+        <button type="button" class="btn remove" data-action="remove">삭제</button>
+      </div>
+      <div class="tally-values">
+        <strong data-role="count" class="count-value"></strong>
+        <span data-role="share" class="share-value"></span>
+      </div>
+      <progress data-role="meter" max="100" value="0"></progress>
+      <div class="tally-actions">
+        <button type="button" class="btn primary" data-action="up">투표</button>
+      </div>
+    </article>
+  </template>
+  <script type="module" src="../assets/tally.js"></script>
+</body>
+</html>
