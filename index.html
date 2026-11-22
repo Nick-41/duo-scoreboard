@@ -75,6 +75,7 @@ a { color: inherit; text-decoration: none; }
   padding-block: calc(16px + env(safe-area-inset-top)) 16px;
 }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 850; letter-spacing: -.055em; }
+.brand small { color: var(--muted); font-size: 13px; letter-spacing: -.03em; }
 .brand img { display: block; border-radius: 12px; }
 .icon-button {
   display: inline-flex;
@@ -233,7 +234,7 @@ a { color: inherit; text-decoration: none; }
   <header class="topbar">
     <a class="brand" href="./" aria-label="모아덱 MoaDeck 홈">
       <img src="assets/icon.svg?v=moadeck" width="38" height="38" alt="">
-      <span>MoaDeck</span>
+      <span>모아덱</span><small>MoaDeck</small>
     </a>
     <button id="themeBtn" class="icon-button" type="button">
       <svg aria-hidden="true"><use id="themeIcon" href="#i-moon"/></svg>
