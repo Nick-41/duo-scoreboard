@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="듀오 배치도">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>듀오 배치도 · 공간 배치 편집기</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#151f30;--panel2:#1d2b40;--stroke:#304158;--text:#f3f7fd;--sub:#a8bad1;--accent:#69c3ff;--danger:#ff8e95;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+button,input{font:inherit}button{border:1px solid var(--stroke);background:var(--panel2);color:var(--text);border-radius:11px;min-height:42px;padding:8px 12px;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.97);background:#34465e}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:#146aab;border-color:#2382c7;font-weight:700}button.danger{color:#ffc4c8;border-color:#6e424b}
+button:disabled{opacity:.35;cursor:default}
+input{min-width:0;width:100%;border:1px solid #39506a;border-radius:9px;background:#0c1727;color:#fff;padding:10px;font-size:16px}
+h1,h2,h3,p{margin:0}h1{font-size:19px;letter-spacing:-.035em}h2{font-size:15px}small,.muted{font-size:12px;color:var(--sub)}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:9px;padding:calc(env(safe-area-inset-top) + 10px) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));border-bottom:1px solid var(--stroke)}
+.actions,.buttons,.zoom{display:flex;gap:6px;flex-wrap:wrap}
+.actions button{min-height:37px;padding:7px 10px;font-size:13px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:12px;height:calc(100dvh - 81px);padding:10px max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.workspace{display:flex;flex-direction:column;min-width:0;min-height:0;border:1px solid var(--stroke);background:var(--panel);border-radius:15px;overflow:hidden}
+.workhead{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:10px;border-bottom:1px solid var(--stroke)}
+.board{flex:1;min-height:220px;background:radial-gradient(circle at 50% 40%,#26364b 0,#101b2a 65%);position:relative;overflow:hidden}
+#plan{width:100%;height:100%;display:block;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#plan.dragging{cursor:grabbing}
+.board-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;padding:8px 10px;border-top:1px solid var(--stroke)}
+.board-footer button{min-height:36px;padding:5px 10px}
+.sidebar{min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:6px;scrollbar-width:thin}
+.panel{padding:12px;background:var(--panel);border:1px solid var(--stroke);border-radius:14px}
+.panel h2{margin-bottom:10px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fields label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--sub)}
+.fields label.full{grid-column:1/-1}
+.buttons{margin-top:10px}
+.buttons button{flex:1}
+.catalog{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.catalog button{font-size:12px;padding:8px 4px;min-height:44px}
+.catalog button:before{content:"＋";color:#70ccff;margin-right:2px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.row label{display:flex;align-items:center;gap:6px;font-size:13px}
+input[type=checkbox]{width:18px;height:18px;accent-color:#50aff6}
+#toast{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 20px);left:50%;transform:translateX(-50%);padding:11px 18px;background:#e8f3ff;color:#172b42;font-size:13px;border-radius:20px;box-shadow:0 6px 25px #0007;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5;white-space:nowrap}
+#toast.show{opacity:1}
+.note{font-size:12px;color:var(--sub);line-height:1.5}
+@media(max-width:770px){.top{padding-bottom:8px}.layout{height:auto;min-height:calc(100dvh - 100px);grid-template-columns:1fr;padding-top:8px}.workspace{height:54dvh;min-height:310px}.sidebar{overflow:visible;display:grid;grid-template-columns:1fr}.catalog{grid-template-columns:repeat(4,minmax(0,1fr))}.panel{padding:11px}.actions button{font-size:12px}}
+@media(min-width:771px) and (max-width:1050px){.layout{grid-template-columns:minmax(0,1fr) 265px}}
+@media(max-width:380px){h1{font-size:17px}.actions{width:100%}.catalog{grid-template-columns:repeat(3,minmax(0,1fr))}.workhead small{display:none}}
+@media(prefers-reduced-motion:reduce){button:active{transform:none}#toast{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+<div><h1>듀오 배치도</h1><small>무료 · 광고 없음 · 기기 내 자동저장</small></div>
+<div class="actions">
+<button id="undo" title="실행 취소">↶ 실행 취소</button><button id="redo" title="다시 실행">↷ 다시</button>
+<button id="saveJson">JSON 저장</button><button id="loadJson">불러오기</button><button id="savePng" class="primary">PNG 저장</button>
+</div>
+</header>
+<main class="layout">
+<section class="workspace" aria-label="배치 편집 화면">
+<div class="workhead"><div><strong id="roomTitle">공간 500 × 400 cm</strong> <small>가구를 누르고 드래그</small></div><small id="count">가구 0개</small></div>
+<div class="board"><svg id="plan" xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 600 500" role="img" aria-label="가구 배치도">
+<defs><pattern id="grid" x="0" y="0" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M 25 0 L 0 0 0 25" fill="none" stroke="#c2cbd6" stroke-width=".65" opacity=".65"/></pattern></defs>
+<rect id="roomFill" x="0" y="0" width="500" height="400" fill="#f2f5f9" stroke="#3c566f" stroke-width="3"/>
+<rect id="gridFill" x="0" y="0" width="500" height="400" fill="url(#grid)" pointer-events="none"/>
+<g id="items"></g>
+</svg></div>
+<div class="board-footer">
+<div class="zoom"><button id="zoomOut" aria-label="축소">−</button><button id="zoomIn" aria-label="확대">＋</button><button id="fit">화면 맞춤</button></div>
+<div class="row"><label><input id="snap" type="checkbox" checked> 5cm 맞춤</label><label><input id="gridToggle" type="checkbox" checked> 격자</label></div>
+</div>
+</section>
+<aside class="sidebar">
+<section class="panel">
+<h2>공간 크기</h2>
+<div class="fields"><label>가로 (cm)<input type="number" id="roomW" min="100" max="3000" step="10" inputmode="numeric" value="500"></label><label>세로 (cm)<input type="number" id="roomH" min="100" max="3000" step="10" inputmode="numeric" value="400"></label></div>
+<div class="buttons"><button id="applyRoom">크기 적용</button><button id="resetAll" class="danger">전체 초기화</button></div>
+</section>
+<section class="panel">
+<h2>가구·설비 추가</h2>
+<div class="catalog">
+<button data-add="desk">책상</button><button data-add="table">테이블</button><button data-add="chair">의자</button><button data-add="sofa">소파</button>
+<button data-add="bed">침대</button><button data-add="shelf">선반</button><button data-add="cabinet">수납장</button><button data-add="fridge">냉장고</button>
+<button data-add="counter">카운터</button><button data-add="sink">싱크대</button><button data-add="door">문</button><button data-add="window">창문</button>
+<button data-add="partition">칸막이</button><button data-add="plant">화분</button><button data-add="custom">직접 설정</button>
+</div>
+</section>
+<section class="panel" id="properties" hidden>
+<h2>선택한 물체</h2>
+<div class="fields">
+<label class="full">이름<input id="itemName" maxlength="40" autocomplete="off"></label>
+<label>가로 (cm)<input id="itemW" type="number" min="5" max="3000" inputmode="numeric"></label>
+<label>세로 (cm)<input id="itemH" type="number" min="5" max="3000" inputmode="numeric"></label>
+<label>왼쪽에서 (cm)<input id="itemX" type="number" min="0" inputmode="numeric"></label>
+<label>위쪽에서 (cm)<input id="itemY" type="number" min="0" inputmode="numeric"></label>
+</div>
+<div class="buttons"><button id="applyItem" class="primary">치수 적용</button><button id="rotate">90° 회전</button></div>
+<div class="buttons"><button id="duplicate">복제</button><button id="deleteItem" class="danger">삭제</button></div>
+</section>
+<section class="panel"><p class="note">손가락으로 물체를 이동하고 빈 공간을 드래그하면 화면이 이동합니다. 확대·축소, 90° 회전, 치수 변경, 실행 취소를 지원합니다. 데이터는 이 기기의 브라우저에 저장되므로 다른 기기로 옮길 때는 JSON 파일을 사용하세요.</p></section>
+</aside>
+</main>
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+"use strict";
+var KEY="duo-layout-planner-v1";
+var catalog={
+ desk:["책상",120,60,"#a0d8d0"], table:["테이블",90,90,"#e7bf83"], chair:["의자",45,45,"#bac7e6"],
+ sofa:["소파",190,80,"#d2b3e7"], bed:["침대",150,200,"#b1cdef"], shelf:["선반",100,35,"#c1d8a5"],
+ cabinet:["수납장",90,45,"#d9bc9a"], fridge:["냉장고",65,70,"#a0c7de"],counter:["카운터",180,65,"#dbb7b0"],
+ sink:["싱크대",100,60,"#9dd5d9"],door:["문",90,12,"#f0b5a0"],window:["창문",120,12,"#80d4e6"],
+ partition:["칸막이",140,12,"#b6b9c2"],plant:["화분",45,45,"#a2d4a7"],custom:["물체",80,60,"#d4cbac"]
+};
+var state={room:{w:500,h:400},items:[],grid:true,snap:true};
+try{var saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.room&&Array.isArray(saved.items))state=normalise(saved)}catch(e){}
+var undoStack=[],redoStack=[],selected=null,gesture=null;
+var view={x:-50,y:-50,w:600,h:500};
+var svg=document.getElementById("plan"),itemsLayer=document.getElementById("items");
+var $=function(id){return document.getElementById(id)};
+var clamp=function(v,min,max){return Math.min(Math.max(v,min),max)};
+var num=function(v,def){var n=Number(v);return Number.isFinite(n)?n:def};
+function normalise(data){
+ var room={w:clamp(Math.round(num(data.room.w,500)),100,3000),h:clamp(Math.round(num(data.room.h,400)),100,3000)};
+ var ids=new Set(),arr=[];
+ (data.items||[]).slice(0,300).forEach(function(a,i){
+  if(!a||typeof a!=="object")return;
+  var id=String(a.id||("i"+i));if(ids.has(id))id="i"+i+"x";ids.add(id);
+  var w=clamp(Math.round(num(a.w,80)),5,3000),h=clamp(Math.round(num(a.h,60)),5,3000);
+  var rotation=((Math.round(num(a.rotation,0)/90)*90)%360+360)%360;
+  var effW=rotation%180?h:w,effH=rotation%180?w:h;
+  arr.push({id:id,name:String(a.name||"물체").slice(0,40),w:w,h:h,x:clamp(num(a.x,0),0,Math.max(0,room.w-effW)),y:clamp(num(a.y,0),0,Math.max(0,room.h-effH)),rotation:rotation,color:/^#[0-9a-f]{6}$/i.test(a.color)?a.color:"#b5c9d9"});
+ });
+ return {room:room,items:arr,grid:data.grid!==false,snap:data.snap!==false};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){toast("저장 공간을 확인하세요")}}
+function snapshot(){return JSON.stringify(state)}
+function commit(before){if(before!==snapshot()){undoStack.push(before);if(undoStack.length>80)undoStack.shift();redoStack=[];save()}}
+function toast(message){var el=$("toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(function(){el.classList.remove("show")},2100)}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function findItem(){return state.items.find(function(x){return x.id===selected})}
+function dims(a){return a.rotation%180?{w:a.h,h:a.w}:{w:a.w,h:a.h}}
+function restrict(a){var d=dims(a);a.x=clamp(a.x,0,Math.max(0,state.room.w-d.w));a.y=clamp(a.y,0,Math.max(0,state.room.h-d.h))}
+function quantize(v){return state.snap?Math.round(v/5)*5:Math.round(v)}
+function fit(){var pad=Math.max(45,Math.min(state.room.w,state.room.h)*.09);var bw=state.room.w+pad*2,bh=state.room.h+pad*2;var aspect=svg.clientWidth/Math.max(1,svg.clientHeight);var w=Math.max(bw,bh*aspect),h=Math.max(bh,bw/aspect);view={x:(state.room.w-w)/2,y:(state.room.h-h)/2,w:w,h:h};setView()}
+function setView(){svg.setAttribute("viewBox",[view.x,view.y,view.w,view.h].join(" "))}
+function zoom(factor){var cx=view.x+view.w/2,cy=view.y+view.h/2;view.w=clamp(view.w*factor,40,10000);view.h=clamp(view.h*factor,40,10000);view.x=cx-view.w/2;view.y=cy-view.h/2;setView()}
+function point(e){var p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;var m=svg.getScreenCTM();return m?p.matrixTransform(m.inverse()):{x:0,y:0}}
+function shape(a){
+ var dw=dims(a),cx=a.x+dw.w/2,cy=a.y+dw.h/2;
+ var active=a.id===selected;
+ var fs=Math.max(9,Math.min(17,a.w/Math.max(2,a.name.length*.95),a.h*.43));
+ return '<g class="item" data-id="'+escapeHtml(a.id)+'" transform="translate('+cx+' '+cy+') rotate('+a.rotation+')" style="cursor:move">'+
+ '<rect x="'+(-a.w/2)+'" y="'+(-a.h/2)+'" width="'+a.w+'" height="'+a.h+'" rx="'+Math.min(8,a.h/5)+'" fill="'+a.color+'" stroke="'+(active?"#007bff":"#456076")+'" stroke-width="'+(active?4:1.6)+'" />'+
+ '<text x="0" y="0" fill="#1c3444" text-anchor="middle" dominant-baseline="middle" font-size="'+fs+'" font-weight="700" pointer-events="none">'+escapeHtml(a.name)+'</text>'+
+ (active?'<rect x="'+(-a.w/2-4)+'" y="'+(-a.h/2-4)+'" width="'+(a.w+8)+'" height="'+(a.h+8)+'" rx="7" stroke="#027cff" stroke-width="2" stroke-dasharray="6 5" fill="none" pointer-events="none"/>':"")+
+ '</g>';
+}
+function render(){
+ var w=state.room.w,h=state.room.h;
+ ["roomFill","gridFill"].forEach(function(id){$(id).setAttribute("width",w);$(id).setAttribute("height",h)});
+ $("gridFill").setAttribute("visibility",state.grid?"visible":"hidden");
+ itemsLayer.innerHTML=state.items.map(shape).join("");
+ $("roomTitle").textContent="공간 "+w+" × "+h+" cm";
+ $("count").textContent="물체 "+state.items.length+"개";
+ $("undo").disabled=!undoStack.length;$("redo").disabled=!redoStack.length;
+ $("snap").checked=state.snap;$("gridToggle").checked=state.grid;
+}
+function refreshControls(){
+ $("roomW").value=state.room.w;$("roomH").value=state.room.h;
+ var a=findItem();$("properties").hidden=!a;
+ if(!a)return;
+ $("itemName").value=a.name;$("itemW").value=a.w;$("itemH").value=a.h;
+ $("itemX").value=Math.round(a.x);$("itemY").value=Math.round(a.y);
+}
+function choose(id){selected=id;render();refreshControls()}
+function applyChange(fn){var before=snapshot();fn();commit(before);render();refreshControls()}
+function newId(){return "o"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function add(type){
+ var def=catalog[type]||catalog.custom;
+ applyChange(function(){
+  var a={id:newId(),name:def[0],w:def[1],h:def[2],x:quantize(Math.max(0,state.room.w/2-def[1]/2+state.items.length*10)),y:quantize(Math.max(0,state.room.h/2-def[2]/2+state.items.length*10)),rotation:0,color:def[3]};
+  restrict(a);state.items.push(a);selected=a.id;
+ });toast(def[0]+" 추가됨");
+}
+document.querySelectorAll("[data-add]").forEach(function(b){b.addEventListener("click",function(){add(b.getAttribute("data-add"))})});
+$("applyRoom").addEventListener("click",function(){
+ applyChange(function(){state.room.w=clamp(Math.round(num($("roomW").value,500)),100,3000);state.room.h=clamp(Math.round(num($("roomH").value,400)),100,3000);state.items.forEach(restrict)});
+ fit();toast("공간 크기 변경됨");
+});
+$("applyItem").addEventListener("click",function(){
+ var a=findItem();if(!a)return;
+ applyChange(function(){
+  a.name=$("itemName").value.trim().slice(0,40)||"물체";
+  a.w=clamp(Math.round(num($("itemW").value,a.w)),5,3000);a.h=clamp(Math.round(num($("itemH").value,a.h)),5,3000);
+  a.x=Math.round(num($("itemX").value,a.x));a.y=Math.round(num($("itemY").value,a.y));restrict(a);
+ });toast("치수 적용됨");
+});
+$("rotate").addEventListener("click",function(){var a=findItem();if(a)applyChange(function(){a.rotation=(a.rotation+90)%360;restrict(a)})});
+$("duplicate").addEventListener("click",function(){var a=findItem();if(!a)return;applyChange(function(){var copy=Object.assign({},a,{id:newId(),x:a.x+15,y:a.y+15});restrict(copy);state.items.push(copy);selected=copy.id})});
+$("deleteItem").addEventListener("click",function(){if(!findItem())return;applyChange(function(){state.items=state.items.filter(function(a){return a.id!==selected});selected=null})});
+$("resetAll").addEventListener("click",function(){if(!confirm("모든 물체와 공간 설정을 초기화하시겠습니까?"))return;applyChange(function(){state={room:{w:500,h:400},items:[],grid:true,snap:true};selected=null});fit();toast("초기화됨")});
+$("undo").addEventListener("click",function(){if(!undoStack.length)return;redoStack.push(snapshot());state=normalise(JSON.parse(undoStack.pop()));selected=null;save();render();refreshControls();fit()});
+$("redo").addEventListener("click",function(){if(!redoStack.length)return;undoStack.push(snapshot());state=normalise(JSON.parse(redoStack.pop()));selected=null;save();render();refreshControls();fit()});
+$("snap").addEventListener("change",function(e){applyChange(function(){state.snap=e.target.checked})});
+$("gridToggle").addEventListener("change",function(e){applyChange(function(){state.grid=e.target.checked})});
+$("fit").addEventListener("click",fit);
+$("zoomIn").addEventListener("click",function(){zoom(.8)});
+$("zoomOut").addEventListener("click",function(){zoom(1.25)});
+svg.addEventListener("wheel",function(e){e.preventDefault();zoom(e.deltaY>0?1.12:.89)},{passive:false});
+svg.addEventListener("pointerdown",function(e){
+ if(e.button!==undefined&&e.button!==0)return;
+ var p=point(e),el=e.target.closest?e.target.closest(".item"):null;
+ if(el){
+  var id=el.getAttribute("data-id"),a=state.items.find(function(x){return x.id===id});
+  if(!a)return;choose(id);
+  gesture={kind:"item",id:id,start:p,x:a.x,y:a.y,before:snapshot()};
+ }else{gesture={kind:"pan",start:p,x:view.x,y:view.y};choose(null)}
+ svg.setPointerCapture(e.pointerId);svg.classList.add("dragging");e.preventDefault();
+});
+svg.addEventListener("pointermove",function(e){
+ if(!gesture)return;
+ var p=point(e);
+ if(gesture.kind==="item"){
+  var a=state.items.find(function(x){return x.id===gesture.id});if(!a)return;
+  a.x=quantize(gesture.x+p.x-gesture.start.x);a.y=quantize(gesture.y+p.y-gesture.start.y);restrict(a);render();
+ }else{
+  view.x=gesture.x-(p.x-gesture.start.x);view.y=gesture.y-(p.y-gesture.start.y);setView();
+ }
+});
+function finish(){if(!gesture)return;if(gesture.kind==="item"){commit(gesture.before);render();refreshControls()}gesture=null;svg.classList.remove("dragging")}
+svg.addEventListener("pointerup",finish);svg.addEventListener("pointercancel",finish);svg.addEventListener("lostpointercapture",finish);
+function download(blob,name){var url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},60000)}
+function stamp(){var d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")}
+$("saveJson").addEventListener("click",function(){download(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),"duo-layout-"+stamp()+".json");toast("JSON 저장 요청됨")});
+$("loadJson").addEventListener("click",function(){$("fileInput").click()});
+$("fileInput").addEventListener("change",function(e){
+ var file=e.target.files[0];if(!file)return;
+ var reader=new FileReader();reader.onload=function(){
+  try{var obj=JSON.parse(reader.result);if(!obj||!obj.room||!Array.isArray(obj.items))throw new Error("형식 오류");var before=snapshot();state=normalise(obj);selected=null;commit(before);fit();render();refreshControls();toast("배치도 불러옴")}
+  catch(err){toast("올바른 배치도 JSON이 아닙니다")}
+  e.target.value="";
+ };reader.readAsText(file);
+});
+$("savePng").addEventListener("click",function(){
+ var clone=svg.cloneNode(true),w=state.room.w,h=state.room.h;
+ clone.setAttribute("viewBox","0 0 "+w+" "+h);clone.setAttribute("width",w);clone.setAttribute("height",h);
+ clone.querySelectorAll('[stroke-dasharray]').forEach(function(e){e.remove()});
+ var xml=new XMLSerializer().serializeToString(clone),url=URL.createObjectURL(new Blob([xml],{type:"image/svg+xml;charset=utf-8"}));
+ var image=new Image();
+ image.onload=function(){
+  URL.revokeObjectURL(url);
+  var scale=Math.min(4,6000/Math.max(w,h)),canvas=document.createElement("canvas");canvas.width=Math.round(w*scale);canvas.height=Math.round(h*scale);
+  var ctx=canvas.getContext("2d");ctx.fillStyle="#f2f5f9";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
+  canvas.toBlob(function(blob){if(blob){download(blob,"duo-layout-"+stamp()+".png");toast("PNG 저장 요청됨")}else toast("이미지 생성 실패")},"image/png");
+ };
+ image.onerror=function(){URL.revokeObjectURL(url);toast("이미지 생성 실패")};image.src=url;
+});
+document.addEventListener("keydown",function(e){
+ if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName))return;
+ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="z"){e.preventDefault();$(e.shiftKey?"redo":"undo").click()}
+ if((e.key==="Delete"||e.key==="Backspace")&&findItem()){$("deleteItem").click()}
+ if(e.key==="Escape")choose(null);
+});
+render();refreshControls();requestAnimationFrame(fit);
+if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("./sw.js",{scope:"./"}).catch(function(){})}
+})();
+</script>
+</body>
+</html>
