@@ -14,7 +14,6 @@ button{cursor:pointer;color:inherit;touch-action:manipulation}
 button:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .wrap{max-width:1100px;margin:auto;padding:calc(env(safe-area-inset-top) + 20px) max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 20px) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:18px;min-height:100dvh}
 header{display:flex;align-items:center;justify-content:space-between;gap:14px}
-.back{display:inline-flex;align-items:center;gap:8px;color:#d6e2fc;background:#2d2241;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13px;font-weight:750;text-decoration:none}
 h1{font-size:clamp(18px,3vw,25px);letter-spacing:-.04em;margin:0}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px;flex:1}
 .settings{background:var(--panel);border:1px solid var(--line);border-radius:23px;padding:24px;display:flex;flex-direction:column;gap:22px}
@@ -40,9 +39,10 @@ input[type=range]{width:100%;accent-color:#b8acff}
 @media(min-width:750px) and (max-height:600px){.preview{min-height:200px}.settings{gap:12px}}
 </style>
 <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+<link rel="stylesheet" href="../assets/brand.css">
 </head><body>
 <div class="wrap">
-<header><a class="back" href="../">← 모아덱</a><h1>대형 글씨</h1></header>
+<header><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>대형 글씨</h1></header>
 <div class="layout">
 <section class="settings" aria-label="글씨 설정">
 <div><label class="field-label" for="message">표시할 문구</label><textarea id="message" maxlength="400" spellcheck="false" placeholder="표시할 내용을 입력하세요">안녕하세요!</textarea>

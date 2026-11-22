@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f7f5fc">
-  <meta name="description" content="모아덱(MoaDeck)에서 점수판, 대형 글씨, 타이머, 공간 배치 도구를 바로 여세요.">
+  <meta name="description" content="모아덱(MoaDeck)에서 점수판, 대형 글씨, 타이머, 동전과 주사위, 공간 배치 도구를 바로 여세요.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="모아덱">
   <meta property="og:title" content="모아덱 MoaDeck">
-  <meta property="og:description" content="점수판부터 공간 배치까지, 필요한 웹 도구를 한곳에.">
+  <meta property="og:description" content="점수판, 타이머, 동전과 주사위, 공간 배치를 한곳에서.">
   <link rel="manifest" href="manifest.webmanifest?v=moadeck">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=moadeck">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="stylesheet" href="assets/brand.css">
   <title>모아덱 MoaDeck</title>
   <script>
     try {
@@ -34,9 +35,6 @@
   --line: #dfd8eb;
   --accent: #6042ac;
   --selected: #eae1ff;
-  --hero: #ebe1ff;
-  --hero-ink: #2f1c54;
-  --hero-muted: #55416f;
   --theme-color: #f7f5fc;
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
 }
@@ -49,9 +47,6 @@
   --line: #443956;
   --accent: #d1beff;
   --selected: #362650;
-  --hero: #302047;
-  --hero-ink: #faf5ff;
-  --hero-muted: #dfd2f2;
   --theme-color: #171124;
 }
 * { box-sizing: border-box; }
@@ -74,9 +69,6 @@ a { color: inherit; text-decoration: none; }
   gap: 16px;
   padding-block: calc(16px + env(safe-area-inset-top)) 16px;
 }
-.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 850; letter-spacing: -.055em; }
-.brand small { color: var(--muted); font-size: 13px; letter-spacing: -.03em; }
-.brand img { display: block; border-radius: 12px; }
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -92,28 +84,9 @@ a { color: inherit; text-decoration: none; }
   font-weight: 700;
 }
 .icon-button svg, .search svg { width: 18px; height: 18px; flex: none; }
-.hero {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  display: grid;
-  align-items: center;
-  grid-template-columns: minmax(0, 1fr) 34%;
-  min-height: 236px;
-  padding: clamp(24px, 5vw, 52px);
-  border: 1px solid var(--line);
-  border-radius: 28px;
-  background: var(--hero);
-  color: var(--hero-ink);
-}
-.hero-copy { z-index: 1; }
-.hero h1 { max-width: 15ch; margin: 0; font-size: clamp(32px, 6vw, 58px); font-weight: 850; line-height: 1.13; letter-spacing: -.075em; word-break: keep-all; }
-.hero p { margin: 15px 0 0; color: var(--hero-muted); font-size: clamp(14px, 2vw, 17px); line-height: 1.6; word-break: keep-all; }
-.hero-mark { display: grid; place-items: center; }
-.hero-mark img { display: block; width: min(100%, 180px); height: auto; border-radius: 29%; transform: rotate(-9deg); box-shadow: 0 16px 38px #2d195344; }
-.section { margin-block: clamp(32px, 5vw, 54px) 40px; }
+.section { margin-block: 12px 36px; }
 .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 17px; }
-.section-head h2 { margin: 0; font-size: 25px; letter-spacing: -.05em; }
+.section-head h1 { margin: 0; font-size: 25px; letter-spacing: -.05em; }
 .result-count { color: var(--muted); font-size: 13px; }
 .tools-bar {
   display: flex;
@@ -168,6 +141,7 @@ a { color: inherit; text-decoration: none; }
 .tool-card[data-tone="purple"] .tool-icon { background: #f4e0f7; color: #773982; }
 .tool-card[data-tone="orange"] .tool-icon { background: #ffeadb; color: #88451f; }
 .tool-card[data-tone="mint"] .tool-icon { background: #d9f3ea; color: #226b56; }
+.tool-card[data-tone="lavender"] .tool-icon { background: #e9e0fb; color: #6042ac; }
 .tool-icon svg { width: 25px; height: 25px; }
 .tool-card h3 { margin: 0; font-size: clamp(16px, 2vw, 20px); line-height: 1.28; letter-spacing: -.045em; word-break: keep-all; }
 .tool-card p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; word-break: keep-all; }
@@ -201,14 +175,10 @@ a { color: inherit; text-decoration: none; }
 .footer a { text-decoration: underline; text-underline-offset: 3px; }
 [hidden] { display: none !important; }
 @media (max-width: 699px) {
-  .hero { min-height: 177px; border-radius: 21px; }
-  .hero-mark img { width: min(95%, 125px); }
   .tool-grid { grid-template-columns: 1fr; gap: 10px; }
   .tool-main { min-height: 94px; }
 }
 @media (max-width: 420px) {
-  .hero { grid-template-columns: minmax(0, 1fr) 24%; padding: 21px 17px; }
-  .hero p { margin-top: 11px; }
   .tool-main { gap: 10px; padding-left: 12px; }
   .tool-icon { width: 44px; height: 44px; border-radius: 12px; }
   .tool-icon svg { width: 22px; height: 22px; }
@@ -224,6 +194,7 @@ a { color: inherit; text-decoration: none; }
 <symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V5h16v2M12 5v14M8 19h8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6M18 6l2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
 <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 3v18M9 12h12" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-dice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/></symbol>
 <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
 <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -232,26 +203,16 @@ a { color: inherit; text-decoration: none; }
 </svg>
 <div class="shell">
   <header class="topbar">
-    <a class="brand" href="./" aria-label="모아덱 MoaDeck 홈">
-      <img src="assets/icon.svg?v=moadeck" width="38" height="38" alt="">
-      <span>모아덱</span><small>MoaDeck</small>
-    </a>
+    <a class="brand" href="./" aria-label="모아덱 MoaDeck 홈"><img src="assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a>
     <button id="themeBtn" class="icon-button" type="button">
       <svg aria-hidden="true"><use id="themeIcon" href="#i-moon"/></svg>
       <span id="themeLabel">다크 모드</span>
     </button>
   </header>
   <main>
-    <section class="hero" aria-labelledby="hero-heading">
-      <div class="hero-copy">
-        <h1 id="hero-heading">필요한 도구를 한곳에</h1>
-        <p>점수를 세고, 시간을 재고, 공간을 배치하세요.</p>
-      </div>
-      <div class="hero-mark" aria-hidden="true"><img src="assets/icon.svg?v=moadeck" width="180" height="180" alt=""></div>
-    </section>
     <section id="tools" class="section" aria-labelledby="tools-heading">
       <div class="section-head">
-        <h2 id="tools-heading">도구 모음</h2>
+        <h1 id="tools-heading">도구 모음</h1>
         <span id="resultCount" class="result-count" aria-live="polite"></span>
       </div>
       <div class="tools-bar">
@@ -283,7 +244,8 @@ const tools = [
   { id: 'scoreboard', name: '점수판', description: '2~4팀 점수 기록과 실행 취소', category: '게임', tone: 'blue', icon: 'score', path: 'tools/scoreboard.html' },
   { id: 'bigtext', name: '대형 글씨', description: '메시지를 화면 가득 표시', category: '일상', tone: 'purple', icon: 'type', path: 'tools/bigtext.html' },
   { id: 'timer', name: '타이머 · 스톱워치', description: '카운트다운과 경과 시간 측정', category: '일상', tone: 'orange', icon: 'clock', path: 'tools/timer.html' },
-  { id: 'layout', name: '공간 배치 스튜디오', description: '가구 이동, 5cm 정렬, 배치 저장', category: '작업', tone: 'mint', icon: 'layout', path: 'space-studio/index.html' }
+  { id: 'chance', name: '동전 · 주사위', description: '1~20개 던지기와 결과 합계', category: '게임', tone: 'mint', icon: 'dice', path: 'tools/chance.html' },
+  { id: 'layout', name: '공간 배치 스튜디오', description: '가구 이동, 5cm 정렬, 배치 저장', category: '작업', tone: 'lavender', icon: 'layout', path: 'space-studio/index.html' }
 ];
 
 const favoriteKey = 'duo-hub-favorites-v1';

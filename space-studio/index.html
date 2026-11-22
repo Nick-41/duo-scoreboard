@@ -1,28 +1,58 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>공간 배치 스튜디오 · 모아덱</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>공간 배치 스튜디오 · 모아덱</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f7f5fc;color:#243244}
 #space-v111{width:100%;max-width:950px;margin:0 auto;background:white;border:1px solid #dde4ef;border-radius:15px;overflow:hidden}
-.s-hd,.s-tools,.s-settings{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 13px}
-.s-hd{justify-content:space-between;padding-bottom:4px}.s-hd strong{font-size:16px}.s-version{font-size:11px;color:#5b6b80;background:#f0f3f8;padding:4px 7px;border-radius:6px}
-.s-tools{padding-top:6px}.s-hub-back{display:inline-flex;align-items:center;min-height:34px;padding:7px 11px;border-radius:9px;text-decoration:none;font-size:12px;font-weight:750;color:#6042ac;background:#f0e8ff;border:1px solid #ded1f7;touch-action:manipulation}.s-hub-back:focus-visible{outline:2px solid #6042ac;outline-offset:2px}button{cursor:pointer;font-family:inherit}button:disabled{opacity:.4;cursor:default}
-.s-btn{border:1px solid #d8e0eb;border-radius:8px;background:white;color:#334155;padding:8px 11px;font-weight:650;font-size:12px}.s-main{background:#6042ac;color:white;border-color:#6042ac}
-.s-tip{padding:9px 12px;font-size:11px;color:#607085;background:#f1f5f9}
-.s-stage{position:relative;padding:22px 15px;background:#e8edf5;isolation:isolate;min-height:255px}
-.s-board{position:relative;width:100%;aspect-ratio:3/2;background-color:#fff;background-image:linear-gradient(#e5eaf1 1px,transparent 1px),linear-gradient(90deg,#e5eaf1 1px,transparent 1px);background-size:3.3333% 5%;border:2px solid #64748b;overflow:hidden;touch-action:none!important;overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.s-board *{touch-action:none!important;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.s-hd,.s-tools,.s-settings { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.s-hd { justify-content:space-between; gap:6px 12px; padding:calc(8px + env(safe-area-inset-top)) 12px 8px; }
+.s-hd h1 { margin:0; font-size:clamp(15px, 3vw, 21px); letter-spacing:-.04em; }
+.s-tools { padding:8px 12px; }
+button { cursor:pointer; font-family:inherit; }
+button:disabled { opacity:.4; cursor:default; }
+button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid #6042ac; outline-offset:2px; }
+.s-btn { min-height:44px; border:1px solid #d8e0eb; border-radius:9px; background:white; color:#334155; padding:6px 10px; font-weight:650; font-size:13px; touch-action:manipulation; }
+.s-main { background:#6042ac; color:white; border-color:#6042ac; }
+.s-tip { margin:0; padding:6px 12px 8px; font-size:12px; color:#566579; }
+.s-stage { --board-limit: 315px; --board-limit: clamp(155px, 38svh, 385px); background:#eeeaf6; padding:8px 12px; }
+.s-viewport { container-type:inline-size; max-height:calc(var(--board-limit) + 20px); overflow:auto; border-radius:8px; }
+.s-surface { display:flex; width:max-content; min-width:100%; padding:10px; }
+.s-board {
+  position:relative;
+  flex:none;
+  width:calc(min(100cqw - 20px, var(--board-limit) * var(--room-ratio, 1.5)) * var(--zoom, 1));
+  margin-inline:auto;
+  aspect-ratio:3/2;
+  outline:1px solid #64748b;
+  background-color:#fff;
+  background-image:linear-gradient(#e5eaf1 1px, transparent 1px), linear-gradient(90deg, #e5eaf1 1px, transparent 1px);
+  overflow:hidden;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.s-shape, .s-shape * { touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+.s-zoom { display:flex; align-items:center; gap:4px; margin-left:auto; }
+.s-zoom button { min-width:44px; }
+.s-zoom output { min-width:42px; text-align:center; font-size:12px; font-variant-numeric:tabular-nums; }
+.s-editbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; }
+.s-editbar select { flex:1 1 160px; max-width:340px; min-width:0; min-height:44px; border:1px solid #d8e0eb; border-radius:9px; background:white; color:#334155; font:inherit; font-size:16px; padding:4px 8px; }
+.s-options { border-top:1px solid #e1e7ef; }
+.s-options summary { display:flex; align-items:center; min-height:44px; padding:0 12px; cursor:pointer; color:#443267; font-size:13px; font-weight:700; }
+.s-options summary::before { content:'›'; margin-right:7px; font-size:20px; }
+.s-options[open] summary::before { transform:rotate(90deg); }
+@media(max-width:370px) { .s-tools { gap:4px; } .s-zoom { margin-left:0; } }
+
 .s-shape{position:absolute;border:2px solid #7999c8;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:grab;min-height:0;min-width:0}
 .s-shape b,.s-shape small{max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}.s-shape b{font-size:clamp(10px,3.5vw,15px)}.s-shape small{font-size:clamp(9px,2.6vw,12px);color:#41546c}
 .s-shape.s-selected{border:3px solid #6042ac;z-index:2}.s-shape.s-moving{z-index:3;box-shadow:0 4px 13px #214da53a}
 .s-handle{position:absolute;width:34px;height:34px;display:flex;align-items:center;justify-content:center;z-index:4}
 .s-handle:after{content:"";width:13px;height:13px;background:white;border:3px solid #6042ac;border-radius:3px;box-shadow:0 1px 5px #0002}
 .s-handle[data-corner=nw]{left:-17px;top:-17px;cursor:nwse-resize}.s-handle[data-corner=ne]{right:-17px;top:-17px;cursor:nesw-resize}.s-handle[data-corner=sw]{left:-17px;bottom:-17px;cursor:nesw-resize}.s-handle[data-corner=se]{right:-17px;bottom:-17px;cursor:nwse-resize}
-.s-popup{position:absolute;z-index:20;left:12px;top:12px;width:min(258px,calc(100% - 24px));padding:13px;background:white;border:1px solid #cdd8e8;box-shadow:0 8px 30px #12254240;border-radius:13px;color:#263445}
-.s-popup[hidden]{display:none!important}.s-popupheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.s-popupheader strong{font-size:14px}.s-x{border:0;background:#f1f5f9;border-radius:7px;width:28px;height:28px;font-size:20px;color:#64748b}
-.s-popup label{font-size:11px;font-weight:650;color:#607085;display:block}.s-popup input{display:block;width:100%;min-width:0;height:36px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;margin-top:5px;background:white;color:#263445;font-size:14px;outline-color:#6042ac}
-.s-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.s-colors{display:flex;gap:7px;margin-top:13px}.s-color{flex:1;height:25px;border:1px solid #d1d9e5;border-radius:5px}.s-color.on{outline:2px solid #6042ac;outline-offset:2px}
-.s-popupactions{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.s-popupactions button{padding:9px 12px;border:0;border-radius:7px;font-weight:650;font-size:12px}.s-danger{background:#fff0f0;color:#bb2742}.s-ok{background:#6042ac;color:white;min-width:70px}
-.s-settings{border-top:1px solid #e1e7ef;font-size:12px;color:#607085}.s-settings label{display:flex;align-items:center;gap:5px}.s-settings input[type=number]{width:67px;padding:6px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px}.s-settings input[type=checkbox]{accent-color:#6042ac}.s-save{font-size:11px;color:#64748b;background:#eef4fc;border-radius:6px;padding:4px 7px}.s-save.bad{background:#fff2e8;color:#9a3412}.s-status{padding:8px 13px;background:#f8fafc;border-top:1px solid #e1e7ef;font-size:11px;color:#64748b}
+.s-popup { margin:0 12px 10px; padding:12px; background:white; border:1px solid #cdd8e8; border-radius:12px; color:#263445; }
+.s-popup[hidden]{display:none!important}.s-popupheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.s-popupheader strong{font-size:14px}.s-x{border:0;background:#f1f5f9;border-radius:7px;width:44px;height:44px;font-size:20px;color:#64748b}
+.s-popup label{font-size:11px;font-weight:650;color:#607085;display:block}.s-popup input{display:block;width:100%;min-width:0;height:44px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;margin-top:5px;background:white;color:#263445;font-size:16px;outline-color:#6042ac}
+.s-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.s-colors{display:flex;gap:7px;margin-top:13px}.s-color{flex:1;height:44px;border:1px solid #d1d9e5;border-radius:5px}.s-color.on{outline:2px solid #6042ac;outline-offset:2px}
+.s-popupactions{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.s-popupactions button{min-height:44px;padding:9px 12px;border:0;border-radius:7px;font-weight:650;font-size:12px}.s-danger{background:#fff0f0;color:#bb2742}.s-ok{background:#6042ac;color:white;min-width:70px}
+.s-settings{padding:8px 12px;font-size:12px;color:#607085}.s-settings label{display:flex;align-items:center;gap:5px}.s-settings input[type=number]{width:75px;min-height:44px;padding:6px;border:1px solid #cbd5e1;border-radius:7px;font-size:16px}.s-settings input[type=checkbox]{accent-color:#6042ac}.s-save{font-size:11px;color:#64748b;background:#eef4fc;border-radius:6px;padding:4px 7px}.s-save.bad{background:#fff2e8;color:#9a3412}.s-status{font-size:12px;color:#566579}
 
 .s-transfer{padding:13px;border-top:1px solid #d6dfe9;background:#f8fbff}
 .s-transfer[hidden]{display:none!important}
@@ -32,21 +62,45 @@
 .s-transferbuttons{justify-content:flex-end;margin-top:9px;margin-bottom:5px}
 .s-transferstatus{font-size:11px;color:#64748b}
 </style><link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+<link rel="stylesheet" href="../assets/brand.css">
 </head><body>
 <div id="space-v111">
- <div class="s-hd"><a class="s-hub-back" href="../" aria-label="모아덱으로 돌아가기">← 모아덱</a><strong>공간 배치 스튜디오</strong><span class="s-version">v1.1.2</span><span class="s-save" data-save>저장 상태 확인 중</span></div>
- <div class="s-tools"><button type="button" class="s-btn s-main" data-action="add">＋ 네모 추가</button><button type="button" class="s-btn" data-action="undo">↶ 실행 취소</button><button type="button" class="s-btn" data-action="reset">초기화</button><button type="button" class="s-btn" data-action="export">백업 복사</button><button type="button" class="s-btn" data-action="import">백업 복원</button></div>
- <div class="s-tip">네모 드래그: 이동 · 모서리 드래그: 크기 조절 · 네모 탭: 편집 팝업</div>
- <div class="s-stage" data-stage><div class="s-board" data-board></div>
-  <div class="s-popup" data-popup hidden>
-   <div class="s-popupheader"><strong>네모 편집</strong><button type="button" class="s-x" data-action="close">×</button></div>
-   <label>이름<input type="text" maxlength="32" data-edit="name" placeholder="네모 이름"></label>
-   <div class="s-fields"><label>가로 (cm)<input type="number" min="30" data-edit="w"></label><label>세로 (cm)<input type="number" min="30" data-edit="h"></label></div>
-   <div class="s-colors" data-colors></div>
-   <div class="s-popupactions"><button type="button" class="s-danger" data-action="delete">네모 삭제</button><button type="button" class="s-ok" data-action="close">완료</button></div>
+
+ <header class="s-hd"><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>공간 배치 스튜디오</h1></header>
+ <div class="s-tools">
+  <button type="button" class="s-btn s-main" data-action="add">＋ 네모 추가</button>
+  <button type="button" class="s-btn" data-action="undo">실행 취소</button>
+  <div class="s-zoom" role="group" aria-label="배치 화면 크기">
+   <button type="button" class="s-btn" data-action="zoom-out" aria-label="축소">−</button>
+   <output data-zoom aria-label="화면 맞춤 대비 배율">100%</output>
+   <button type="button" class="s-btn" data-action="zoom-in" aria-label="확대">＋</button>
+   <button type="button" class="s-btn" data-action="zoom-fit">화면 맞춤</button>
   </div>
  </div>
-
+ <div class="s-stage">
+  <div class="s-viewport" data-viewport><div class="s-surface"><div class="s-board" data-board></div></div></div>
+ </div>
+ <div class="s-editbar">
+  <select data-select aria-label="개체 선택"><option value="">개체 선택</option></select>
+  <span class="s-status" data-status></span>
+ </div>
+ <p class="s-tip">끌어서 이동 · 선택 후 모서리로 크기 조절 · 탭해서 수치 편집</p>
+  <section class="s-popup" data-popup aria-label="네모 편집" hidden>
+   <div class="s-popupheader"><strong>네모 편집</strong><button type="button" class="s-x" data-action="close" aria-label="편집 닫기">×</button></div>
+   <label>이름<input type="text" maxlength="32" data-edit="name" placeholder="네모 이름"></label>
+   <div class="s-fields"><label>가로 (cm)<input type="number" inputmode="numeric" min="30" data-edit="w"></label><label>세로 (cm)<input type="number" min="30" data-edit="h"></label></div>
+   <div class="s-fields"><label>왼쪽에서 (cm)<input type="number" inputmode="numeric" min="0" data-edit="x"></label><label>위에서 (cm)<input type="number" inputmode="numeric" min="0" data-edit="y"></label></div>
+   <div class="s-colors" data-colors></div>
+   <div class="s-popupactions"><button type="button" class="s-danger" data-action="delete">네모 삭제</button><button type="button" class="s-ok" data-action="close">완료</button></div>
+ </section>
+ <details class="s-options">
+  <summary>공간 설정 및 백업</summary>
+  <div class="s-tools">
+   <button type="button" class="s-btn" data-action="export">백업 복사</button>
+   <button type="button" class="s-btn" data-action="import">백업 복원</button>
+   <button type="button" class="s-btn" data-action="reset">초기화</button>
+   <span class="s-save" data-save>저장 상태 확인 중</span>
+  </div>
  <div class="s-transfer" data-transfer hidden>
    <div class="s-transferheader"><strong data-transfer-title>배치 백업</strong><button type="button" class="s-x" data-action="transfer-close" aria-label="닫기">×</button></div>
    <textarea data-transfer-text rows="6" spellcheck="false" aria-label="백업 데이터"></textarea>
@@ -54,16 +108,37 @@
    <div class="s-transferstatus" data-transfer-status>배치 데이터를 복사해 보관할 수 있습니다.</div>
  </div>
  <div class="s-settings"><label>공간 가로 <input type="number" min="200" max="2500" value="600" data-room="w">cm</label><label>세로 <input type="number" min="200" max="2500" value="400" data-room="h">cm</label><label><input type="checkbox" data-snap>5cm 맞춤</label></div>
- <div class="s-status" data-status>네모 1개 · 600 × 400cm</div>
+ </details>
 </div>
 <script>
 (()=>{
  const root=document.getElementById('space-v111');if(!root||root.dataset.started)return;root.dataset.started='yes';
- const $=s=>root.querySelector(s),board=$('[data-board]'),stage=$('[data-stage]'),popup=$('[data-popup]');
+ const $=s=>root.querySelector(s),board=$('[data-board]'),viewport=$('[data-viewport]'),popup=$('[data-popup]'),picker=$('[data-select]');
  const colors=['#b5d4fa','#bce4ca','#f9d89c','#f5bac6','#d8c9f6','#cbd5e1'];
  const first=()=>({room:{w:600,h:400},rects:[{id:'n1',name:'네모 1',x:100,y:100,w:160,h:100,color:colors[0]}],selectedId:null,nextId:2,snap:false,updatedAt:0});
  let state=first(),undo=[],drag=null;const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
  const snapshot=()=>JSON.parse(JSON.stringify(state));const remember=()=>{undo.push(snapshot());if(undo.length>40)undo.shift()};
+ const zoomLevels=[0.75,1,1.5,2,3,4];
+ let zoomIndex=1;
+ const zoomOut=$('[data-action="zoom-out"]'),zoomIn=$('[data-action="zoom-in"]');
+ function setZoom(index){
+  const old=zoomLevels[zoomIndex], next=zoomLevels[index];
+  const x=viewport.scrollLeft+viewport.clientWidth/2, y=viewport.scrollTop+viewport.clientHeight/2;
+  const oldBoard=board.getBoundingClientRect(), oldView=viewport.getBoundingClientRect();
+  const left=oldBoard.left-oldView.left+viewport.scrollLeft, top=oldBoard.top-oldView.top+viewport.scrollTop;
+  zoomIndex=index;
+  board.style.setProperty('--zoom',next);
+  $('[data-zoom]').value=Math.round(next*100)+'%';
+  zoomOut.disabled=index===0;
+  zoomIn.disabled=index===zoomLevels.length-1;
+  if(index===1) {
+   viewport.scrollTo(0,0);
+  } else {
+   const newBoard=board.getBoundingClientRect(), newView=viewport.getBoundingClientRect();
+   const newLeft=newBoard.left-newView.left+viewport.scrollLeft, newTop=newBoard.top-newView.top+viewport.scrollTop;
+   viewport.scrollTo(newLeft+(x-left)*next/old-viewport.clientWidth/2,newTop+(y-top)*next/old-viewport.clientHeight/2);
+  }
+ }
  const STORE_KEY='space_studio_layout_v1';
  const saveIndicator=$('[data-save]');
  function validate(raw){
@@ -142,26 +217,33 @@
  }
  const chosen=()=>state.rects.find(r=>r.id===state.selectedId);const sn=n=>state.snap?Math.round(n/5)*5:Math.round(n);
  function loc(el,r){el.style.left=(100*r.x/state.room.w)+'%';el.style.top=(100*r.y/state.room.h)+'%';el.style.width=(100*r.w/state.room.w)+'%';el.style.height=(100*r.h/state.room.h)+'%';}
- function draw(){board.style.aspectRatio=state.room.w+'/'+state.room.h;board.style.backgroundSize=`${2000/state.room.w}% ${2000/state.room.h}%`;board.replaceChildren();
+ function draw(){board.style.aspectRatio=state.room.w+'/'+state.room.h;board.style.setProperty('--room-ratio',state.room.w/state.room.h);board.style.backgroundSize=`${2000/state.room.w}% ${2000/state.room.h}%`;board.replaceChildren();
   for(const r of state.rects){const el=document.createElement('div');el.className='s-shape'+(r.id===state.selectedId?' s-selected':'');el.dataset.id=r.id;el.style.background=r.color;loc(el,r);
    const label=document.createElement('b');label.textContent=r.name;const size=document.createElement('small');size.textContent=r.w+' × '+r.h;el.append(label,size);
    if(r.id===state.selectedId){for(const corner of ['nw','ne','sw','se']){const h=document.createElement('div');h.className='s-handle';h.dataset.corner=corner;el.append(h)}}board.append(el)}
-  $('[data-room=w]').value=state.room.w;$('[data-room=h]').value=state.room.h;$('[data-snap]').checked=state.snap;$('[data-status]').textContent=`네모 ${state.rects.length}개 · ${state.room.w} × ${state.room.h}cm`;persist();
+  picker.replaceChildren(new Option('개체 선택',''),...state.rects.map(r=>new Option(r.name,r.id)));
+  picker.value=state.selectedId??'';
+  picker.disabled=state.rects.length===0;
+  $('[data-action="add"]').disabled=state.rects.length>=150;
+  $('[data-action="undo"]').disabled=undo.length===0;
+  $('[data-room=w]').value=state.room.w;
+  $('[data-room=h]').value=state.room.h;
+  $('[data-snap]').checked=state.snap;
+  $('[data-status]').textContent=`네모 ${state.rects.length}개 · ${state.room.w} × ${state.room.h}cm`;
+  persist();
  }
  function close(){popup.hidden=true}
- function positionPopup(r){if(popup.hidden)return;const a=stage.getBoundingClientRect(),b=board.getBoundingClientRect(),ox=b.left-a.left,oy=b.top-a.top;
-  const center=ox+(r.x+r.w/2)/state.room.w*b.width,top=oy+r.y/state.room.h*b.height,bottom=oy+(r.y+r.h)/state.room.h*b.height;
-  const pw=popup.offsetWidth,ph=popup.offsetHeight;const left=clamp(center-pw/2,8,Math.max(8,a.width-pw-8));let y=bottom+9;
-  if(y+ph>a.height)y=top-ph-9;if(y<0)y=clamp((a.height-ph)/2,5,Math.max(5,a.height-ph-5));
-  popup.style.left=left+'px';popup.style.top=y+'px';}
- function openPopup(){const r=chosen();if(!r)return;const name=$('[data-edit=name]'),w=$('[data-edit=w]'),h=$('[data-edit=h]');name.value=r.name;w.value=r.w;h.value=r.h;
-  const host=$('[data-colors]');host.replaceChildren();for(const color of colors){const b=document.createElement('button');b.type='button';b.className='s-color'+(r.color===color?' on':'');b.style.background=color;b.setAttribute('aria-label','색상');b.onclick=()=>{remember();r.color=color;draw();openPopup();publish()};host.append(b)}popup.hidden=false;positionPopup(r);
+ function openPopup(){const r=chosen();if(!r)return;for(const key of ['name','w','h','x','y'])$('[data-edit='+key+']').value=r[key];
+  const host=$('[data-colors]');host.replaceChildren();for(const color of colors){const b=document.createElement('button');b.type='button';b.className='s-color'+(r.color===color?' on':'');b.style.background=color;b.setAttribute('aria-label','색상');b.onclick=()=>{remember();r.color=color;draw();openPopup();publish()};host.append(b)}popup.hidden=false;
  }
  root.addEventListener('click',ev=>{const button=ev.target.closest('[data-action]');if(!button)return;const action=button.dataset.action;
-  if(action==='add'){remember();const id='n'+state.nextId,w=Math.min(140,state.room.w),h=Math.min(90,state.room.h);state.rects.push({id,name:'네모 '+state.nextId,x:clamp(state.nextId*34,0,state.room.w-w),y:clamp(state.nextId*26,0,state.room.h-h),w,h,color:colors[(state.nextId-1)%colors.length]});state.nextId++;state.selectedId=id;close();draw();}
+  if(action==='zoom-out')setZoom(zoomIndex-1);
+  if(action==='zoom-in')setZoom(zoomIndex+1);
+  if(action==='zoom-fit')setZoom(1);
+  if(action==='add'){if(state.rects.length>=150)return;remember();const id='n'+state.nextId,w=Math.min(140,state.room.w),h=Math.min(90,state.room.h);state.rects.push({id,name:'네모 '+state.nextId,x:clamp(state.nextId*34,0,state.room.w-w),y:clamp(state.nextId*26,0,state.room.h-h),w,h,color:colors[(state.nextId-1)%colors.length]});state.nextId++;state.selectedId=id;draw();openPopup();}
   if(action==='undo'&&undo.length){state=undo.pop();close();draw()}
   if(action==='reset'){remember();state=first();close();draw()}
-  if(action==='close')close();
+  if(action==='close'){close();picker.focus();}
   if(action==='export')copyBackupDirect();
   if(action==='import')transferOpen('import');
   if(action==='transfer-close')transfer.hidden=true;
@@ -170,10 +252,31 @@
   if(action==='delete'){const r=chosen();if(!r)return;remember();state.rects=state.rects.filter(x=>x.id!==r.id);state.selectedId=null;close();draw()}
   if(['add','undo','reset','delete'].includes(action))publish();
  });
- for(const key of ['name','w','h']){const el=$(`[data-edit=${key}]`);el.addEventListener('focus',remember);el.addEventListener(key==='name'?'input':'change',ev=>{const r=chosen();if(!r)return;const v=ev.target.value;if(key==='name')r.name=v.slice(0,32);else {if(v.trim()===''||!Number.isFinite(Number(v)))return;r[key]=clamp(Math.round(Number(v)),30,(key==='w'?state.room.w-r.x:state.room.h-r.y))}draw();positionPopup(r);publish()});}
+ picker.addEventListener('change',()=>{
+  state.selectedId=picker.value||null;
+  draw();
+  if(state.selectedId)openPopup();
+  else close();
+ });
+ for(const key of ['name','w','h','x','y']){
+  const el=$('[data-edit='+key+']');
+  el.addEventListener('focus',remember);
+  el.addEventListener(key==='name'?'input':'change',()=>{
+   const r=chosen();
+   if(!r)return;
+   if(key==='name')r.name=el.value.slice(0,32);
+   else {
+    const limit={w:state.room.w-r.x,h:state.room.h-r.y,x:state.room.w-r.w,y:state.room.h-r.h};
+    if(el.value.trim()!==''&&Number.isFinite(Number(el.value)))r[key]=clamp(Math.round(Number(el.value)),key==='w'||key==='h'?30:0,limit[key]);
+    el.value=r[key];
+   }
+   draw();
+   publish();
+  });
+ }
  for(const k of ['w','h'])$(`[data-room=${k}]`).addEventListener('change',ev=>{const n=Number(ev.target.value);if(!ev.target.value.trim()||!Number.isFinite(n)){draw();return}remember();state.room[k]=clamp(Math.round(n),200,2500);state.rects.forEach(r=>{r.w=Math.min(r.w,state.room.w);r.h=Math.min(r.h,state.room.h);r.x=clamp(r.x,0,state.room.w-r.w);r.y=clamp(r.y,0,state.room.h-r.h)});close();draw();publish()});
  $('[data-snap]').addEventListener('change',ev=>{state.snap=ev.target.checked;publish()});
- function begin(cx,cy,target,mode,pid){const el=target.closest('.s-shape');if(!el||!board.contains(el)){state.selectedId=null;close();draw();return}const r=state.rects.find(q=>q.id===el.dataset.id);if(!r)return;const h=target.closest('.s-handle');close();drag={id:r.id,el,mode,pid,corner:h?.dataset.corner||null,sx:cx,sy:cy,origin:{...r},moved:false,saved:false};}
+ function begin(cx,cy,target,mode,pid){const el=target.closest('.s-shape');if(!el||!board.contains(el))return;const r=state.rects.find(q=>q.id===el.dataset.id);if(!r)return;const h=target.closest('.s-handle');drag={id:r.id,el,mode,pid,corner:h?.dataset.corner||null,sx:cx,sy:cy,origin:{...r},moved:false,saved:false};}
  function move(cx,cy){const g=drag;if(!g)return;const r=state.rects.find(v=>v.id===g.id),b=board.getBoundingClientRect();if(!r||!b.width||!b.height)return;const dx=(cx-g.sx)*state.room.w/b.width,dy=(cy-g.sy)*state.room.h/b.height;
   if(Math.hypot(cx-g.sx,cy-g.sy)>5)g.moved=true;if(!g.moved)return;if(!g.saved){remember();g.saved=true;g.el.classList.add('s-moving')}
   let {x,y,w,h}=g.origin;const o=g.origin;if(!g.corner){x=clamp(sn(o.x+dx),0,state.room.w-w);y=clamp(sn(o.y+dy),0,state.room.h-h)}else{let l=o.x,t=o.y,rt=o.x+o.w,bt=o.y+o.h;
@@ -182,18 +285,18 @@
    x=l;y=t;w=rt-l;h=bt-t;}
   Object.assign(r,{x,y,w,h});loc(g.el,r);g.el.querySelector('small').textContent=w+' × '+h;
  }
- function end(){if(!drag)return;const g=drag;drag=null;state.selectedId=g.id;draw();if(!g.moved&&!g.corner)openPopup();publish()}
+ function end(){if(!drag)return;const g=drag;drag=null;state.selectedId=g.id;draw();openPopup();if(g.moved)publish()}
  const prevent=e=>{if(e.cancelable)e.preventDefault();e.stopPropagation()};
- board.addEventListener('touchstart',e=>{prevent(e);if(drag||e.touches.length!==1)return;const t=e.changedTouches[0];begin(t.clientX,t.clientY,e.target,'touch',t.identifier)},{capture:true,passive:false});
- board.addEventListener('touchmove',prevent,{capture:true,passive:false});
+ board.addEventListener('touchstart',e=>{if(drag||e.touches.length!==1||!e.target.closest('.s-shape'))return;prevent(e);const t=e.changedTouches[0];begin(t.clientX,t.clientY,e.target,'touch',t.identifier)},{capture:true,passive:false});
  document.addEventListener('touchmove',e=>{if(!drag||drag.mode!=='touch')return;prevent(e);const t=Array.from(e.changedTouches).find(t=>t.identifier===drag.pid);if(t)move(t.clientX,t.clientY)},{capture:true,passive:false});
  for(const eventName of ['touchend','touchcancel'])document.addEventListener(eventName,e=>{if(!drag||drag.mode!=='touch')return;const found=Array.from(e.changedTouches).some(t=>t.identifier===drag.pid);if(found){prevent(e);end()}},{capture:true,passive:false});
- board.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'||drag||e.button!==0)return;e.preventDefault();begin(e.clientX,e.clientY,e.target,'pointer',e.pointerId);try{board.setPointerCapture(e.pointerId)}catch(_){} });
+ board.addEventListener('pointerdown',e=>{if(drag||e.button!==0)return;if(e.target===board){if(state.selectedId){state.selectedId=null;close();draw()}return}if(e.pointerType==='touch'||!e.target.closest('.s-shape'))return;e.preventDefault();begin(e.clientX,e.clientY,e.target,'pointer',e.pointerId);try{board.setPointerCapture(e.pointerId)}catch(_){} });
  board.addEventListener('pointermove',e=>{if(drag&&drag.mode==='pointer'&&drag.pid===e.pointerId)move(e.clientX,e.clientY)});
  board.addEventListener('pointerup',e=>{if(drag&&drag.mode==='pointer'&&drag.pid===e.pointerId)end()});
  board.addEventListener('pointercancel',e=>{if(drag&&drag.mode==='pointer'&&drag.pid===e.pointerId)end()});
  board.addEventListener('dragstart',e=>e.preventDefault());board.addEventListener('contextmenu',e=>e.preventDefault());
  draw();
+ setZoom(1);
  globalThis.__effect?.(()=>{const incoming=globalThis.__bindings?.value;if(!incoming||drag)return;const normalized=validate(incoming);if(normalized&&normalized.updatedAt>state.updatedAt){state=normalized;close();draw()}});
 })();
 </script></body></html>

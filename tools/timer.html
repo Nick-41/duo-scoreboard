@@ -12,7 +12,6 @@ button{cursor:pointer;color:inherit;touch-action:manipulation}
 button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .wrap{max-width:800px;margin:auto;padding:calc(env(safe-area-inset-top) + 22px) max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 24px) max(18px,env(safe-area-inset-left))}
 header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:24px}
-.back{display:inline-flex;align-items:center;color:#e2ebf7;background:#2d2241;border:1px solid var(--line);padding:10px 13px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:750}
 h1{margin:0;font-size:clamp(18px,3vw,25px);letter-spacing:-.04em}
 .panel{border:1px solid var(--line);border-radius:25px;background:var(--panel);padding:clamp(20px,5vw,40px);box-shadow:0 20px 65px #04080f50}
 .mode{display:flex;gap:5px;padding:5px;border-radius:13px;background:#171124;max-width:340px;margin:0 auto 25px}
@@ -38,8 +37,9 @@ h1{margin:0;font-size:clamp(18px,3vw,25px);letter-spacing:-.04em}
 @media(max-width:480px){header{margin-bottom:17px}.panel{padding:20px 16px}.dial{width:min(76vw,320px);height:min(76vw,320px)}.readout{font-size:clamp(40px,11vw,58px)}.settings input{width:65px}.actions button{min-width:0;flex:1}.actions .primary{min-width:0;flex:1.5}}
 @media(prefers-reduced-motion:reduce){.progress{transition:none}}
 </style><link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+<link rel="stylesheet" href="../assets/brand.css">
 </head><body>
-<div class="wrap"><header><a class="back" href="../">← 모아덱</a><h1>타이머 · 스톱워치</h1></header>
+<div class="wrap"><header><a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a><h1>타이머 · 스톱워치</h1></header>
 <main class="panel">
 <div class="mode" role="group" aria-label="측정 방식"><button type="button" data-mode="timer" aria-pressed="true">타이머</button><button type="button" data-mode="stopwatch" aria-pressed="false">스톱워치</button></div>
 <div class="dial"><svg viewBox="0 0 240 240" aria-hidden="true"><circle class="track" cx="120" cy="120" r="100"></circle><circle id="progress" class="progress" cx="120" cy="120" r="100"></circle></svg><div class="dial-inner"><div id="readout" class="readout" role="timer" aria-live="off">05:00</div><div id="status" class="status" aria-live="polite">준비됨</div></div></div>
