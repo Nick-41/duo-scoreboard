@@ -11,15 +11,80 @@
   <link rel="stylesheet" href="../assets/utility.css">
   <script src="../assets/tool-theme.js"></script>
   <style>
-    .ticket-top { justify-content: space-between; }
+    html { scrollbar-gutter: stable; }
+    .ticket-top, .labels-top { justify-content: space-between; }
     .tickets { display: grid; grid-template-columns: repeat(auto-fit, minmax(66px, 1fr)); gap: 8px; }
-    .ticket { min-height: 62px; padding: 4px 6px; border: 1px dashed var(--accent); border-radius: 12px; background: var(--wash); color: var(--accent); font-size: 19px; font-weight: 850; overflow-wrap: anywhere; }
-    .ticket.revealed { border-style: solid; border-color: var(--line); background: var(--bg); color: var(--ink); font-size: 13px; }
-    .ticket.revealed[aria-disabled="true"] { opacity: 1; }
-    .ticket.latest { border-color: var(--accent); animation: reveal .31s ease-out; }
-    @keyframes reveal { 0% { transform: scale(.86); } 70% { transform: scale(1.04); } }
-    @media (prefers-reduced-motion: reduce) { .ticket.latest { animation: none; } }
+    .ticket {
+      position: relative;
+      display: block;
+      min-width: 0;
+      height: 62px;
+      padding: 0;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--ink);
+      perspective: 380px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ticket[aria-disabled="true"] { opacity: 1; }
+    .ticket-flip {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+    }
+    .ticket-face {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      place-items: center;
+      padding: 0 7px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .ticket-front {
+      border: 1px dashed var(--accent);
+      background: var(--wash);
+      color: var(--accent);
+      font-size: 19px;
+      font-weight: 850;
+      box-shadow: inset 0 0 0 4px var(--surface);
+    }
+    .ticket-back {
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 780;
+      transform: rotateY(180deg);
+    }
+    .ticket-label { width: 100%; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .ticket.revealed .ticket-flip { transform: rotateY(180deg); }
+    .ticket.latest .ticket-back { border-color: var(--accent); }
+    .ticket.drawing { z-index: 2; }
+    .ticket.drawing .ticket-face { box-shadow: 0 10px 22px #130b3344; }
     .ticket-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .draw-result {
+      min-block-size: 55px;
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--muted);
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+    .draw-result[data-revealed="true"] { color: var(--success); font-weight: 800; }
+    .list-form { gap: 10px; }
+    .label-rows { display: grid; gap: 6px; }
+    .label-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+    .label-row .btn { padding-inline: 10px; }
+    .list-note { margin: 0; }
     summary { cursor: pointer; padding-block: 9px; color: var(--muted); font-weight: 650; }
     .history { margin: 0; padding-left: 24px; overflow-wrap: anywhere; }
     .history li { padding-block: 3px; }
@@ -35,24 +100,29 @@
           <span id="remaining" class="muted"></span>
         </div>
         <div id="tickets" class="tickets"></div>
-        <p id="result" class="result" role="status"></p>
         <div class="ticket-actions">
           <button id="pick" type="button" class="btn primary">무작위로 한 장</button>
           <button id="reset" type="button" class="btn">다시 섞기</button>
         </div>
+        <p id="result" class="draw-result" role="status">번호표를 고르세요.</p>
         <details id="drawHistory" hidden>
           <summary>뽑은 순서</summary>
           <ol id="history" class="history"></ol>
         </details>
       </section>
-      <form id="labelsForm" class="panel list-form">
-        <label for="labels">항목 목록 (2~24개)</label>
-        <textarea id="labels" class="field" rows="4" maxlength="1100" placeholder="한 줄에 하나씩 입력하세요" spellcheck="false"></textarea>
-        <button class="btn" type="submit">목록 적용</button>
+      <form id="labelsForm" class="panel list-form" aria-labelledby="labelsHeading">
+        <div class="row labels-top">
+          <h2 id="labelsHeading">항목 목록</h2>
+          <span id="labelCount" class="muted">2~24개</span>
+        </div>
+        <button id="addLabel" class="btn" type="button">＋ 항목 추가</button>
+        <div id="labelRows" class="label-rows"></div>
+        <button id="applyLabels" class="btn" type="submit">목록 적용</button>
+        <p id="listNote" class="muted list-note" hidden>변경한 목록을 적용하면 새 판으로 시작합니다.</p>
         <p id="listError" class="error" role="alert"></p>
       </form>
     </div>
   </main>
-  <script type="module" src="../assets/lots.js"></script>
+  <script type="module" src="../assets/lots.js?v=tickets"></script>
 </body>
 </html>
