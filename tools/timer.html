@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1724"><title>타이머 · 스톱워치 | 듀오 허브</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;color-scheme:dark;--bg:#0e1522;--panel:#192435;--line:#33435b;--ink:#f7fafc;--muted:#9dafc7;--accent:#f5b968}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
+body{min-height:100dvh}
+button,input{font:inherit}
+button{cursor:pointer;color:inherit;touch-action:manipulation}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:800px;margin:auto;padding:calc(env(safe-area-inset-top) + 22px) max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 24px) max(18px,env(safe-area-inset-left))}
+header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:24px}
+.back{display:inline-flex;align-items:center;color:#e2ebf7;background:#263448;border:1px solid var(--line);padding:10px 13px;border-radius:12px;text-decoration:none;font-size:13px;font-weight:750}
+h1{margin:0;font-size:clamp(18px,3vw,25px);letter-spacing:-.04em}
+.panel{border:1px solid var(--line);border-radius:25px;background:var(--panel);padding:clamp(20px,5vw,40px);box-shadow:0 20px 65px #04080f50}
+.mode{display:flex;gap:5px;padding:5px;border-radius:13px;background:#0e1726;max-width:340px;margin:0 auto 25px}
+.mode button{border:0;background:transparent;border-radius:9px;flex:1;padding:12px 9px;color:var(--muted);font-weight:750;font-size:14px}
+.mode button[aria-pressed=true]{background:#34445a;color:#fff}
+.dial{position:relative;margin:0 auto;display:grid;place-items:center;width:min(72vw,340px);height:min(72vw,340px);aspect-ratio:1}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.dial circle{fill:none;stroke-width:7}
+.track{stroke:#354155}.progress{stroke:var(--accent);stroke-linecap:round;stroke-dasharray:628.32;stroke-dashoffset:0;transition:stroke-dashoffset .15s linear}
+.dial-inner{text-align:center;position:relative;min-width:0}
+.readout{font-variant-numeric:tabular-nums;letter-spacing:-.06em;font-weight:850;font-size:clamp(41px,8vw,66px);line-height:1.1}
+.status{font-size:13px;color:var(--muted);margin-top:15px;min-height:18px}
+.settings{margin:25px auto 19px;display:flex;gap:10px;justify-content:center;align-items:center}
+.settings label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.settings input{width:75px;background:#0f1726;color:#fff;border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center;font-size:19px;font-variant-numeric:tabular-nums}
+.actions{display:flex;justify-content:center;gap:10px;margin-top:27px}
+.actions button{border:1px solid var(--line);border-radius:13px;min-width:105px;min-height:54px;padding:0 24px;font-weight:800;font-size:15px;background:#26364a}
+.actions .primary{background:var(--accent);border:0;color:#241b0e;min-width:146px}
+.presets{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:20px}
+.presets button{border:1px solid var(--line);border-radius:10px;background:transparent;padding:10px 14px;color:var(--muted);font-size:12px;font-weight:700}
+.note{text-align:center;line-height:1.6;color:var(--muted);font-size:12px;margin:24px auto 0}
+[hidden]{display:none!important}
+@media(max-width:480px){header{margin-bottom:17px}.panel{padding:20px 16px}.dial{width:min(76vw,320px);height:min(76vw,320px)}.readout{font-size:clamp(40px,11vw,58px)}.settings input{width:65px}.actions button{min-width:0;flex:1}.actions .primary{min-width:0;flex:1.5}}
+@media(prefers-reduced-motion:reduce){.progress{transition:none}}
+</style></head><body>
+<div class="wrap"><header><a class="back" href="../index.html">← 듀오 허브</a><h1>타이머 · 스톱워치</h1></header>
+<main class="panel">
+<div class="mode" role="group" aria-label="측정 방식"><button type="button" data-mode="timer" aria-pressed="true">타이머</button><button type="button" data-mode="stopwatch" aria-pressed="false">스톱워치</button></div>
+<div class="dial"><svg viewBox="0 0 240 240" aria-hidden="true"><circle class="track" cx="120" cy="120" r="100"></circle><circle id="progress" class="progress" cx="120" cy="120" r="100"></circle></svg><div class="dial-inner"><div id="readout" class="readout" role="timer" aria-live="off">05:00</div><div id="status" class="status" aria-live="polite">준비됨</div></div></div>
+<div id="settings" class="settings"><label>분 <input id="mins" type="number" inputmode="numeric" min="0" max="999" value="5" aria-label="분"></label><label>초 <input id="secs" type="number" inputmode="numeric" min="0" max="59" value="0" aria-label="초"></label></div>
+<div class="actions"><button id="reset" type="button">초기화</button><button id="start" class="primary" type="button">시작</button></div>
+<div id="presets" class="presets" aria-label="빠른 타이머"><button type="button" data-seconds="60">1분</button><button type="button" data-seconds="300">5분</button><button type="button" data-seconds="600">10분</button><button type="button" data-seconds="1500">25분</button></div>
+<p class="note">시간은 기기에서 직접 측정됩니다. 화면을 잠그거나 앱을 전환해도 돌아오면 경과 시간이 반영되지만, 백그라운드에서 종료 알림이 보장되지는 않습니다.</p>
+</main></div>
+<script>
+'use strict';
+const circumference=2*Math.PI*100;
+let mode='timer',running=false,startedAt=0,accumulated=0,duration=300000,finished=false,interval=null;
+const mins=document.getElementById('mins'),secs=document.getElementById('secs'),readout=document.getElementById('readout'),status=document.getElementById('status'),progress=document.getElementById('progress');
+progress.style.strokeDasharray=String(circumference);
+try{const saved=Number(localStorage.getItem('duo-hub-timer-duration-v1'));if(Number.isFinite(saved)&&saved>0&&saved<=599999000)duration=saved}catch(e){}
+function formatTime(ms,stopwatch){
+ const total=Math.max(0,stopwatch?Math.floor(ms/100):Math.ceil(ms/1000));
+ if(stopwatch){const cs=total%10,seconds=Math.floor(total/10)%60,minutes=Math.floor(total/600)%60,hours=Math.floor(total/36000);return (hours?String(hours).padStart(2,'0')+':':'')+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0')+'.'+cs}
+ const seconds=total%60,minutes=Math.floor(total/60)%60,hours=Math.floor(total/3600);return (hours?String(hours).padStart(2,'0')+':':'')+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0');
+}
+function elapsed(){return accumulated+(running?Math.max(0,Date.now()-startedAt):0)}
+function render(){
+ const passed=elapsed();
+ if(mode==='timer'&&running&&passed>=duration){accumulated=duration;running=false;finished=true;clearInterval(interval);interval=null;try{if(navigator.vibrate)navigator.vibrate([180,100,180])}catch(e){}}
+ const e=mode==='timer'?Math.min(passed,duration):passed,remaining=mode==='timer'?Math.max(0,duration-e):e;
+ readout.textContent=formatTime(remaining,mode==='stopwatch');
+ status.textContent=finished?'시간 종료':running?'측정 중':accumulated>0?'일시 정지':'준비됨';
+ document.getElementById('start').textContent=running?'일시 정지':finished?'다시 시작':accumulated>0?'계속':'시작';
+ const ratio=mode==='timer'?(duration?remaining/duration:0):((e%60000)/60000);
+ progress.style.strokeDashoffset=String(circumference*(1-Math.max(0,Math.min(1,ratio))));
+}
+function fromInputs(){
+ const m=Math.min(999,Math.max(0,Number(mins.value)||0)),s=Math.min(59,Math.max(0,Number(secs.value)||0));
+ duration=(Math.floor(m)*60+Math.floor(s))*1000;
+ if(duration<=0)duration=1000;
+ mins.value=String(Math.floor(duration/60000));secs.value=String(Math.floor(duration%60000/1000));
+ try{localStorage.setItem('duo-hub-timer-duration-v1',String(duration))}catch(e){}
+}
+function syncInputs(){mins.value=String(Math.floor(duration/60000));secs.value=String(Math.floor(duration%60000/1000))}
+function stop(){if(running){accumulated=elapsed();running=false}clearInterval(interval);interval=null}
+function reset(){stop();accumulated=0;finished=false;if(mode==='timer')fromInputs();render()}
+document.getElementById('start').addEventListener('click',()=>{
+ if(running){stop()}else{if(finished){accumulated=0;finished=false}if(mode==='timer'&&accumulated===0)fromInputs();startedAt=Date.now();running=true;interval=setInterval(render,120)}
+ render();
+});
+document.getElementById('reset').addEventListener('click',reset);
+document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+ if(btn.dataset.mode===mode)return;stop();mode=btn.dataset.mode;accumulated=0;finished=false;
+ document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
+ document.getElementById('settings').hidden=mode!=='timer';document.getElementById('presets').hidden=mode!=='timer';render();
+}));
+document.querySelectorAll('[data-seconds]').forEach(btn=>btn.addEventListener('click',()=>{duration=Number(btn.dataset.seconds)*1000;syncInputs();reset()}));
+[mins,secs].forEach(input=>input.addEventListener('change',()=>{if(!running){accumulated=0;finished=false;fromInputs();render()}}));
+document.addEventListener('keydown',ev=>{if(ev.code==='Space'&&ev.target===document.body){ev.preventDefault();document.getElementById('start').click()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
+syncInputs();render();
+</script></body></html>
