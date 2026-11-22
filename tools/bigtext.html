@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101625"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>대형 글씨 · 듀오 허브</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;color-scheme:dark;--bg:#101625;--panel:#1b2638;--line:#3b4a62;--ink:#f8fbff;--muted:#aabbd0;--accent:#a99bff}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink)}
+body{min-height:100dvh}
+button,textarea,input{font:inherit}
+button{cursor:pointer;color:inherit;touch-action:manipulation}
+button:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.wrap{max-width:1100px;margin:auto;padding:calc(env(safe-area-inset-top) + 20px) max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 20px) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:18px;min-height:100dvh}
+header{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.back{display:inline-flex;align-items:center;gap:8px;color:#d6e2fc;background:#263448;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:13px;font-weight:750;text-decoration:none}
+h1{font-size:clamp(18px,3vw,25px);letter-spacing:-.04em;margin:0}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px;flex:1}
+.settings{background:var(--panel);border:1px solid var(--line);border-radius:23px;padding:24px;display:flex;flex-direction:column;gap:22px}
+.field-label{font-weight:750;font-size:13px;display:block;margin-bottom:10px}
+textarea{width:100%;resize:vertical;min-height:140px;background:#101a29;color:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.5;font-size:17px;outline:none}
+.suggestions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.suggestions button,.palette button{border:1px solid var(--line);background:#27354d;border-radius:10px;padding:9px 11px;font-size:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+input[type=range]{width:100%;accent-color:#b8acff}
+.palette{display:flex;gap:10px;flex-wrap:wrap}
+.palette button{height:38px;min-width:60px;font-weight:700}
+.palette button[aria-pressed=true]{outline:2px solid #fff;outline-offset:3px}
+.full-btn{margin-top:auto;border:0;border-radius:14px;background:#b7acff;color:#131625;font-weight:800;min-height:54px;font-size:15px}
+.preview{position:relative;background:#090b11;color:#fff;min-height:350px;border-radius:23px;border:1px solid var(--line);display:grid;place-items:center;text-align:center;overflow:hidden;padding:35px 22px}
+.preview::before{content:"미리보기";position:absolute;top:18px;left:20px;font-size:11px;letter-spacing:.1em;color:currentColor;opacity:.6;font-weight:700}
+.preview-text{font-weight:800;line-height:1.25;letter-spacing:-.045em;overflow-wrap:anywhere;white-space:pre-wrap;width:100%;font-size:clamp(30px,5vw,76px)}
+.hint{font-size:12px;color:var(--muted);line-height:1.6}
+.display{display:none;position:fixed;inset:0;z-index:100;background:#090b11;color:#fff;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 30px) calc(env(safe-area-inset-right) + 28px) calc(env(safe-area-inset-bottom) + 30px) calc(env(safe-area-inset-left) + 28px);text-align:center}
+.display.active{display:flex}
+.display-text{font-size:clamp(42px,12vw,170px);font-weight:850;letter-spacing:-.05em;line-height:1.2;overflow-wrap:anywhere;white-space:pre-wrap;max-height:100%;overflow:auto}
+.exit{position:absolute;right:calc(env(safe-area-inset-right) + 15px);top:calc(env(safe-area-inset-top) + 15px);border:1px solid currentColor;background:transparent;color:inherit;border-radius:11px;font-size:13px;padding:9px 12px;opacity:.75}
+@media(max-width:750px){.layout{grid-template-columns:1fr}.settings{padding:20px}.preview{min-height:260px}.wrap{gap:14px}.display-text{font-size:clamp(44px,14vw,170px)}}
+@media(min-width:750px) and (max-height:600px){.preview{min-height:200px}.settings{gap:12px}}
+</style>
+</head><body>
+<div class="wrap">
+<header><a class="back" href="../index.html">← 듀오 허브</a><h1>대형 글씨</h1></header>
+<div class="layout">
+<section class="settings" aria-label="글씨 설정">
+<div><label class="field-label" for="message">표시할 문구</label><textarea id="message" maxlength="400" spellcheck="false" placeholder="표시할 내용을 입력하세요">안녕하세요!</textarea>
+<div class="suggestions"><button type="button" data-phrase="잠시만요">잠시만요</button><button type="button" data-phrase="준비 중">준비 중</button><button type="button" data-phrase="감사합니다">감사합니다</button></div></div>
+<div><div class="row"><label class="field-label" for="size">글씨 크기</label><output id="sizeValue">100%</output></div><input id="size" type="range" min="60" max="170" value="100" step="5"></div>
+<div><span class="field-label">화면 테마</span><div class="palette" role="group" aria-label="화면 테마"><button type="button" data-palette="night" aria-pressed="true">기본</button><button type="button" data-palette="light" aria-pressed="false">밝게</button><button type="button" data-palette="blue" aria-pressed="false">파랑</button><button type="button" data-palette="gold" aria-pressed="false">노랑</button></div></div>
+<button id="show" class="full-btn" type="button">화면 가득 표시</button>
+<p class="hint">입력한 문구와 설정은 이 기기에 저장됩니다. 표시 화면에서 '돌아가기'를 누르면 수정할 수 있습니다.</p>
+</section>
+<section class="preview" id="preview" aria-label="표시 미리보기"><div class="preview-text" id="previewText"></div></section>
+</div></div>
+<section id="display" class="display" role="dialog" aria-modal="true" aria-label="대형 글씨 전체 화면" aria-hidden="true"><button id="exit" class="exit" type="button">✕ 돌아가기</button><div id="displayText" class="display-text"></div></section>
+<script>
+'use strict';
+const key='duo-hub-bigtext-v1',palettes={night:['#090b11','#ffffff'],light:['#fffefa','#172033'],blue:['#2047b2','#ffffff'],gold:['#ffe77a','#292416']};
+const message=document.getElementById('message'),size=document.getElementById('size'),preview=document.getElementById('preview'),display=document.getElementById('display');
+let selected='night';
+try{const s=JSON.parse(localStorage.getItem(key));if(s&&typeof s.message==='string')message.value=s.message.slice(0,400);if(s&&Number.isFinite(s.size))size.value=Math.min(170,Math.max(60,s.size));if(s&&palettes[s.palette])selected=s.palette}catch(e){}
+function save(){try{localStorage.setItem(key,JSON.stringify({message:message.value,size:Number(size.value),palette:selected}))}catch(e){}}
+function refresh(){
+ const content=message.value.trim()||'글씨를 입력하세요';
+ document.getElementById('previewText').textContent=content;
+ document.getElementById('displayText').textContent=content;
+ const [bg,fg]=palettes[selected];preview.style.background=bg;preview.style.color=fg;display.style.background=bg;display.style.color=fg;
+ document.getElementById('sizeValue').textContent=size.value+'%';
+ document.getElementById('previewText').style.fontSize='clamp(27px,'+(Number(size.value)*.055)+'vw,130px)';
+ document.getElementById('displayText').style.fontSize='clamp(30px,'+(Number(size.value)*.13)+'vw,260px)';
+ document.querySelectorAll('[data-palette]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.palette===selected)));
+ save();
+}
+message.addEventListener('input',refresh);size.addEventListener('input',refresh);
+document.querySelectorAll('[data-phrase]').forEach(b=>b.addEventListener('click',()=>{message.value=b.dataset.phrase;refresh();message.focus()}));
+document.querySelectorAll('[data-palette]').forEach(b=>b.addEventListener('click',()=>{selected=b.dataset.palette;refresh()}));
+function closeDisplay(){display.classList.remove('active');display.setAttribute('aria-hidden','true');document.body.style.overflow='';document.getElementById('show').focus()}
+document.getElementById('show').addEventListener('click',()=>{refresh();display.classList.add('active');display.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';document.getElementById('exit').focus()});
+document.getElementById('exit').addEventListener('click',closeDisplay);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&display.classList.contains('active'))closeDisplay()});
+refresh();
+</script></body></html>
