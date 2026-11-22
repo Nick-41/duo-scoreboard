@@ -220,7 +220,7 @@ svg.addEventListener("pointerdown",function(e){
   var id=el.getAttribute("data-id"),a=state.items.find(function(x){return x.id===id});
   if(!a)return;choose(id);
   gesture={kind:"item",id:id,start:p,x:a.x,y:a.y,before:snapshot()};
- }else{gesture={kind:"pan",start:p,x:view.x,y:view.y};choose(null)}
+ }else{gesture={kind:"pan",startClientX:e.clientX,startClientY:e.clientY,x:view.x,y:view.y};choose(null)}
  svg.setPointerCapture(e.pointerId);svg.classList.add("dragging");e.preventDefault();
 });
 svg.addEventListener("pointermove",function(e){
@@ -230,7 +230,7 @@ svg.addEventListener("pointermove",function(e){
   var a=state.items.find(function(x){return x.id===gesture.id});if(!a)return;
   a.x=quantize(gesture.x+p.x-gesture.start.x);a.y=quantize(gesture.y+p.y-gesture.start.y);restrict(a);render();
  }else{
-  view.x=gesture.x-(p.x-gesture.start.x);view.y=gesture.y-(p.y-gesture.start.y);setView();
+  var matrix=svg.getScreenCTM(),scale=matrix?matrix.a:1;view.x=gesture.x-(e.clientX-gesture.startClientX)/scale;view.y=gesture.y-(e.clientY-gesture.startClientY)/scale;setView();
  }
 });
 function finish(){if(!gesture)return;if(gesture.kind==="item"){commit(gesture.before);render();refreshControls()}gesture=null;svg.classList.remove("dragging")}
