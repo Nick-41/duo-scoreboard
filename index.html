@@ -29,9 +29,15 @@ a{text-decoration:none;color:inherit}
 .brand small{display:block;color:var(--sub);font-size:11px;font-weight:600;letter-spacing:.02em;margin-top:5px}
 .top-actions{display:flex;align-items:center;gap:10px}
 .top-actions a{font-size:13px;color:var(--sub);font-weight:650;padding:10px}
-.icon-button{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.icon-button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:40px;height:40px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.icon-button span{font-size:12px;font-weight:750;white-space:nowrap}
 .icon-button svg{width:19px;height:19px}
 .hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:26px;margin-top:34px;border-radius:28px;padding:clamp(30px,5vw,58px);min-height:298px;background:radial-gradient(circle at 78% 10%,#435c9a66,transparent 39%),linear-gradient(118deg,#1a2b48,#101927 77%);border:1px solid #354767;color:#f8fbff}
+:root[data-theme="light"] .hero{background:radial-gradient(circle at 78% 10%,#dce7ff,transparent 39%),linear-gradient(118deg,#edf2ff,#dfe8f6 77%);border-color:#c4d3ee;color:#1a2b4b}
+:root[data-theme="light"] .hero p{color:#526580}
+:root[data-theme="light"] .eyebrow{color:#536c9b}
+:root[data-theme="light"] .visual-tile{background:linear-gradient(140deg,#c1d3f6,#a1bbef);border-color:#7190c6}
+:root[data-theme="light"] .visual-tile svg{stroke:#2b4680}
 .hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;background-image:linear-gradient(#7c9bd411 1px,transparent 1px),linear-gradient(90deg,#7c9bd411 1px,transparent 1px);background-size:38px 38px}
 .hero-copy{position:relative;z-index:1;max-width:640px}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;color:#c1d1f3;font-size:11px;letter-spacing:.16em;font-weight:800}
@@ -113,7 +119,7 @@ a{text-decoration:none;color:inherit}
 <div class="shell">
 <header class="topbar">
 <a class="brand" href="./index.html" aria-label="듀오 허브 홈"><span class="brand-icon"><svg width="24" height="24" aria-hidden="true"><use href="#i-grid"/></svg></span><span><strong>DUO HUB</strong><small>나만의 도구 모음</small></span></a>
-<div class="top-actions"><a href="#tools">모든 도구</a><button id="themeBtn" class="icon-button" type="button" aria-label="색상 테마 변경" title="색상 테마 변경"><svg aria-hidden="true"><use id="themeIcon" href="#i-sun"/></svg></button></div>
+<div class="top-actions"><a href="#tools">모든 도구</a><button id="themeBtn" class="icon-button" type="button" aria-label="색상 테마 변경" title="색상 테마 변경"><svg aria-hidden="true"><use id="themeIcon" href="#i-sun"/></svg><span id="themeLabel">라이트 모드</span></button></div>
 </header>
 <main>
 <section class="hero" aria-labelledby="hero-title">
@@ -188,7 +194,7 @@ function render(){
 document.getElementById('filters').addEventListener('click',ev=>{const b=ev.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;render()});
 search.addEventListener('input',render);
 document.addEventListener('keydown',ev=>{if(ev.key==='/'&&document.activeElement!==search&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ev.preventDefault();search.focus()}if(ev.key==='Escape'&&document.activeElement===search){search.value='';search.blur();render()}});
-function setTheme(value){document.documentElement.dataset.theme=value;document.getElementById('themeIcon').setAttribute('href',value==='light'?'#i-moon':'#i-sun');safeWrite(themeKey,value);document.querySelector('meta[name="theme-color"]').content=value==='light'?'#f6f8fc':'#0b101b'}
+function setTheme(value){document.documentElement.dataset.theme=value;document.getElementById('themeIcon').setAttribute('href',value==='light'?'#i-moon':'#i-sun');document.getElementById('themeLabel').textContent=value==='light'?'다크 모드':'라이트 모드';document.getElementById('themeBtn').setAttribute('aria-label',value==='light'?'다크 모드로 전환':'라이트 모드로 전환');safeWrite(themeKey,value);document.querySelector('meta[name="theme-color"]').content=value==='light'?'#f6f8fc':'#0b101b'}
 setTheme(safeRead(themeKey)==='light'?'light':'dark');
 document.getElementById('themeBtn').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='light'?'dark':'light'));
 render();
