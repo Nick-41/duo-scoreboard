@@ -32,25 +32,7 @@ a{text-decoration:none;color:inherit}
 .icon-button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:40px;height:40px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
 .icon-button span{font-size:12px;font-weight:750;white-space:nowrap}
 .icon-button svg{width:19px;height:19px}
-.hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:26px;margin-top:34px;border-radius:28px;padding:clamp(30px,5vw,58px);min-height:298px;background:radial-gradient(circle at 78% 10%,#435c9a66,transparent 39%),linear-gradient(118deg,#1a2b48,#101927 77%);border:1px solid #354767;color:#f8fbff}
-:root[data-theme="light"] .hero{background:radial-gradient(circle at 78% 10%,#dce7ff,transparent 39%),linear-gradient(118deg,#edf2ff,#dfe8f6 77%);border-color:#c4d3ee;color:#1a2b4b}
-:root[data-theme="light"] .hero p{color:#526580}
-:root[data-theme="light"] .eyebrow{color:#536c9b}
-:root[data-theme="light"] .visual-tile{background:linear-gradient(140deg,#c1d3f6,#a1bbef);border-color:#7190c6}
-:root[data-theme="light"] .visual-tile svg{stroke:#2b4680}
-.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;background-image:linear-gradient(#7c9bd411 1px,transparent 1px),linear-gradient(90deg,#7c9bd411 1px,transparent 1px);background-size:38px 38px}
-.hero-copy{position:relative;z-index:1;max-width:640px}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;color:#c1d1f3;font-size:11px;letter-spacing:.16em;font-weight:800}
-.eyebrow::before{content:"";height:7px;width:7px;background:#8db5ff;border-radius:50%;box-shadow:0 0 0 5px #8db5ff22}
-.hero h1{font-size:clamp(30px,5.7vw,53px);letter-spacing:-.055em;line-height:1.14;margin:21px 0 16px;font-weight:850}
-.hero p{font-size:clamp(13px,1.7vw,15px);line-height:1.85;color:#b7c5df;margin:0;word-break:keep-all}
-.hero-visual{flex:0 0 210px;position:relative;height:205px;z-index:1}
-.visual-tile{position:absolute;display:grid;place-items:center;border:1px solid #8eb2ff66;background:linear-gradient(140deg,#344e79d9,#1d2d4ad9);backdrop-filter:blur(8px);border-radius:23px;box-shadow:0 18px 45px #04091366}
-.visual-tile svg{stroke:#cbd9ff}
-.visual-tile.one{width:123px;height:123px;top:5px;left:17px;transform:rotate(-11deg)}
-.visual-tile.two{width:98px;height:98px;right:8px;top:64px;transform:rotate(11deg)}
-.visual-tile.three{width:75px;height:75px;left:52px;bottom:0;transform:rotate(8deg)}
-.section{margin-top:44px;scroll-margin-top:28px}
+.section{margin-top:26px;scroll-margin-top:28px}
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:19px}
 .section-head h2{font-size:clamp(21px,3vw,27px);margin:0;letter-spacing:-.045em}
 .section-head p{color:var(--sub);margin:7px 0 0;font-size:13px;line-height:1.5}
@@ -97,8 +79,8 @@ a{text-decoration:none;color:inherit}
 .future-mark{font-size:27px;color:var(--accent);font-weight:400}
 .footer{border-top:1px solid var(--line);padding-top:24px;padding-bottom:calc(env(safe-area-inset-bottom) + 27px);color:var(--sub);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px}
 .footer a{text-decoration:underline;text-underline-offset:3px}
-@media(max-width:900px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-visual{flex-basis:155px;transform:scale(.84);transform-origin:right center}.hero{min-height:270px}}
-@media(max-width:610px){.topbar{height:72px}.top-actions a{display:none}.brand-icon{width:39px;height:39px}.hero{margin-top:20px;min-height:225px;border-radius:23px;padding:29px 25px}.hero h1{margin:17px 0 12px}.hero-visual{display:none}.section{margin-top:31px}.tools-bar{gap:12px}.search{flex-basis:100%}.filters{width:100%}.tool-grid{grid-template-columns:1fr;gap:12px}.tool-card{min-height:222px}.tool-main{padding:20px 20px 0}.tool-card h3{margin-top:15px}.card-bottom{margin:18px 20px 18px}.future{padding:20px}.footer{font-size:11px}}
+@media(max-width:900px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:610px){.topbar{height:72px}.top-actions a{display:none}.brand-icon{width:39px;height:39px}.section{margin-top:20px}.tools-bar{gap:12px}.search{flex-basis:100%}.filters{width:100%}.tool-grid{grid-template-columns:1fr;gap:12px}.tool-card{min-height:222px}.tool-main{padding:20px 20px 0}.tool-card h3{margin-top:15px}.card-bottom{margin:18px 20px 18px}.future{padding:20px}.footer{font-size:11px}}
 @media(min-width:430px) and (max-width:610px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tool-card{min-height:255px}.tool-main{padding:18px 16px 0}.card-bottom{margin:17px 16px 16px}.tool-card h3{font-size:17px}.tool-card p{font-size:12px}.open-link{padding:8px}.category{font-size:11px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -122,10 +104,6 @@ a{text-decoration:none;color:inherit}
 <div class="top-actions"><a href="#tools">모든 도구</a><button id="themeBtn" class="icon-button" type="button" aria-label="색상 테마 변경" title="색상 테마 변경"><svg aria-hidden="true"><use id="themeIcon" href="#i-sun"/></svg><span id="themeLabel">라이트 모드</span></button></div>
 </header>
 <main>
-<section class="hero" aria-labelledby="hero-title">
-<div class="hero-copy"><span class="eyebrow">YOUR PERSONAL TOOLKIT</span><h1 id="hero-title">필요한 도구를,<br>한곳에.</h1><p>점수 기록부터 일상의 작은 작업까지.<br>가볍고 간결한 도구들을 하나의 공간에 모았습니다.</p></div>
-<div class="hero-visual" aria-hidden="true"><div class="visual-tile one"><svg width="59" height="59"><use href="#i-grid"/></svg></div><div class="visual-tile two"><svg width="50" height="50"><use href="#i-score"/></svg></div><div class="visual-tile three"><svg width="39" height="39"><use href="#i-clock"/></svg></div></div>
-</section>
 <section id="tools" class="section" aria-labelledby="tools-heading">
 <div class="section-head"><div><h2 id="tools-heading">도구 라이브러리</h2><p>바로 실행하거나 별표를 눌러 즐겨찾기에 등록하세요.</p></div><span id="resultCount" class="result-count" aria-live="polite"></span></div>
 <div class="tools-bar"><label class="search"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="searchInput" type="search" aria-label="도구 검색" placeholder="도구 이름이나 기능 검색" autocomplete="off"></label>
@@ -149,7 +127,7 @@ const tools=[
 {id:'scoreboard',name:'점수판',description:'2~4팀 점수 관리, 실행 취소, 자동 저장',category:'게임',tone:'blue',icon:'score',path:'tools/scoreboard.html',ready:true},
 {id:'bigtext',name:'대형 글씨',description:'짧은 문구를 화면 가득 크게 표시',category:'일상',tone:'purple',icon:'type',path:'tools/bigtext.html',ready:true},
 {id:'timer',name:'타이머 · 스톱워치',description:'간단한 시간 측정과 카운트다운',category:'일상',tone:'orange',icon:'clock',path:'tools/timer.html',ready:true},
-{id:'layout',name:'공간 배치 스튜디오',description:'공간과 물체를 시각적으로 배치하는 도구',category:'작업',tone:'mint',icon:'layout',path:null,ready:false}
+{id:'layout',name:'공간 배치 스튜디오',description:'가구와 공간을 드래그로 배치하고 5cm 단위 정렬·자동 저장',category:'작업',tone:'mint',icon:'layout',path:'space-studio/index.html',ready:true}
 ];
 const favKey='duo-hub-favorites-v1';
 const themeKey='duo-hub-theme-v1';
