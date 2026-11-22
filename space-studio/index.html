@@ -258,18 +258,32 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
   if(state.selectedId)openPopup();
   else close();
  });
- for(const key of ['name','w','h','x','y']){
+ const nameInput=$('[data-edit=name]');
+ let savedNameEdit=false;
+ nameInput.addEventListener('blur',()=>{savedNameEdit=false});
+ nameInput.addEventListener('input',()=>{
+  const r=chosen();
+  if(!r||r.name===nameInput.value)return;
+  if(!savedNameEdit){
+   remember();
+   savedNameEdit=true;
+  }
+  r.name=nameInput.value.slice(0,32);
+  draw();
+  publish();
+ });
+ for(const key of ['w','h','x','y']){
   const el=$('[data-edit='+key+']');
-  el.addEventListener('focus',remember);
-  el.addEventListener(key==='name'?'input':'change',()=>{
+  el.addEventListener('change',()=>{
    const r=chosen();
    if(!r)return;
-   if(key==='name')r.name=el.value.slice(0,32);
-   else {
-    const limit={w:state.room.w-r.x,h:state.room.h-r.y,x:state.room.w-r.w,y:state.room.h-r.h};
-    if(el.value.trim()!==''&&Number.isFinite(Number(el.value)))r[key]=clamp(Math.round(Number(el.value)),key==='w'||key==='h'?30:0,limit[key]);
-    el.value=r[key];
-   }
+   const limit={w:state.room.w-r.x,h:state.room.h-r.y,x:state.room.w-r.w,y:state.room.h-r.h};
+   const value=el.valueAsNumber;
+   const next=Number.isFinite(value)?clamp(Math.round(value),key==='w'||key==='h'?30:0,limit[key]):r[key];
+   el.value=next;
+   if(next===r[key])return;
+   remember();
+   r[key]=next;
    draw();
    publish();
   });
