@@ -1,66 +1,88 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>공간 배치 스튜디오 · 모아덱</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f5fc"><script src="../assets/tool-theme.js"></script><title>공간 배치 스튜디오 · 모아덱</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f7f5fc;color:#243244}
-#space-v111{width:100%;max-width:950px;margin:0 auto;background:white;border:1px solid #dde4ef;border-radius:15px;overflow:hidden}
+
+:root {
+  color-scheme:light;
+  --bg:#f7f5fc; --panel:#fff; --soft:#f3effa; --text:#231a3c; --muted:#635976;
+  --line:#dfd8eb; --accent:#6042ac; --primary:#6042ac; --stage:#eeeaf6;
+  --board:#fff; --board-edge:#75688b; --grid:#e7e1f0;
+  --danger-bg:#fff0f0; --danger:#a9213e; --alert-bg:#fff2e8; --alert:#9a3412;
+}
+:root[data-theme="dark"] {
+  color-scheme:dark;
+  --bg:#171124; --panel:#211932; --soft:#2d2241; --text:#f7f1ff; --muted:#c5bad7;
+  --line:#514565; --accent:#d1beff; --primary:#7255bc; --stage:#181126;
+  --board:#28203a; --board-edge:#a396be; --grid:#3b304f;
+  --danger-bg:#442236; --danger:#ffb0c2; --alert-bg:#472b23; --alert:#ffd0ac;
+}
+*{box-sizing:border-box}html,body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
+#space-v111{width:100%;max-width:1100px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding-bottom:env(safe-area-inset-bottom)}
 .s-hd,.s-tools,.s-settings { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .s-hd { justify-content:space-between; gap:6px 12px; padding:calc(8px + env(safe-area-inset-top)) 12px 8px; }
 .s-hd h1 { margin:0; font-size:clamp(15px, 3vw, 21px); letter-spacing:-.04em; }
 .s-tools { padding:8px 12px; }
 button { cursor:pointer; font-family:inherit; }
 button:disabled { opacity:.4; cursor:default; }
-button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid #6042ac; outline-offset:2px; }
-.s-btn { min-height:44px; border:1px solid #d8e0eb; border-radius:9px; background:white; color:#334155; padding:6px 10px; font-weight:650; font-size:13px; touch-action:manipulation; }
-.s-main { background:#6042ac; color:white; border-color:#6042ac; }
-.s-tip { margin:0; padding:6px 12px 8px; font-size:12px; color:#566579; }
-.s-stage { --board-limit: 315px; --board-limit: clamp(155px, 38svh, 385px); background:#eeeaf6; padding:8px 12px; }
-.s-viewport { container-type:inline-size; max-height:calc(var(--board-limit) + 20px); overflow:auto; border-radius:8px; }
-.s-surface { display:flex; width:max-content; min-width:100%; padding:10px; }
+button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.s-btn { min-height:44px; border:1px solid var(--line); border-radius:9px; background:var(--panel); color:var(--text); padding:6px 10px; font-weight:650; font-size:13px; touch-action:manipulation; }
+.s-main { background:var(--primary); color:white; border-color:var(--primary); }
+.s-tip { margin:0; padding:6px 12px 8px; font-size:12px; color:var(--muted); }
+.s-stage {
+  background:var(--stage);
+  padding:10px max(12px, env(safe-area-inset-right)) 10px max(12px, env(safe-area-inset-left));
+}
+.s-surface { width:100%; }
 .s-board {
   position:relative;
-  flex:none;
-  width:calc(min(100cqw - 20px, var(--board-limit) * var(--room-ratio, 1.5)) * var(--zoom, 1));
+  width:min(100%, 360px);
+  max-width:100%;
   margin-inline:auto;
   aspect-ratio:3/2;
-  outline:1px solid #64748b;
-  background-color:#fff;
-  background-image:linear-gradient(#e5eaf1 1px, transparent 1px), linear-gradient(90deg, #e5eaf1 1px, transparent 1px);
-  overflow:hidden;
+  outline:1px solid var(--board-edge);
+  background-color:var(--board);
+  background-image:linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
   user-select:none;
   -webkit-user-select:none;
 }
 .s-shape, .s-shape * { touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
-.s-zoom { display:flex; align-items:center; gap:4px; margin-left:auto; }
+.s-zoom { display:flex; flex-wrap:wrap; align-items:center; gap:4px; }
 .s-zoom button { min-width:44px; }
-.s-zoom output { min-width:42px; text-align:center; font-size:12px; font-variant-numeric:tabular-nums; }
+.s-zoom output { min-width:40px; text-align:center; font-size:12px; font-variant-numeric:tabular-nums; }
 .s-editbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; }
-.s-editbar select { flex:1 1 160px; max-width:340px; min-width:0; min-height:44px; border:1px solid #d8e0eb; border-radius:9px; background:white; color:#334155; font:inherit; font-size:16px; padding:4px 8px; }
-.s-options { border-top:1px solid #e1e7ef; }
-.s-options summary { display:flex; align-items:center; min-height:44px; padding:0 12px; cursor:pointer; color:#443267; font-size:13px; font-weight:700; }
+.s-editbar select { flex:1 1 130px; max-width:340px; min-width:0; min-height:44px; border:1px solid var(--line); border-radius:9px; background:var(--panel); color:var(--text); font:inherit; font-size:16px; padding:4px 8px; }
+.s-room-actions { margin-left:auto; }
+.s-viewbar { position:sticky; top:env(safe-area-inset-top); z-index:6; background:var(--panel); border-bottom:1px solid var(--line); }
+.s-options { border-top:1px solid var(--line); }
+.s-options summary { display:flex; align-items:center; min-height:44px; padding:0 12px; cursor:pointer; color:var(--text); font-size:13px; font-weight:700; }
 .s-options summary::before { content:'›'; margin-right:7px; font-size:20px; }
 .s-options[open] summary::before { transform:rotate(90deg); }
-@media(max-width:370px) { .s-tools { gap:4px; } .s-zoom { margin-left:0; } }
+@media(max-width:430px) {
+ .s-tools { gap:4px; }
+ .s-zoom .s-btn { padding-inline:6px; }
+ .s-editbar .s-status { flex-basis:100%; }
+}
 
-.s-shape{position:absolute;border:2px solid #7999c8;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:grab;min-height:0;min-width:0}
+.s-shape{position:absolute;color:#243244;border:2px solid #7999c8;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:grab;min-height:0;min-width:0}
 .s-shape b,.s-shape small{max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}.s-shape b{font-size:clamp(10px,3.5vw,15px)}.s-shape small{font-size:clamp(9px,2.6vw,12px);color:#41546c}
-.s-shape.s-selected{border:3px solid #6042ac;z-index:2}.s-shape.s-moving{z-index:3;box-shadow:0 4px 13px #214da53a}
-.s-handle{position:absolute;width:34px;height:34px;display:flex;align-items:center;justify-content:center;z-index:4}
-.s-handle:after{content:"";width:13px;height:13px;background:white;border:3px solid #6042ac;border-radius:3px;box-shadow:0 1px 5px #0002}
-.s-handle[data-corner=nw]{left:-17px;top:-17px;cursor:nwse-resize}.s-handle[data-corner=ne]{right:-17px;top:-17px;cursor:nesw-resize}.s-handle[data-corner=sw]{left:-17px;bottom:-17px;cursor:nesw-resize}.s-handle[data-corner=se]{right:-17px;bottom:-17px;cursor:nwse-resize}
-.s-popup { margin:0 12px 10px; padding:12px; background:white; border:1px solid #cdd8e8; border-radius:12px; color:#263445; }
-.s-popup[hidden]{display:none!important}.s-popupheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.s-popupheader strong{font-size:14px}.s-x{border:0;background:#f1f5f9;border-radius:7px;width:44px;height:44px;font-size:20px;color:#64748b}
-.s-popup label{font-size:11px;font-weight:650;color:#607085;display:block}.s-popup input{display:block;width:100%;min-width:0;height:44px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;margin-top:5px;background:white;color:#263445;font-size:16px;outline-color:#6042ac}
-.s-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.s-colors{display:flex;gap:7px;margin-top:13px}.s-color{flex:1;height:44px;border:1px solid #d1d9e5;border-radius:5px}.s-color.on{outline:2px solid #6042ac;outline-offset:2px}
-.s-popupactions{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.s-popupactions button{min-height:44px;padding:9px 12px;border:0;border-radius:7px;font-weight:650;font-size:12px}.s-danger{background:#fff0f0;color:#bb2742}.s-ok{background:#6042ac;color:white;min-width:70px}
-.s-settings{padding:8px 12px;font-size:12px;color:#607085}.s-settings label{display:flex;align-items:center;gap:5px}.s-settings input[type=number]{width:75px;min-height:44px;padding:6px;border:1px solid #cbd5e1;border-radius:7px;font-size:16px}.s-settings input[type=checkbox]{accent-color:#6042ac}.s-save{font-size:11px;color:#64748b;background:#eef4fc;border-radius:6px;padding:4px 7px}.s-save.bad{background:#fff2e8;color:#9a3412}.s-status{font-size:12px;color:#566579}
+.s-shape.s-selected{outline:2px solid var(--accent);outline-offset:-1px;z-index:2}.s-shape.s-moving{z-index:3;box-shadow:0 4px 13px #214da53a}
+.s-handle{position:absolute;width:28px;height:28px;display:flex;align-items:center;justify-content:center;z-index:4}
+.s-handle:after{content:"";width:11px;height:11px;background:var(--panel);border:2px solid var(--accent);border-radius:3px;box-shadow:0 1px 5px #0002}
+.s-handle[data-corner=nw]{left:-10px;top:-10px;cursor:nwse-resize}.s-handle[data-corner=ne]{right:-10px;top:-10px;cursor:nesw-resize}.s-handle[data-corner=sw]{left:-10px;bottom:-10px;cursor:nesw-resize}.s-handle[data-corner=se]{right:-10px;bottom:-10px;cursor:nwse-resize}
+.s-popup { margin:0 12px 10px; padding:12px; background:var(--panel); border:1px solid var(--line); border-radius:12px; color:var(--text); }
+.s-popup[hidden]{display:none!important}.s-popupheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.s-popupheader strong{font-size:14px}.s-x{border:0;background:var(--soft);border-radius:7px;width:44px;height:44px;font-size:20px;color:var(--muted)}
+.s-popup label{font-size:11px;font-weight:650;color:var(--muted);display:block}.s-popup input{display:block;width:100%;min-width:0;height:44px;border:1px solid var(--line);border-radius:7px;padding:6px 9px;margin-top:5px;background:var(--panel);color:var(--text);font-size:16px;outline-color:var(--accent)}
+.s-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.s-colors{display:flex;gap:7px;margin-top:13px}.s-color{flex:1;height:44px;border:1px solid var(--line);border-radius:5px}.s-color.on{outline:2px solid var(--accent);outline-offset:2px}
+.s-popupactions{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.s-popupactions button{min-height:44px;padding:9px 12px;border:0;border-radius:7px;font-weight:650;font-size:12px}.s-danger{background:var(--danger-bg);color:var(--danger)}.s-ok{background:var(--primary);color:white;min-width:70px}
+.s-settings{padding:8px 12px;font-size:12px;color:var(--muted)}.s-settings label{display:flex;align-items:center;gap:5px}.s-settings input[type=number]{width:75px;min-height:44px;padding:6px;border:1px solid var(--line);border-radius:7px;font-size:16px}.s-settings input[type=checkbox]{accent-color:var(--primary)}.s-save{font-size:11px;color:var(--muted);background:var(--soft);border-radius:6px;padding:4px 7px}.s-save.bad{background:var(--alert-bg);color:var(--alert)}.s-status{font-size:12px;color:var(--muted)}
 
-.s-transfer{padding:13px;border-top:1px solid #d6dfe9;background:#f8fbff}
+.s-transfer{padding:13px;border-top:1px solid var(--line);background:var(--soft)}
 .s-transfer[hidden]{display:none!important}
 .s-transferheader,.s-transferbuttons{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
 .s-transferheader strong{font-size:13px}
-.s-transfer textarea{display:block;width:100%;min-height:130px;max-height:240px;resize:vertical;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#1e293b;padding:10px;font:11px/1.5 ui-monospace,SFMono-Regular,monospace;user-select:text;-webkit-user-select:text;touch-action:auto}
+.s-transfer textarea{display:block;width:100%;min-height:130px;max-height:240px;resize:vertical;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);padding:10px;font:11px/1.5 ui-monospace,SFMono-Regular,monospace;user-select:text;-webkit-user-select:text;touch-action:auto}
 .s-transferbuttons{justify-content:flex-end;margin-top:9px;margin-bottom:5px}
-.s-transferstatus{font-size:11px;color:#64748b}
+.s-transferstatus{font-size:11px;color:var(--muted)}
 </style><link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
 <link rel="stylesheet" href="../assets/brand.css">
 </head><body>
@@ -70,22 +92,27 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
  <div class="s-tools">
   <button type="button" class="s-btn s-main" data-action="add">＋ 네모 추가</button>
   <button type="button" class="s-btn" data-action="undo">실행 취소</button>
+  <span class="s-save s-room-actions" data-save>저장 상태 확인 중</span>
+ </div>
+ <div class="s-tools s-viewbar">
   <div class="s-zoom" role="group" aria-label="배치 화면 크기">
    <button type="button" class="s-btn" data-action="zoom-out" aria-label="축소">−</button>
    <output data-zoom aria-label="화면 맞춤 대비 배율">100%</output>
    <button type="button" class="s-btn" data-action="zoom-in" aria-label="확대">＋</button>
-   <button type="button" class="s-btn" data-action="zoom-fit">화면 맞춤</button>
+   <button type="button" class="s-btn" data-action="zoom-fit">전체 보기</button>
+   <button type="button" class="s-btn" data-action="zoom-width">너비 맞춤</button>
   </div>
  </div>
  <div class="s-stage">
-  <div class="s-viewport" data-viewport><div class="s-surface"><div class="s-board" data-board></div></div></div>
+  <div class="s-surface" data-surface><div class="s-board" data-board></div></div>
  </div>
  <div class="s-editbar">
   <select data-select aria-label="개체 선택"><option value="">개체 선택</option></select>
+  <button type="button" class="s-btn" data-action="edit" aria-controls="shapeEditor" aria-expanded="false" disabled>선택 편집</button>
   <span class="s-status" data-status></span>
  </div>
- <p class="s-tip">끌어서 이동 · 선택 후 모서리로 크기 조절 · 탭해서 수치 편집</p>
-  <section class="s-popup" data-popup aria-label="네모 편집" hidden>
+ <p class="s-tip">끌어서 이동 · 모서리로 크기 조절 · 좌표와 크기는 선택 편집</p>
+  <section class="s-popup" id="shapeEditor" data-popup aria-label="네모 편집" hidden>
    <div class="s-popupheader"><strong>네모 편집</strong><button type="button" class="s-x" data-action="close" aria-label="편집 닫기">×</button></div>
    <label>이름<input type="text" maxlength="32" data-edit="name" placeholder="네모 이름"></label>
    <div class="s-fields"><label>가로 (cm)<input type="number" inputmode="numeric" min="30" data-edit="w"></label><label>세로 (cm)<input type="number" min="30" data-edit="h"></label></div>
@@ -99,7 +126,6 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
    <button type="button" class="s-btn" data-action="export">백업 복사</button>
    <button type="button" class="s-btn" data-action="import">백업 복원</button>
    <button type="button" class="s-btn" data-action="reset">초기화</button>
-   <span class="s-save" data-save>저장 상태 확인 중</span>
   </div>
  <div class="s-transfer" data-transfer hidden>
    <div class="s-transferheader"><strong data-transfer-title>배치 백업</strong><button type="button" class="s-x" data-action="transfer-close" aria-label="닫기">×</button></div>
@@ -113,31 +139,29 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
 <script>
 (()=>{
  const root=document.getElementById('space-v111');if(!root||root.dataset.started)return;root.dataset.started='yes';
- const $=s=>root.querySelector(s),board=$('[data-board]'),viewport=$('[data-viewport]'),popup=$('[data-popup]'),picker=$('[data-select]');
+ const $=s=>root.querySelector(s),board=$('[data-board]'),surface=$('[data-surface]'),popup=$('[data-popup]'),picker=$('[data-select]');
  const colors=['#b5d4fa','#bce4ca','#f9d89c','#f5bac6','#d8c9f6','#cbd5e1'];
  const first=()=>({room:{w:600,h:400},rects:[{id:'n1',name:'네모 1',x:100,y:100,w:160,h:100,color:colors[0]}],selectedId:null,nextId:2,snap:false,updatedAt:0});
  let state=first(),undo=[],drag=null;const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
  const snapshot=()=>JSON.parse(JSON.stringify(state));const remember=()=>{undo.push(snapshot());if(undo.length>40)undo.shift()};
- const zoomLevels=[0.75,1,1.5,2,3,4];
- let zoomIndex=1;
  const zoomOut=$('[data-action="zoom-out"]'),zoomIn=$('[data-action="zoom-in"]');
- function setZoom(index){
-  const old=zoomLevels[zoomIndex], next=zoomLevels[index];
-  const x=viewport.scrollLeft+viewport.clientWidth/2, y=viewport.scrollTop+viewport.clientHeight/2;
-  const oldBoard=board.getBoundingClientRect(), oldView=viewport.getBoundingClientRect();
-  const left=oldBoard.left-oldView.left+viewport.scrollLeft, top=oldBoard.top-oldView.top+viewport.scrollTop;
-  zoomIndex=index;
-  board.style.setProperty('--zoom',next);
-  $('[data-zoom]').value=Math.round(next*100)+'%';
-  zoomOut.disabled=index===0;
-  zoomIn.disabled=index===zoomLevels.length-1;
-  if(index===1) {
-   viewport.scrollTo(0,0);
-  } else {
-   const newBoard=board.getBoundingClientRect(), newView=viewport.getBoundingClientRect();
-   const newLeft=newBoard.left-newView.left+viewport.scrollLeft, newTop=newBoard.top-newView.top+viewport.scrollTop;
-   viewport.scrollTo(newLeft+(x-left)*next/old-viewport.clientWidth/2,newTop+(y-top)*next/old-viewport.clientHeight/2);
-  }
+ const zoomOutput=$('[data-zoom]'),editButton=$('[data-action="edit"]');
+ const minZoom=0.6;
+ let zoom=1, visibleZoom=1;
+ function sizeBoard(){
+  const width=surface.clientWidth;
+  if(!width)return;
+  const roomRatio=state.room.w/state.room.h;
+  const boardTop=surface.getBoundingClientRect().top+window.scrollY;
+  const fitHeight=clamp(Math.floor(window.innerHeight-boardTop-18),100,570);
+  const fitWidth=Math.min(width, fitHeight*roomRatio);
+  const boardWidth=Math.min(width, fitWidth*zoom);
+  visibleZoom=boardWidth/fitWidth;
+  board.style.width=boardWidth+'px';
+  board.style.aspectRatio=state.room.w+'/'+state.room.h;
+  zoomOutput.value=Math.round(visibleZoom*100)+'%';
+  zoomOut.disabled=visibleZoom<=minZoom+.001;
+  zoomIn.disabled=width-boardWidth<1;
  }
  const STORE_KEY='space_studio_layout_v1';
  const saveIndicator=$('[data-save]');
@@ -217,13 +241,14 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
  }
  const chosen=()=>state.rects.find(r=>r.id===state.selectedId);const sn=n=>state.snap?Math.round(n/5)*5:Math.round(n);
  function loc(el,r){el.style.left=(100*r.x/state.room.w)+'%';el.style.top=(100*r.y/state.room.h)+'%';el.style.width=(100*r.w/state.room.w)+'%';el.style.height=(100*r.h/state.room.h)+'%';}
- function draw(){board.style.aspectRatio=state.room.w+'/'+state.room.h;board.style.setProperty('--room-ratio',state.room.w/state.room.h);board.style.backgroundSize=`${2000/state.room.w}% ${2000/state.room.h}%`;board.replaceChildren();
+ function draw(){sizeBoard();board.style.backgroundSize=`${2000/state.room.w}% ${2000/state.room.h}%`;board.replaceChildren();
   for(const r of state.rects){const el=document.createElement('div');el.className='s-shape'+(r.id===state.selectedId?' s-selected':'');el.dataset.id=r.id;el.style.background=r.color;loc(el,r);
    const label=document.createElement('b');label.textContent=r.name;const size=document.createElement('small');size.textContent=r.w+' × '+r.h;el.append(label,size);
    if(r.id===state.selectedId){for(const corner of ['nw','ne','sw','se']){const h=document.createElement('div');h.className='s-handle';h.dataset.corner=corner;el.append(h)}}board.append(el)}
   picker.replaceChildren(new Option('개체 선택',''),...state.rects.map(r=>new Option(r.name,r.id)));
   picker.value=state.selectedId??'';
   picker.disabled=state.rects.length===0;
+  editButton.disabled=!chosen();
   $('[data-action="add"]').disabled=state.rects.length>=150;
   $('[data-action="undo"]').disabled=undo.length===0;
   $('[data-room=w]').value=state.room.w;
@@ -232,15 +257,24 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
   $('[data-status]').textContent=`네모 ${state.rects.length}개 · ${state.room.w} × ${state.room.h}cm`;
   persist();
  }
- function close(){popup.hidden=true}
+ function close(){popup.hidden=true;editButton.setAttribute('aria-expanded','false')}
  function openPopup(){const r=chosen();if(!r)return;for(const key of ['name','w','h','x','y'])$('[data-edit='+key+']').value=r[key];
-  const host=$('[data-colors]');host.replaceChildren();for(const color of colors){const b=document.createElement('button');b.type='button';b.className='s-color'+(r.color===color?' on':'');b.style.background=color;b.setAttribute('aria-label','색상');b.onclick=()=>{remember();r.color=color;draw();openPopup();publish()};host.append(b)}popup.hidden=false;
+  const host=$('[data-colors]');host.replaceChildren();for(const color of colors){const b=document.createElement('button');b.type='button';b.className='s-color'+(r.color===color?' on':'');b.style.background=color;b.setAttribute('aria-label','색상');b.onclick=()=>{remember();r.color=color;draw();openPopup();publish()};host.append(b)}popup.hidden=false;editButton.setAttribute('aria-expanded','true');
  }
  root.addEventListener('click',ev=>{const button=ev.target.closest('[data-action]');if(!button)return;const action=button.dataset.action;
-  if(action==='zoom-out')setZoom(zoomIndex-1);
-  if(action==='zoom-in')setZoom(zoomIndex+1);
-  if(action==='zoom-fit')setZoom(1);
-  if(action==='add'){if(state.rects.length>=150)return;remember();const id='n'+state.nextId,w=Math.min(140,state.room.w),h=Math.min(90,state.room.h);state.rects.push({id,name:'네모 '+state.nextId,x:clamp(state.nextId*34,0,state.room.w-w),y:clamp(state.nextId*26,0,state.room.h-h),w,h,color:colors[(state.nextId-1)%colors.length]});state.nextId++;state.selectedId=id;draw();openPopup();}
+  if(action.startsWith('zoom-')){
+   if(action==='zoom-out')zoom=Math.max(minZoom,visibleZoom/1.25);
+   if(action==='zoom-in')zoom=visibleZoom*1.25;
+   if(action==='zoom-fit')zoom=1;
+   if(action==='zoom-width')zoom=Infinity;
+   sizeBoard();
+   return;
+  }
+  if(action==='edit'){
+   if(popup.hidden)openPopup();
+   else close();
+  }
+  if(action==='add'){if(state.rects.length>=150)return;remember();const id='n'+state.nextId,w=Math.min(140,state.room.w),h=Math.min(90,state.room.h);state.rects.push({id,name:'네모 '+state.nextId,x:clamp(state.nextId*34,0,state.room.w-w),y:clamp(state.nextId*26,0,state.room.h-h),w,h,color:colors[(state.nextId-1)%colors.length]});state.nextId++;state.selectedId=id;close();draw();}
   if(action==='undo'&&undo.length){state=undo.pop();close();draw()}
   if(action==='reset'){remember();state=first();close();draw()}
   if(action==='close'){close();picker.focus();}
@@ -255,7 +289,7 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
  picker.addEventListener('change',()=>{
   state.selectedId=picker.value||null;
   draw();
-  if(state.selectedId)openPopup();
+  if(state.selectedId&&!popup.hidden)openPopup();
   else close();
  });
  const nameInput=$('[data-edit=name]');
@@ -299,7 +333,16 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
    x=l;y=t;w=rt-l;h=bt-t;}
   Object.assign(r,{x,y,w,h});loc(g.el,r);g.el.querySelector('small').textContent=w+' × '+h;
  }
- function end(){if(!drag)return;const g=drag;drag=null;state.selectedId=g.id;draw();openPopup();if(g.moved)publish()}
+ function end(){
+  if(!drag)return;
+  const g=drag, keepEditor=state.selectedId===g.id&&!popup.hidden;
+  drag=null;
+  state.selectedId=g.id;
+  draw();
+  if(keepEditor)openPopup();
+  else close();
+  if(g.moved)publish();
+ }
  const prevent=e=>{if(e.cancelable)e.preventDefault();e.stopPropagation()};
  board.addEventListener('touchstart',e=>{if(drag||e.touches.length!==1||!e.target.closest('.s-shape'))return;prevent(e);const t=e.changedTouches[0];begin(t.clientX,t.clientY,e.target,'touch',t.identifier)},{capture:true,passive:false});
  document.addEventListener('touchmove',e=>{if(!drag||drag.mode!=='touch')return;prevent(e);const t=Array.from(e.changedTouches).find(t=>t.identifier===drag.pid);if(t)move(t.clientX,t.clientY)},{capture:true,passive:false});
@@ -310,7 +353,7 @@ button:focus-visible, select:focus-visible, summary:focus-visible { outline:2px 
  board.addEventListener('pointercancel',e=>{if(drag&&drag.mode==='pointer'&&drag.pid===e.pointerId)end()});
  board.addEventListener('dragstart',e=>e.preventDefault());board.addEventListener('contextmenu',e=>e.preventDefault());
  draw();
- setZoom(1);
+ window.addEventListener('resize',sizeBoard);
  globalThis.__effect?.(()=>{const incoming=globalThis.__bindings?.value;if(!incoming||drag)return;const normalized=validate(incoming);if(normalized&&normalized.updatedAt>state.updatedAt){state=normalized;close();draw()}});
 })();
 </script></body></html>
