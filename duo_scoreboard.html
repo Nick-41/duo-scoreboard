@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#10131b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="듀오 점수판">
+<title>듀오 점수판</title>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;--bg:#10131b;--text:#f8fafc;--muted:#a9b3c4}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{height:100%;background:var(--bg)}body{margin:0;min-height:100%;min-height:100dvh;background:var(--bg);color:var(--text);overscroll-behavior:none}
+main{min-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 12px) max(12px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 12px) max(12px,env(safe-area-inset-left));gap:12px;max-width:1600px;margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}h1{font-size:clamp(16px,3vw,20px);letter-spacing:-.02em;margin:0;font-weight:700}header nav{display:flex;gap:8px}button{font:inherit;touch-action:manipulation;cursor:pointer;border:0;border-radius:14px;color:var(--text);font-weight:750}button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}nav button{background:#252b39;padding:11px 15px;font-size:14px}nav button:active{background:#394255}
+.board{display:grid;grid-template-columns:1fr;gap:12px;flex:1;min-height:0}.team{--tint:#54a8ff;background:linear-gradient(180deg,color-mix(in srgb,var(--tint) 17%,#1c2330) 0%,#161b25 100%);border:2px solid color-mix(in srgb,var(--tint) 45%,#334155);border-radius:24px;min-height:240px;display:flex;flex-direction:column;align-items:stretch;padding:clamp(12px,2vw,20px);gap:10px;overflow:hidden}.team.b{--tint:#ffba59}.name{display:block;margin:auto auto 0;max-width:100%;width:85%;min-width:0;background:transparent;border:0;color:inherit;text-align:center;font-weight:750;font-size:clamp(20px,4vw,36px);padding:4px 0;border-bottom:1px solid color-mix(in srgb,var(--tint) 30%,transparent);border-radius:0;outline:none}.name::placeholder{color:#c3cad6}.score{font-weight:850;text-align:center;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.07em;white-space:nowrap;font-size:clamp(90px,28vw,240px);margin:auto 0;text-shadow:0 5px 18px #0003}.controls{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:auto}.controls button{min-height:clamp(66px,10vh,110px);font-size:clamp(32px,6vw,52px);transition:transform .08s}.controls button:active{transform:scale(.97)}.minus{background:#343c4c}.plus{background:var(--tint);color:#111722}
+.note{color:var(--muted);text-align:center;font-size:12px;margin:0}#announce{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+@media(min-width:650px){main{gap:14px}.board{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.team{min-height:0}.score{font-size:clamp(100px,19vw,290px)}.controls button{min-height:clamp(72px,15vh,145px)}.name{font-size:clamp(24px,3vw,40px)}}
+@media(max-height:600px){main{gap:7px;padding-top:calc(env(safe-area-inset-top) + 4px);padding-bottom:calc(env(safe-area-inset-bottom) + 4px)}.team{padding:8px;gap:2px}.score{font-size:clamp(55px,18vh,160px)}.name{font-size:20px}.controls button{min-height:52px}.note{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>듀오 점수판</h1><nav aria-label="공통 기능"><button id="undo" type="button">실행 취소</button><button id="reset" type="button">점수 초기화</button></nav></header>
+<section class="board" aria-label="두 팀 점수판">
+<article class="team a"><input id="name0" class="name" type="text" maxlength="20" value="A팀" aria-label="첫 번째 팀 이름" autocomplete="off" spellcheck="false"><output id="score0" class="score" aria-label="첫 번째 팀 점수">0</output><div class="controls"><button type="button" class="minus" data-team="0" data-delta="-1" aria-label="첫 번째 팀 1점 빼기">−</button><button type="button" class="plus" data-team="0" data-delta="1" aria-label="첫 번째 팀 1점 더하기">+</button></div></article>
+<article class="team b"><input id="name1" class="name" type="text" maxlength="20" value="B팀" aria-label="두 번째 팀 이름" autocomplete="off" spellcheck="false"><output id="score1" class="score" aria-label="두 번째 팀 점수">0</output><div class="controls"><button type="button" class="minus" data-team="1" data-delta="-1" aria-label="두 번째 팀 1점 빼기">−</button><button type="button" class="plus" data-team="1" data-delta="1" aria-label="두 번째 팀 1점 더하기">+</button></div></article>
+</section>
+<p class="note">접은 화면에서는 위아래 · 펼친 화면에서는 좌우로 배치됩니다. 점수는 이 기기에 자동 저장됩니다.</p>
+<div id="announce" role="status" aria-live="polite"></div>
+</main>
+<script>
+'use strict';
+const KEY='duo-scoreboard-v1';
+const defaults={scores:[0,0],names:['A팀','B팀']};
+let state={scores:[0,0],names:['A팀','B팀']};
+let history=[];
+try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&Array.isArray(saved.scores)&&saved.scores.length===2&&saved.scores.every(n=>Number.isSafeInteger(n)&&n>=0)&&Array.isArray(saved.names)&&saved.names.length===2&&saved.names.every(n=>typeof n==='string')){state={scores:[...saved.scores],names:[...saved.names]}}}catch(e){}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function draw(){for(let i=0;i<2;i++){document.getElementById('score'+i).textContent=String(state.scores[i]);const el=document.getElementById('name'+i);if(document.activeElement!==el)el.value=state.names[i]};document.getElementById('undo').disabled=history.length===0;document.getElementById('undo').style.opacity=history.length?1:.45}
+function checkpoint(){history.push([...state.scores]);if(history.length>100)history.shift()}
+function change(team,delta){const next=state.scores[team]+delta;if(next<0||!Number.isSafeInteger(next))return;checkpoint();state.scores[team]=next;persist();draw();document.getElementById('announce').textContent=state.names[team]+' '+next+'점'}
+document.querySelectorAll('[data-team]').forEach(btn=>btn.addEventListener('click',()=>change(Number(btn.dataset.team),Number(btn.dataset.delta))));
+for(let i=0;i<2;i++){document.getElementById('name'+i).addEventListener('input',ev=>{state.names[i]=ev.target.value;persist()})}
+document.getElementById('undo').addEventListener('click',()=>{const old=history.pop();if(!old)return;state.scores=old;persist();draw()});
+document.getElementById('reset').addEventListener('click',()=>{if(!confirm('두 팀의 점수를 모두 0으로 초기화할까요?'))return;checkpoint();state.scores=[0,0];persist();draw()});
+window.addEventListener('keydown',ev=>{if(ev.target instanceof HTMLInputElement)return;if(ev.key==='ArrowLeft'){change(0,1)}else if(ev.key==='ArrowRight'){change(1,1)}else if(ev.key==='Backspace'){const prev=history.pop();if(prev){state.scores=prev;persist();draw()}}});
+draw();
+</script>
+</body>
+</html>
