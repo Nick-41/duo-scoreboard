@@ -1,28 +1,28 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>공간배치 스튜디오 v1.1.2</title>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>공간 배치 스튜디오 · 모아덱</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f4f7fb;color:#243244}
+*{box-sizing:border-box}html,body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f7f5fc;color:#243244}
 #space-v111{width:100%;max-width:950px;margin:0 auto;background:white;border:1px solid #dde4ef;border-radius:15px;overflow:hidden}
 .s-hd,.s-tools,.s-settings{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 13px}
 .s-hd{justify-content:space-between;padding-bottom:4px}.s-hd strong{font-size:16px}.s-version{font-size:11px;color:#5b6b80;background:#f0f3f8;padding:4px 7px;border-radius:6px}
-.s-tools{padding-top:6px}.s-hub-back{display:inline-flex;align-items:center;min-height:34px;padding:7px 11px;border-radius:9px;text-decoration:none;font-size:12px;font-weight:750;color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;touch-action:manipulation}.s-hub-back:focus-visible{outline:2px solid #2563eb;outline-offset:2px}button{cursor:pointer;font-family:inherit}button:disabled{opacity:.4;cursor:default}
-.s-btn{border:1px solid #d8e0eb;border-radius:8px;background:white;color:#334155;padding:8px 11px;font-weight:650;font-size:12px}.s-main{background:#2563eb;color:white;border-color:#2563eb}
+.s-tools{padding-top:6px}.s-hub-back{display:inline-flex;align-items:center;min-height:34px;padding:7px 11px;border-radius:9px;text-decoration:none;font-size:12px;font-weight:750;color:#6042ac;background:#f0e8ff;border:1px solid #ded1f7;touch-action:manipulation}.s-hub-back:focus-visible{outline:2px solid #6042ac;outline-offset:2px}button{cursor:pointer;font-family:inherit}button:disabled{opacity:.4;cursor:default}
+.s-btn{border:1px solid #d8e0eb;border-radius:8px;background:white;color:#334155;padding:8px 11px;font-weight:650;font-size:12px}.s-main{background:#6042ac;color:white;border-color:#6042ac}
 .s-tip{padding:9px 12px;font-size:11px;color:#607085;background:#f1f5f9}
 .s-stage{position:relative;padding:22px 15px;background:#e8edf5;isolation:isolate;min-height:255px}
 .s-board{position:relative;width:100%;aspect-ratio:3/2;background-color:#fff;background-image:linear-gradient(#e5eaf1 1px,transparent 1px),linear-gradient(90deg,#e5eaf1 1px,transparent 1px);background-size:3.3333% 5%;border:2px solid #64748b;overflow:hidden;touch-action:none!important;overscroll-behavior:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .s-board *{touch-action:none!important;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .s-shape{position:absolute;border:2px solid #7999c8;border-radius:3px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;cursor:grab;min-height:0;min-width:0}
 .s-shape b,.s-shape small{max-width:94%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}.s-shape b{font-size:clamp(10px,3.5vw,15px)}.s-shape small{font-size:clamp(9px,2.6vw,12px);color:#41546c}
-.s-shape.s-selected{border:3px solid #2563eb;z-index:2}.s-shape.s-moving{z-index:3;box-shadow:0 4px 13px #214da53a}
+.s-shape.s-selected{border:3px solid #6042ac;z-index:2}.s-shape.s-moving{z-index:3;box-shadow:0 4px 13px #214da53a}
 .s-handle{position:absolute;width:34px;height:34px;display:flex;align-items:center;justify-content:center;z-index:4}
-.s-handle:after{content:"";width:13px;height:13px;background:white;border:3px solid #2563eb;border-radius:3px;box-shadow:0 1px 5px #0002}
+.s-handle:after{content:"";width:13px;height:13px;background:white;border:3px solid #6042ac;border-radius:3px;box-shadow:0 1px 5px #0002}
 .s-handle[data-corner=nw]{left:-17px;top:-17px;cursor:nwse-resize}.s-handle[data-corner=ne]{right:-17px;top:-17px;cursor:nesw-resize}.s-handle[data-corner=sw]{left:-17px;bottom:-17px;cursor:nesw-resize}.s-handle[data-corner=se]{right:-17px;bottom:-17px;cursor:nwse-resize}
 .s-popup{position:absolute;z-index:20;left:12px;top:12px;width:min(258px,calc(100% - 24px));padding:13px;background:white;border:1px solid #cdd8e8;box-shadow:0 8px 30px #12254240;border-radius:13px;color:#263445}
 .s-popup[hidden]{display:none!important}.s-popupheader{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.s-popupheader strong{font-size:14px}.s-x{border:0;background:#f1f5f9;border-radius:7px;width:28px;height:28px;font-size:20px;color:#64748b}
-.s-popup label{font-size:11px;font-weight:650;color:#607085;display:block}.s-popup input{display:block;width:100%;min-width:0;height:36px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;margin-top:5px;background:white;color:#263445;font-size:14px;outline-color:#2563eb}
-.s-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.s-colors{display:flex;gap:7px;margin-top:13px}.s-color{flex:1;height:25px;border:1px solid #d1d9e5;border-radius:5px}.s-color.on{outline:2px solid #2563eb;outline-offset:2px}
-.s-popupactions{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.s-popupactions button{padding:9px 12px;border:0;border-radius:7px;font-weight:650;font-size:12px}.s-danger{background:#fff0f0;color:#bb2742}.s-ok{background:#2563eb;color:white;min-width:70px}
-.s-settings{border-top:1px solid #e1e7ef;font-size:12px;color:#607085}.s-settings label{display:flex;align-items:center;gap:5px}.s-settings input[type=number]{width:67px;padding:6px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px}.s-settings input[type=checkbox]{accent-color:#2563eb}.s-save{font-size:11px;color:#64748b;background:#eef4fc;border-radius:6px;padding:4px 7px}.s-save.bad{background:#fff2e8;color:#9a3412}.s-status{padding:8px 13px;background:#f8fafc;border-top:1px solid #e1e7ef;font-size:11px;color:#64748b}
+.s-popup label{font-size:11px;font-weight:650;color:#607085;display:block}.s-popup input{display:block;width:100%;min-width:0;height:36px;border:1px solid #cbd5e1;border-radius:7px;padding:6px 9px;margin-top:5px;background:white;color:#263445;font-size:14px;outline-color:#6042ac}
+.s-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.s-colors{display:flex;gap:7px;margin-top:13px}.s-color{flex:1;height:25px;border:1px solid #d1d9e5;border-radius:5px}.s-color.on{outline:2px solid #6042ac;outline-offset:2px}
+.s-popupactions{display:flex;justify-content:space-between;margin-top:15px;gap:10px}.s-popupactions button{padding:9px 12px;border:0;border-radius:7px;font-weight:650;font-size:12px}.s-danger{background:#fff0f0;color:#bb2742}.s-ok{background:#6042ac;color:white;min-width:70px}
+.s-settings{border-top:1px solid #e1e7ef;font-size:12px;color:#607085}.s-settings label{display:flex;align-items:center;gap:5px}.s-settings input[type=number]{width:67px;padding:6px;border:1px solid #cbd5e1;border-radius:7px;font-size:13px}.s-settings input[type=checkbox]{accent-color:#6042ac}.s-save{font-size:11px;color:#64748b;background:#eef4fc;border-radius:6px;padding:4px 7px}.s-save.bad{background:#fff2e8;color:#9a3412}.s-status{padding:8px 13px;background:#f8fafc;border-top:1px solid #e1e7ef;font-size:11px;color:#64748b}
 
 .s-transfer{padding:13px;border-top:1px solid #d6dfe9;background:#f8fbff}
 .s-transfer[hidden]{display:none!important}
@@ -31,9 +31,10 @@
 .s-transfer textarea{display:block;width:100%;min-height:130px;max-height:240px;resize:vertical;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#1e293b;padding:10px;font:11px/1.5 ui-monospace,SFMono-Regular,monospace;user-select:text;-webkit-user-select:text;touch-action:auto}
 .s-transferbuttons{justify-content:flex-end;margin-top:9px;margin-bottom:5px}
 .s-transferstatus{font-size:11px;color:#64748b}
-</style></head><body>
+</style><link rel="icon" type="image/svg+xml" href="../assets/icon.svg">
+</head><body>
 <div id="space-v111">
- <div class="s-hd"><a class="s-hub-back" href="../index.html" aria-label="듀오 허브로 돌아가기">← 듀오 허브</a><strong>공간배치 스튜디오</strong><span class="s-version">v1.1.2</span><span class="s-save" data-save>저장 상태 확인 중</span></div>
+ <div class="s-hd"><a class="s-hub-back" href="../" aria-label="모아덱로 돌아가기">← 모아덱</a><strong>공간배치 스튜디오</strong><span class="s-version">v1.1.2</span><span class="s-save" data-save>저장 상태 확인 중</span></div>
  <div class="s-tools"><button type="button" class="s-btn s-main" data-action="add">＋ 네모 추가</button><button type="button" class="s-btn" data-action="undo">↶ 실행 취소</button><button type="button" class="s-btn" data-action="reset">초기화</button><button type="button" class="s-btn" data-action="export">백업 복사</button><button type="button" class="s-btn" data-action="import">백업 복원</button></div>
  <div class="s-tip">네모 드래그: 이동 · 모서리 드래그: 크기 조절 · 네모 탭: 편집 팝업</div>
  <div class="s-stage" data-stage><div class="s-board" data-board></div>

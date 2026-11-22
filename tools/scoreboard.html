@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#10131b">
+<meta name="theme-color" content="#171124">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="듀오 허브 점수판">
-<title>점수판 · 듀오 허브</title>
+<meta name="apple-mobile-web-app-title" content="모아덱 점수판">
+<title>점수판 · 모아덱</title>
 <style>
-:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;--bg:#10131b;--text:#f8fafc;--muted:#a9b3c4}
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;--bg:#171124;--text:#f8fafc;--muted:#a9b3c4}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{height:100%;background:var(--bg)}
 body{margin:0;min-height:100%;min-height:100dvh;background:var(--bg);color:var(--text);overscroll-behavior-y:contain}
@@ -20,13 +20,13 @@ h1{font-size:clamp(16px,3vw,20px);letter-spacing:-.02em;margin:0;font-weight:700
 button{font:inherit;touch-action:manipulation;cursor:pointer;border:0;border-radius:12px;color:var(--text);font-weight:750}
 button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
 header nav{display:flex;gap:8px}
-nav button{background:#252b39;padding:11px 13px;font-size:14px}
-nav button:active{background:#394255}
+nav button{background:#2d2241;padding:11px 13px;font-size:14px}
+nav button:active{background:#49365e}
 #undo:disabled{opacity:.45;cursor:default}
-.team-count{display:flex;align-items:center;gap:3px;background:#252b39;padding:4px;border-radius:12px}
+.team-count{display:flex;align-items:center;gap:3px;background:#2d2241;padding:4px;border-radius:12px}
 .team-count span{color:var(--muted);font-size:12px;padding:0 7px 0 4px}
 .team-count button{min-width:39px;min-height:37px;background:transparent;font-size:15px}
-.team-count button[aria-pressed="true"]{background:#516ed9;color:#fff}
+.team-count button[aria-pressed="true"]{background:#7255bc;color:#fff}
 .board{display:grid;grid-template-columns:1fr;gap:12px;flex:1;align-content:stretch;min-height:0}
 .team{--tint:#54a8ff;background:linear-gradient(180deg,color-mix(in srgb,var(--tint) 17%,#1c2330) 0%,#161b25 100%);border:2px solid color-mix(in srgb,var(--tint) 45%,#334155);border-radius:22px;min-width:0;min-height:180px;display:flex;flex-direction:column;align-items:stretch;padding:clamp(10px,2vw,18px);gap:8px;overflow:hidden}
 .team.b{--tint:#ffba59}
@@ -64,13 +64,14 @@ main{gap:7px;padding-top:calc(env(safe-area-inset-top) + 4px);padding-bottom:cal
 .note{display:none}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
-.back-to-hub{display:inline-flex;align-items:center;gap:5px;color:#dbe6f5;text-decoration:none;font-weight:700;background:#252b39;border:1px solid #394255;padding:10px 12px;border-radius:12px;white-space:nowrap;font-size:13px}.back-to-hub:focus-visible{outline:2px solid white;outline-offset:3px}@media(max-width:450px){.back-to-hub{padding:8px 10px}}
+.back-to-hub{display:inline-flex;align-items:center;gap:5px;color:#dbe6f5;text-decoration:none;font-weight:700;background:#2d2241;border:1px solid #49365e;padding:10px 12px;border-radius:12px;white-space:nowrap;font-size:13px}.back-to-hub:focus-visible{outline:2px solid white;outline-offset:3px}@media(max-width:450px){.back-to-hub{padding:8px 10px}}
 </style>
+<link rel="icon" type="image/svg+xml" href="../assets/icon.svg">
 </head>
 <body>
 <main>
 <header>
-<a class="back-to-hub" href="../index.html" aria-label="듀오 허브로 돌아가기">← 도구 모음</a>
+<a class="back-to-hub" href="../" aria-label="모아덱로 돌아가기">← 모아덱</a>
 <div class="titlebar">
 <h1>점수판</h1>
 <div class="team-count" role="group" aria-label="표시할 팀 수"><span>팀 수</span>
