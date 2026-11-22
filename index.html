@@ -2,166 +2,196 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#10131b">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b101b">
+<meta name="description" content="듀오 허브 — 점수판, 대형 글씨, 타이머 등 필요한 웹 도구를 한곳에서.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="듀오 점수판">
-<title>듀오 점수판</title>
+<meta name="apple-mobile-web-app-title" content="듀오 허브">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<title>듀오 허브 | 나만의 도구 모음</title>
 <style>
-:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;--bg:#10131b;--text:#f8fafc;--muted:#a9b3c4}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{height:100%;background:var(--bg)}
-body{margin:0;min-height:100%;min-height:100dvh;background:var(--bg);color:var(--text);overscroll-behavior-y:contain}
-main{min-height:100dvh;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top) + 12px) max(12px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 12px) max(12px,env(safe-area-inset-left));gap:12px;max-width:1600px;margin:auto}
-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.titlebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:clamp(16px,3vw,20px);letter-spacing:-.02em;margin:0;font-weight:700}
-button{font:inherit;touch-action:manipulation;cursor:pointer;border:0;border-radius:12px;color:var(--text);font-weight:750}
-button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
-header nav{display:flex;gap:8px}
-nav button{background:#252b39;padding:11px 13px;font-size:14px}
-nav button:active{background:#394255}
-#undo:disabled{opacity:.45;cursor:default}
-.team-count{display:flex;align-items:center;gap:3px;background:#252b39;padding:4px;border-radius:12px}
-.team-count span{color:var(--muted);font-size:12px;padding:0 7px 0 4px}
-.team-count button{min-width:39px;min-height:37px;background:transparent;font-size:15px}
-.team-count button[aria-pressed="true"]{background:#516ed9;color:#fff}
-.board{display:grid;grid-template-columns:1fr;gap:12px;flex:1;align-content:stretch;min-height:0}
-.team{--tint:#54a8ff;background:linear-gradient(180deg,color-mix(in srgb,var(--tint) 17%,#1c2330) 0%,#161b25 100%);border:2px solid color-mix(in srgb,var(--tint) 45%,#334155);border-radius:22px;min-width:0;min-height:180px;display:flex;flex-direction:column;align-items:stretch;padding:clamp(10px,2vw,18px);gap:8px;overflow:hidden}
-.team.b{--tint:#ffba59}
-.team.c{--tint:#84e0af}
-.team.d{--tint:#cb9bff}
-.name{display:block;margin:auto auto 0;max-width:100%;width:86%;min-width:0;background:transparent;border:0;color:inherit;text-align:center;font-weight:750;font-size:clamp(19px,4vw,34px);padding:4px 0;border-bottom:1px solid color-mix(in srgb,var(--tint) 30%,transparent);border-radius:0;outline:none}
-.name::placeholder{color:#c3cad6}
-.score{font-weight:850;text-align:center;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.07em;white-space:nowrap;font-size:clamp(62px,22vw,180px);margin:auto 0;text-shadow:0 5px 18px #0003}
-.board[data-count="2"] .team{min-height:240px}
-.board[data-count="2"] .score{font-size:clamp(90px,28vw,240px)}
-.controls{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:auto}
-.controls button{min-height:clamp(54px,9vh,100px);font-size:clamp(30px,5vw,50px);transition:transform .08s}
-.controls button:active{transform:scale(.97)}
-.minus{background:#343c4c}
-.plus{background:var(--tint);color:#111722}
-.note{color:var(--muted);text-align:center;font-size:12px;margin:0}
-#announce{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
-@media(min-width:650px){
-main{gap:12px}
-.board{grid-template-columns:repeat(2,minmax(0,1fr))}
-.board[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
-.team{min-height:0}
-.board[data-count="2"] .score{font-size:clamp(100px,19vw,290px)}
-.board[data-count="3"] .score,.board[data-count="4"] .score{font-size:clamp(72px,12vw,170px)}
-.controls button{min-height:clamp(62px,12vh,125px)}
-.name{font-size:clamp(22px,3vw,36px)}
-}
-@media(max-height:620px){
-main{gap:7px;padding-top:calc(env(safe-area-inset-top) + 4px);padding-bottom:calc(env(safe-area-inset-bottom) + 4px)}
-.team{padding:8px;gap:2px;min-height:150px}
-.board[data-count="2"] .team{min-height:150px}
-.score,.board[data-count="2"] .score,.board[data-count="3"] .score,.board[data-count="4"] .score{font-size:clamp(55px,17vh,145px)}
-.name{font-size:19px}
-.controls button{min-height:49px}
-.note{display:none}
-}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+:root{color-scheme:dark;--bg:#0b101b;--surface:#151c2a;--surface2:#1b2637;--ink:#f4f7fc;--sub:#a6b3c8;--line:#303c50;--accent:#82a5ff;--blue:#7ea8ff;--shadow:0 18px 60px #0002;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",system-ui,sans-serif}
+:root[data-theme="light"]{color-scheme:light;--bg:#f6f8fc;--surface:#fff;--surface2:#edf1f9;--ink:#172032;--sub:#63728a;--line:#dde4ee;--accent:#3b61ce;--blue:#416ce0;--shadow:0 18px 60px #23304f0e}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{margin:0;min-height:100dvh;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+button,input,a{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+a{text-decoration:none;color:inherit}
+.shell{max-width:1220px;margin:0 auto;padding-left:clamp(17px,4vw,46px);padding-right:clamp(17px,4vw,46px)}
+.topbar{height:84px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:12px;min-width:0}
+.brand-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#c1d1ff,#6185ee);color:#111b36;box-shadow:0 5px 20px #6688ef33}
+.brand strong{display:block;font-size:18px;font-weight:800;letter-spacing:-.04em;line-height:1.05}
+.brand small{display:block;color:var(--sub);font-size:11px;font-weight:600;letter-spacing:.02em;margin-top:5px}
+.top-actions{display:flex;align-items:center;gap:10px}
+.top-actions a{font-size:13px;color:var(--sub);font-weight:650;padding:10px}
+.icon-button{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.icon-button svg{width:19px;height:19px}
+.hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:26px;margin-top:34px;border-radius:28px;padding:clamp(30px,5vw,58px);min-height:298px;background:radial-gradient(circle at 78% 10%,#435c9a66,transparent 39%),linear-gradient(118deg,#1a2b48,#101927 77%);border:1px solid #354767;color:#f8fbff}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.24;background-image:linear-gradient(#7c9bd411 1px,transparent 1px),linear-gradient(90deg,#7c9bd411 1px,transparent 1px);background-size:38px 38px}
+.hero-copy{position:relative;z-index:1;max-width:640px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;color:#c1d1f3;font-size:11px;letter-spacing:.16em;font-weight:800}
+.eyebrow::before{content:"";height:7px;width:7px;background:#8db5ff;border-radius:50%;box-shadow:0 0 0 5px #8db5ff22}
+.hero h1{font-size:clamp(30px,5.7vw,53px);letter-spacing:-.055em;line-height:1.14;margin:21px 0 16px;font-weight:850}
+.hero p{font-size:clamp(13px,1.7vw,15px);line-height:1.85;color:#b7c5df;margin:0;word-break:keep-all}
+.hero-visual{flex:0 0 210px;position:relative;height:205px;z-index:1}
+.visual-tile{position:absolute;display:grid;place-items:center;border:1px solid #8eb2ff66;background:linear-gradient(140deg,#344e79d9,#1d2d4ad9);backdrop-filter:blur(8px);border-radius:23px;box-shadow:0 18px 45px #04091366}
+.visual-tile svg{stroke:#cbd9ff}
+.visual-tile.one{width:123px;height:123px;top:5px;left:17px;transform:rotate(-11deg)}
+.visual-tile.two{width:98px;height:98px;right:8px;top:64px;transform:rotate(11deg)}
+.visual-tile.three{width:75px;height:75px;left:52px;bottom:0;transform:rotate(8deg)}
+.section{margin-top:44px;scroll-margin-top:28px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:19px}
+.section-head h2{font-size:clamp(21px,3vw,27px);margin:0;letter-spacing:-.045em}
+.section-head p{color:var(--sub);margin:7px 0 0;font-size:13px;line-height:1.5}
+.result-count{font-size:12px;color:var(--sub);white-space:nowrap}
+.tools-bar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:20px}
+.search{height:48px;display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:0 15px;flex:1 1 245px;min-width:0}
+.search svg{flex-shrink:0;width:18px;height:18px;color:var(--sub)}
+.search input{width:100%;min-width:0;border:0;outline:none;background:transparent;color:var(--ink);font-size:14px}
+.search input::placeholder{color:var(--sub)}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px #829df824}
+.filters{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;max-width:100%;padding:2px 0}
+.filters::-webkit-scrollbar{display:none}
+.filters button{border:1px solid var(--line);background:var(--surface);color:var(--sub);border-radius:12px;min-height:43px;padding:0 15px;font-size:13px;font-weight:700;white-space:nowrap}
+.filters button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.tool-card{min-height:249px;position:relative;display:flex;flex-direction:column;border:1px solid var(--line);background:var(--surface);border-radius:21px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s,transform .2s}
+.tool-card:hover{transform:translateY(-3px);border-color:#849ece77}
+.tool-card:focus-within{border-color:var(--accent)}
+.tool-main{flex:1;display:flex;flex-direction:column;padding:24px 24px 0;min-width:0}
+.tool-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tool-icon{height:54px;width:54px;display:grid;place-items:center;border-radius:17px;background:var(--surface2);color:var(--blue)}
+.tool-card[data-tone="orange"] .tool-icon{background:#ffaf5430;color:#f1aa62}
+.tool-card[data-tone="mint"] .tool-icon{background:#5fe5bc25;color:#65daba}
+.tool-card[data-tone="purple"] .tool-icon{background:#bca6ff2d;color:#b9a8ff}
+.tool-icon svg{width:26px;height:26px;stroke-width:1.8}
+.tool-status{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.02em}
+.tool-card h3{font-size:19px;letter-spacing:-.04em;margin:22px 0 8px}
+.tool-card p{font-size:13px;line-height:1.7;color:var(--sub);margin:0;word-break:keep-all}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:23px 24px 21px}
+.category{font-size:12px;color:var(--sub)}
+.card-actions{display:flex;gap:8px;align-items:center}
+.favorite{width:33px;height:33px;display:grid;place-items:center;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--sub)}
+.favorite svg{width:17px;height:17px}
+.favorite[aria-pressed="true"]{color:#e9ad54;border-color:#e9ad5477;background:#e9ad5414}
+.open-link{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;background:var(--surface2);border-radius:10px;font-size:12px;font-weight:750}
+.open-link svg{width:15px;height:15px}
+.tool-card.soon{box-shadow:none;border-style:dashed;opacity:.85}
+.tool-card.soon:hover{transform:none}
+.empty{padding:45px 20px;border:1px dashed var(--line);border-radius:20px;text-align:center;color:var(--sub);font-size:14px}
+.empty strong{display:block;color:var(--ink);margin-bottom:8px;font-size:17px}
+.future{margin:30px 0 48px;padding:24px 27px;display:flex;align-items:center;justify-content:space-between;gap:22px;border:1px solid var(--line);border-radius:20px;background:var(--surface)}
+.future h2{margin:0 0 7px;font-size:16px;letter-spacing:-.03em}
+.future p{margin:0;line-height:1.7;font-size:13px;color:var(--sub)}
+.future-mark{font-size:27px;color:var(--accent);font-weight:400}
+.footer{border-top:1px solid var(--line);padding-top:24px;padding-bottom:calc(env(safe-area-inset-bottom) + 27px);color:var(--sub);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px}
+.footer a{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:900px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-visual{flex-basis:155px;transform:scale(.84);transform-origin:right center}.hero{min-height:270px}}
+@media(max-width:610px){.topbar{height:72px}.top-actions a{display:none}.brand-icon{width:39px;height:39px}.hero{margin-top:20px;min-height:225px;border-radius:23px;padding:29px 25px}.hero h1{margin:17px 0 12px}.hero-visual{display:none}.section{margin-top:31px}.tools-bar{gap:12px}.search{flex-basis:100%}.filters{width:100%}.tool-grid{grid-template-columns:1fr;gap:12px}.tool-card{min-height:222px}.tool-main{padding:20px 20px 0}.tool-card h3{margin-top:15px}.card-bottom{margin:18px 20px 18px}.future{padding:20px}.footer{font-size:11px}}
+@media(min-width:430px) and (max-width:610px){.tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tool-card{min-height:255px}.tool-main{padding:18px 16px 0}.card-bottom{margin:17px 16px 16px}.tool-card h3{font-size:17px}.tool-card p{font-size:12px}.open-link{padding:8px}.category{font-size:11px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<main>
-<header>
-<div class="titlebar">
-<h1>듀오 점수판</h1>
-<div class="team-count" role="group" aria-label="표시할 팀 수"><span>팀 수</span>
-<button type="button" data-count="2" aria-pressed="true">2</button>
-<button type="button" data-count="3" aria-pressed="false">3</button>
-<button type="button" data-count="4" aria-pressed="false">4</button>
-</div>
-</div>
-<nav aria-label="공통 기능"><button id="undo" type="button">실행 취소</button><button id="reset" type="button">점수 초기화</button></nav>
+<svg style="display:none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="3" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="13" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="8" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-score" viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-8M22 19v-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></symbol>
+<symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V5h16v2M12 5v14M8 19h8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6M18 6l2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 3v18M9 12h12" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14a8.5 8.5 0 0 1-10.5-10A8.5 8.5 0 1 0 20.5 14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+<div class="shell">
+<header class="topbar">
+<a class="brand" href="./index.html" aria-label="듀오 허브 홈"><span class="brand-icon"><svg width="24" height="24" aria-hidden="true"><use href="#i-grid"/></svg></span><span><strong>DUO HUB</strong><small>나만의 도구 모음</small></span></a>
+<div class="top-actions"><a href="#tools">모든 도구</a><button id="themeBtn" class="icon-button" type="button" aria-label="색상 테마 변경" title="색상 테마 변경"><svg aria-hidden="true"><use id="themeIcon" href="#i-sun"/></svg></button></div>
 </header>
-<section id="board" class="board" data-count="2" aria-label="팀별 점수판"></section>
-<p class="note">팀 수를 줄여도 기존 점수는 유지됩니다. 점수와 팀 이름은 이 기기에 자동 저장됩니다.</p>
-<div id="announce" role="status" aria-live="polite"></div>
+<main>
+<section class="hero" aria-labelledby="hero-title">
+<div class="hero-copy"><span class="eyebrow">YOUR PERSONAL TOOLKIT</span><h1 id="hero-title">필요한 도구를,<br>한곳에.</h1><p>점수 기록부터 일상의 작은 작업까지.<br>가볍고 간결한 도구들을 하나의 공간에 모았습니다.</p></div>
+<div class="hero-visual" aria-hidden="true"><div class="visual-tile one"><svg width="59" height="59"><use href="#i-grid"/></svg></div><div class="visual-tile two"><svg width="50" height="50"><use href="#i-score"/></svg></div><div class="visual-tile three"><svg width="39" height="39"><use href="#i-clock"/></svg></div></div>
+</section>
+<section id="tools" class="section" aria-labelledby="tools-heading">
+<div class="section-head"><div><h2 id="tools-heading">도구 라이브러리</h2><p>바로 실행하거나 별표를 눌러 즐겨찾기에 등록하세요.</p></div><span id="resultCount" class="result-count" aria-live="polite"></span></div>
+<div class="tools-bar"><label class="search"><svg aria-hidden="true"><use href="#i-search"/></svg><input id="searchInput" type="search" aria-label="도구 검색" placeholder="도구 이름이나 기능 검색" autocomplete="off"></label>
+<div id="filters" class="filters" role="group" aria-label="도구 분류">
+<button type="button" data-filter="전체" aria-pressed="true">전체</button>
+<button type="button" data-filter="즐겨찾기" aria-pressed="false">즐겨찾기</button>
+<button type="button" data-filter="게임" aria-pressed="false">게임</button>
+<button type="button" data-filter="일상" aria-pressed="false">일상</button>
+<button type="button" data-filter="작업" aria-pressed="false">작업</button>
+</div></div>
+<div id="toolGrid" class="tool-grid"></div>
+<div id="empty" class="empty" hidden><strong>일치하는 도구가 없습니다.</strong>검색어나 분류를 변경해 보세요.</div>
+</section>
+<section class="future" aria-label="확장 안내"><div><h2>하나의 주소, 계속 늘어나는 도구</h2><p>앞으로 추가하는 웹 도구도 여기서 바로 실행할 수 있도록 구성했습니다. 데이터는 별도의 서버 전송 없이 브라우저에 보관됩니다.</p></div><span class="future-mark" aria-hidden="true">＋</span></section>
 </main>
+<footer class="footer"><span>© DUO HUB · 만든 도구를 한곳에</span><span><a href="https://github.com/Nick-41/duo-scoreboard" target="_blank" rel="noopener noreferrer">GitHub 프로젝트</a></span></footer>
+</div>
 <script>
 'use strict';
-const KEY='duo-scoreboard-v2';
-const OLD_KEY='duo-scoreboard-v1';
-const letters=['A','B','C','D'];
-const defaults={count:2,scores:[0,0,0,0],names:['A팀','B팀','C팀','D팀']};
-let state={count:defaults.count,scores:[...defaults.scores],names:[...defaults.names]};
-let history=[];
-try{
- const next=JSON.parse(localStorage.getItem(KEY));
- if(next&&Number.isInteger(next.count)&&next.count>=2&&next.count<=4&&
-    Array.isArray(next.scores)&&next.scores.length===4&&next.scores.every(n=>Number.isSafeInteger(n)&&n>=0)&&
-    Array.isArray(next.names)&&next.names.length===4&&next.names.every(n=>typeof n==='string')){
-   state={count:next.count,scores:[...next.scores],names:next.names.map(n=>n.slice(0,20))};
- }else{
-   const old=JSON.parse(localStorage.getItem(OLD_KEY));
-   if(old&&Array.isArray(old.scores)&&old.scores.length===2&&old.scores.every(n=>Number.isSafeInteger(n)&&n>=0)&&
-      Array.isArray(old.names)&&old.names.length===2&&old.names.every(n=>typeof n==='string')){
-      state.scores[0]=old.scores[0];state.scores[1]=old.scores[1];
-      state.names[0]=old.names[0].slice(0,20);state.names[1]=old.names[1].slice(0,20);
-   }
+const tools=[
+{id:'scoreboard',name:'점수판',description:'2~4팀 점수 관리, 실행 취소, 자동 저장',category:'게임',tone:'blue',icon:'score',path:'tools/scoreboard.html',ready:true},
+{id:'bigtext',name:'대형 글씨',description:'짧은 문구를 화면 가득 크게 표시',category:'일상',tone:'purple',icon:'type',path:'tools/bigtext.html',ready:true},
+{id:'timer',name:'타이머 · 스톱워치',description:'간단한 시간 측정과 카운트다운',category:'일상',tone:'orange',icon:'clock',path:'tools/timer.html',ready:true},
+{id:'layout',name:'공간 배치 스튜디오',description:'공간과 물체를 시각적으로 배치하는 도구',category:'작업',tone:'mint',icon:'layout',path:null,ready:false}
+];
+const favKey='duo-hub-favorites-v1';
+const themeKey='duo-hub-theme-v1';
+function safeRead(key){try{return localStorage.getItem(key)}catch(e){return null}}
+function safeWrite(key,value){try{localStorage.setItem(key,value)}catch(e){}}
+let favoriteIds=[];
+try{const a=JSON.parse(safeRead(favKey));if(Array.isArray(a))favoriteIds=a.filter(v=>typeof v==='string')}catch(e){}
+let activeFilter='전체';
+const grid=document.getElementById('toolGrid'),empty=document.getElementById('empty'),counter=document.getElementById('resultCount'),search=document.getElementById('searchInput');
+function svgIcon(name){return '<svg aria-hidden="true"><use href="#i-'+name+'"></use></svg>'}
+function createCard(tool){
+ const article=document.createElement('article');article.className='tool-card'+(tool.ready?'':' soon');article.dataset.tone=tool.tone;
+ const main=document.createElement(tool.ready?'a':'div');main.className='tool-main';
+ if(tool.ready){main.href=tool.path;main.setAttribute('aria-label',tool.name+' 실행')}
+ const top=document.createElement('div');top.className='tool-top';
+ const icon=document.createElement('span');icon.className='tool-icon';icon.innerHTML=svgIcon(tool.icon);
+ const status=document.createElement('span');status.className='tool-status';status.textContent=tool.ready?'사용 가능':'추가 예정';
+ top.append(icon,status);
+ const title=document.createElement('h3');title.textContent=tool.name;
+ const desc=document.createElement('p');desc.textContent=tool.description;
+ main.append(top,title,desc);
+ const bottom=document.createElement('div');bottom.className='card-bottom';
+ const category=document.createElement('span');category.className='category';category.textContent=tool.category;
+ const actions=document.createElement('div');actions.className='card-actions';
+ if(tool.ready){
+  const star=document.createElement('button');star.className='favorite';star.type='button';star.setAttribute('aria-label',tool.name+' 즐겨찾기 전환');
+  star.setAttribute('aria-pressed',String(favoriteIds.includes(tool.id)));star.innerHTML=svgIcon('star');
+  star.addEventListener('click',()=>{favoriteIds=favoriteIds.includes(tool.id)?favoriteIds.filter(v=>v!==tool.id):[...favoriteIds,tool.id];safeWrite(favKey,JSON.stringify(favoriteIds));render()});
+  const link=document.createElement('a');link.href=tool.path;link.className='open-link';link.innerHTML='열기 '+svgIcon('arrow');link.setAttribute('aria-label',tool.name+' 열기');
+  actions.append(star,link);
  }
-}catch(e){}
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-function buildTeams(){
- const board=document.getElementById('board');
- board.replaceChildren();
- board.dataset.count=String(state.count);
- for(let i=0;i<state.count;i++){
-   const team=document.createElement('article');
-   team.className='team '+letters[i].toLowerCase();
-   team.innerHTML='<input id="name'+i+'" class="name" type="text" maxlength="20" aria-label="'+letters[i]+'팀 이름" autocomplete="off" spellcheck="false">'+
-     '<output id="score'+i+'" class="score" aria-label="'+letters[i]+'팀 점수">0</output>'+
-     '<div class="controls"><button type="button" class="minus" aria-label="'+letters[i]+'팀 1점 빼기">−</button>'+
-     '<button type="button" class="plus" aria-label="'+letters[i]+'팀 1점 더하기">+</button></div>';
-   team.querySelector('.minus').addEventListener('click',()=>change(i,-1));
-   team.querySelector('.plus').addEventListener('click',()=>change(i,1));
-   team.querySelector('.name').addEventListener('input',ev=>{state.names[i]=ev.target.value;persist()});
-   board.appendChild(team);
- }
- draw();
+ bottom.append(category,actions);article.append(main,bottom);return article;
 }
-function draw(){
- for(let i=0;i<state.count;i++){
-   document.getElementById('score'+i).textContent=String(state.scores[i]);
-   const input=document.getElementById('name'+i);
-   if(document.activeElement!==input)input.value=state.names[i];
- }
- document.getElementById('undo').disabled=history.length===0;
- document.querySelectorAll('.team-count button[data-count]').forEach(btn=>btn.setAttribute('aria-pressed',String(Number(btn.dataset.count)===state.count)));
+function render(){
+ const query=search.value.trim().toLocaleLowerCase('ko');
+ const matched=tools.filter(t=>(activeFilter==='전체'||activeFilter==='즐겨찾기'&&favoriteIds.includes(t.id)||t.category===activeFilter)&&(!query||(t.name+' '+t.description+' '+t.category).toLocaleLowerCase('ko').includes(query)));
+ matched.sort((a,b)=>Number(favoriteIds.includes(b.id))-Number(favoriteIds.includes(a.id)));
+ grid.replaceChildren(...matched.map(createCard));empty.hidden=matched.length!==0;
+ counter.textContent=matched.length+'개 표시 · '+tools.filter(t=>t.ready).length+'개 사용 가능';
+ document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===activeFilter)));
 }
-function checkpoint(){history.push([...state.scores]);if(history.length>100)history.shift()}
-function change(team,delta){
- if(team>=state.count)return;
- const next=state.scores[team]+delta;
- if(next<0||!Number.isSafeInteger(next))return;
- checkpoint();state.scores[team]=next;persist();draw();
- document.getElementById('announce').textContent=state.names[team]+' '+next+'점';
-}
-document.querySelectorAll('.team-count button[data-count]').forEach(btn=>btn.addEventListener('click',()=>{
- const count=Number(btn.dataset.count);
- if(count===state.count)return;
- state.count=count;persist();buildTeams();
-}));
-document.getElementById('undo').addEventListener('click',()=>{
- const old=history.pop();if(!old)return;
- state.scores=old;persist();draw();
-});
-document.getElementById('reset').addEventListener('click',()=>{
- if(!confirm('모든 팀의 점수를 0으로 초기화할까요?'))return;
- checkpoint();state.scores=[0,0,0,0];persist();draw();
-});
-window.addEventListener('keydown',ev=>{
- if(ev.target instanceof HTMLInputElement)return;
- if(ev.key==='ArrowLeft'){ev.preventDefault();change(0,1)}
- else if(ev.key==='ArrowRight'){ev.preventDefault();change(1,1)}
- else if(ev.key==='Backspace'){const prev=history.pop();if(prev){ev.preventDefault();state.scores=prev;persist();draw()}}
-});
-buildTeams();
+document.getElementById('filters').addEventListener('click',ev=>{const b=ev.target.closest('button[data-filter]');if(!b)return;activeFilter=b.dataset.filter;render()});
+search.addEventListener('input',render);
+document.addEventListener('keydown',ev=>{if(ev.key==='/'&&document.activeElement!==search&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){ev.preventDefault();search.focus()}if(ev.key==='Escape'&&document.activeElement===search){search.value='';search.blur();render()}});
+function setTheme(value){document.documentElement.dataset.theme=value;document.getElementById('themeIcon').setAttribute('href',value==='light'?'#i-moon':'#i-sun');safeWrite(themeKey,value);document.querySelector('meta[name="theme-color"]').content=value==='light'?'#f6f8fc':'#0b101b'}
+setTheme(safeRead(themeKey)==='light'?'light':'dark');
+document.getElementById('themeBtn').addEventListener('click',()=>setTheme(document.documentElement.dataset.theme==='light'?'dark':'light'));
+render();
 </script>
 </body>
 </html>
