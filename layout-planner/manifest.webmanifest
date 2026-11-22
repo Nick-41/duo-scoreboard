@@ -1,0 +1,19 @@
+{
+  "name": "듀오 배치도",
+  "short_name": "배치도",
+  "description": "접힘·펼침 화면을 지원하는 터치 기반 가구 배치도",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#111827",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
