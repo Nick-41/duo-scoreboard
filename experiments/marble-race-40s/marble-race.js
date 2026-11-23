@@ -1,6 +1,6 @@
 import { id, parseLabels, read, write } from '../../assets/utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=40s-test';
-import { createRaceView } from './marble-view.js?v=40s-test';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=40s-random-stallfix-1';
+import { createRaceView } from './marble-view.js?v=40s-random-stallfix-1';
 import { gameMotion, runFrames } from './game-motion.js?v=40s-test';
 import { nameLines, randomNickname } from '../../assets/nicknames.js?v=distinct-names';
 
