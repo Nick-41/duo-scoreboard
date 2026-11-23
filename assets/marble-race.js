@@ -354,7 +354,7 @@ document.addEventListener('pointerdown', event => {
 function syncFullscreen() {
   const expanded = fallbackFullscreen || document.fullscreenElement === panel;
   panel.classList.toggle('is-fullscreen', expanded);
-  document.body.classList.toggle('race-expanded', expanded);
+  document.documentElement.classList.toggle('race-expanded', expanded);
   fullscreen.setAttribute('aria-pressed', String(expanded));
   fullscreen.textContent = expanded ? '전체화면 닫기' : '전체화면';
   id('page-header').inert = id('race-sidebar').inert = expanded;

@@ -170,12 +170,12 @@ html { scrollbar-gutter: stable; }
 #name-count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .roster-hint { margin: 0; }
 .roster-feedback { min-block-size: 2.8em; font-size: 13px; }
-body.race-expanded { overflow: hidden; }
+html.race-expanded { overflow: hidden; scrollbar-gutter: auto; }
 .race-panel.is-fullscreen {
   position: fixed;
   z-index: 10;
   inset: 0;
-  width: 100%;
+  width: 100vw;
   height: 100%;
   height: 100dvh;
   max-height: none;
