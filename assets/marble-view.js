@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=linked';
+import { radius, width } from './marble-course.js?v=long-bars';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -17,6 +17,8 @@ function palette(course) {
     light: color(38, 99, 87),
     rubber: dark ? '#f3a56e' : '#b96437',
     shaft: dark ? '#54dbbb' : '#006e62',
+    bar: dark ? '#f4c264' : '#8b500f',
+    barStripe: dark ? '#805016' : '#ffd476',
   };
 }
 
@@ -95,16 +97,34 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
 
   ctx.lineCap = 'round';
   for (const obstacle of course.obstacles) {
-    const { x, y, dx, dy, radius: size, half = 0, spin } = obstacle;
-    if (y + half + size < top || y - half - size > bottom) continue;
+    const { x, y, dx, dy, radius: size, half = 0, spin, longBar } = obstacle;
+    const verticalReach = Math.abs(dy) + size;
+    if (y + verticalReach < top || y - verticalReach > bottom) continue;
     const face = spin || obstacle.slide ? colors.rotor : colors.peg;
     if (half) {
       ctx.beginPath();
       ctx.moveTo(x - dx, y - dy);
       ctx.lineTo(x + dx, y + dy);
       ctx.lineWidth = size * 2;
-      ctx.strokeStyle = obstacle.swing ? colors.shaft : face;
+      ctx.strokeStyle = longBar ? colors.bar : obstacle.swing ? colors.shaft : face;
       ctx.stroke();
+      if (longBar && !mini) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(Math.atan2(dy, dx));
+        ctx.beginPath();
+        for (let offset = -half + 14; offset <= half - 14; offset += 24) {
+          ctx.moveTo(offset - 5, size - 4);
+          ctx.lineTo(offset + 5, 4 - size);
+        }
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = colors.barStripe;
+        ctx.stroke();
+        dot(ctx, -half, 0, 4.5, colors.light);
+        dot(ctx, half, 0, 4.5, colors.light);
+        dot(ctx, 0, 0, size * .72, colors.background);
+        ctx.restore();
+      }
       if (obstacle.swing) {
         dot(ctx, 7, y, 4, colors.shaft);
         if (!mini) {
