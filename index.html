@@ -154,6 +154,9 @@ a { color: inherit; text-decoration: none; }
   background: var(--background) var(--tool-thumbnails) var(--thumb-x) var(--thumb-y) / 300% 300% no-repeat;
   box-shadow: inset 0 0 0 1px var(--line);
 }
+.tool-thumbnail-marble-race {
+  background: var(--background) url("assets/marble-race-thumbnail.webp") center / cover no-repeat;
+}
 .tool-card h3 { margin: 0; font-size: clamp(16px, 2vw, 20px); line-height: 1.28; letter-spacing: -.045em; word-break: keep-all; }
 .tool-card p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; word-break: keep-all; }
 .favorite {
@@ -250,6 +253,7 @@ const tools = [
   { id: 'timer', name: '타이머 · 스톱워치', description: '카운트다운과 경과 시간 측정', category: '일상', thumbnail: 2, path: 'tools/timer.html' },
   { id: 'chance', name: '동전 · 주사위', description: '1~20개 던지기와 결과 합계', category: '게임', thumbnail: 3, path: 'tools/chance.html' },
   { id: 'roulette', name: '룰렛', description: '항목을 넣고 돌려서 하나 고르기', category: '게임', thumbnail: 4, path: 'tools/roulette.html' },
+  { id: 'marble-race', name: '구슬 레이스', description: '2~32명 구슬 경주와 도착 순위', category: '게임', path: 'tools/marble-race.html' },
   { id: 'lots', name: '제비뽑기', description: '번호표를 골라 중복 없이 뽑기', category: '게임', thumbnail: 5, path: 'tools/lots.html' },
   { id: 'counters', name: '멀티카운터', description: '여러 항목의 수량을 따로 세고 합산', category: '일상', thumbnail: 6, path: 'tools/counters.html' },
   { id: 'vote', name: '투표판', description: '한 기기에서 표를 모아 득표율 확인', category: '일상', thumbnail: 7, path: 'tools/vote.html' },
@@ -297,8 +301,12 @@ function createCard(tool) {
   const thumbnail = document.createElement('span');
   thumbnail.className = 'tool-thumbnail';
   thumbnail.setAttribute('aria-hidden', 'true');
-  thumbnail.style.setProperty('--thumb-x', (tool.thumbnail % 3) * 50 + '%');
-  thumbnail.style.setProperty('--thumb-y', Math.floor(tool.thumbnail / 3) * 50 + '%');
+  if (tool.thumbnail === undefined) {
+    thumbnail.classList.add('tool-thumbnail-' + tool.id);
+  } else {
+    thumbnail.style.setProperty('--thumb-x', (tool.thumbnail % 3) * 50 + '%');
+    thumbnail.style.setProperty('--thumb-y', Math.floor(tool.thumbnail / 3) * 50 + '%');
+  }
 
   const text = document.createElement('div');
   const title = document.createElement('h3');

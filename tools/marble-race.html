@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f5fc">
+  <meta name="description" content="참가자마다 색 구슬을 배정하고 장애물 코스를 내려와 도착한 순서대로 등수를 매깁니다.">
+  <title>구슬 레이스 · 모아덱</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
+  <link rel="stylesheet" href="../assets/brand.css">
+  <link rel="stylesheet" href="../assets/utility.css">
+  <link rel="stylesheet" href="../assets/marble-race.css">
+  <script src="../assets/tool-theme.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a>
+      <h1>구슬 레이스</h1>
+    </header>
+    <div class="race-grid">
+      <section class="panel race-panel" aria-label="레이스 코스">
+        <div class="race-meter">
+          <span id="phase">출발 대기</span>
+          <progress id="progress" max="1" value="0" aria-label="선두 구슬의 코스 진행률"></progress>
+          <span id="arrived" aria-label="도착한 구슬 수">0/6</span>
+        </div>
+        <div class="track">
+          <canvas id="track" width="512" height="480" role="img" aria-label="구슬이 장애물 사이를 내려가는 2D 코스"></canvas>
+          <div id="countdown" class="countdown" aria-hidden="true" hidden></div>
+        </div>
+        <p id="race-status" class="race-status" role="status" aria-atomic="true"></p>
+        <button class="btn primary" id="start" type="submit" form="roster">레이스 시작</button>
+      </section>
+      <aside class="race-sidebar">
+        <form id="roster" class="panel list-form">
+          <div class="panel-heading">
+            <label for="names">참가자</label>
+            <span id="name-count">6명</span>
+          </div>
+          <textarea class="field" id="names" rows="4" maxlength="3000" spellcheck="false" placeholder="한 줄에 한 명씩 입력" aria-describedby="names-hint names-error"></textarea>
+          <p class="muted roster-hint" id="names-hint">한 줄에 한 명씩 · 2~32명</p>
+          <div class="roster-feedback"><p class="error" id="names-error" role="alert"></p></div>
+        </form>
+        <section class="panel results-panel" aria-labelledby="results-heading">
+          <div class="panel-heading"><h2 id="results-heading">도착 순위</h2></div>
+          <div id="result-scroll" class="result-scroll">
+            <p id="empty-results" class="muted">결승선을 통과한 순서대로 표시됩니다.</p>
+            <ol id="rankings" class="rankings"></ol>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <script type="module" src="../assets/marble-race.js"></script>
+</body>
+</html>
