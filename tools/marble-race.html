@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
   <link rel="stylesheet" href="../assets/brand.css?v=game-motion">
   <link rel="stylesheet" href="../assets/utility.css">
-  <link rel="stylesheet" href="../assets/marble-race.css?v=race-refresh">
+  <link rel="stylesheet" href="../assets/marble-race.css?v=all-ranks">
   <script src="../assets/tool-theme.js"></script>
 </head>
 <body>
@@ -33,7 +33,7 @@
         <div class="race-stage">
           <canvas id="track" width="512" height="480" tabindex="0" aria-label="2D 레이스 코스. 위아래로 끌거나 방향키를 눌러 이동"></canvas>
           <div id="countdown" class="countdown" aria-hidden="true" hidden></div>
-          <ol id="rankings" class="corner-ranks" role="list" aria-label="레이스 순위" tabindex="0" hidden></ol>
+          <ol id="rankings" class="corner-ranks" role="list" aria-label="레이스 순위" hidden></ol>
         </div>
         <div class="view-controls" role="group" aria-label="카메라 보기">
           <button class="btn" id="focus-first" type="button" data-view="first" aria-pressed="false">일등 보기</button>
@@ -63,6 +63,6 @@
       </aside>
     </div>
   </main>
-  <script type="module" src="../assets/marble-race.js?v=race-refresh"></script>
+  <script type="module" src="../assets/marble-race.js?v=all-ranks"></script>
 </body>
 </html>

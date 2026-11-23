@@ -72,17 +72,16 @@ html { scrollbar-gutter: stable; }
   position: absolute;
   inset-block-start: 8px;
   inset-inline-end: 8px;
-  inline-size: min(44%, 190px);
-  max-block-size: calc(3 * 1.4em + 10px);
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(var(--rank-columns, 1), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rank-rows, 1), 1.4em);
+  column-gap: 8px;
+  inline-size: min(calc(44% * var(--rank-columns, 1)), calc(190px * var(--rank-columns, 1)), calc(100% - 16px));
   margin: 0;
   padding-inline: 7px;
   border-block: 5px solid transparent;
-  overflow: auto;
-  overflow-anchor: none;
-  overscroll-behavior: contain;
-  touch-action: pan-y;
-  scrollbar-width: thin;
-  scrollbar-color: #ffffff70 transparent;
+  pointer-events: none;
   list-style: none;
   border-radius: 6px;
   background: #1b152a80;
@@ -99,7 +98,7 @@ html { scrollbar-gutter: stable; }
   white-space: nowrap;
 }
 .corner-ranks li:first-child { font-weight: 750; }
-.ranking-name { overflow: hidden; text-overflow: ellipsis; }
+.ranking-name { overflow: hidden; text-overflow: ellipsis; pointer-events: auto; }
 .ranking-time { color: #e3d9ef; font-size: 12px; }
 .ranking-time:empty { display: none; }
 .view-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }

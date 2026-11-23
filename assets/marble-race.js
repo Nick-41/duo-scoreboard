@@ -95,8 +95,18 @@ function clearRanks() {
   rows.clear();
   rankOrder = [];
   rankings.replaceChildren();
-  rankings.scrollTop = 0;
   rankings.hidden = true;
+}
+
+function fitRankings(count) {
+  if (!count || !track.clientHeight) return;
+  const style = getComputedStyle(rankings);
+  const inset = 2 * parseFloat(style.insetBlockStart) +
+    parseFloat(style.borderBlockStartWidth) + parseFloat(style.borderBlockEndWidth);
+  const rowsThatFit = Math.max(1, Math.floor((track.clientHeight - inset) / parseFloat(style.lineHeight)));
+  const columns = Math.ceil(count / rowsThatFit);
+  rankings.style.setProperty('--rank-columns', columns);
+  rankings.style.setProperty('--rank-rows', Math.ceil(count / columns));
 }
 
 function makeRankRow(ball) {
@@ -120,6 +130,7 @@ function updateRanks() {
   if (!standings.length) return;
 
   rankings.hidden = false;
+  if (rankOrder.length !== standings.length) fitRankings(standings.length);
   const leader = standings[0];
   if (!finishers.length && rankOrder[0] && rankOrder[0] !== leader && time > nextLeadUpdate) {
     status.textContent = '선두 교체 · ' + leader.name;
@@ -405,6 +416,9 @@ document.addEventListener('keydown', event => {
 
 resetPreview();
 viewer.resize();
-const resize = new ResizeObserver(viewer.resize);
+const resize = new ResizeObserver(() => {
+  viewer.resize();
+  fitRankings(rankOrder.length);
+});
 resize.observe(track);
 new MutationObserver(viewer.redraw).observe(document.documentElement, { attributeFilter: ['data-theme'] });
