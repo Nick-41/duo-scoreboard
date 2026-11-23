@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=collision';
+import { radius, width } from './marble-course.js?v=linked';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -16,6 +16,7 @@ function palette(course) {
     rotor: color(66, 42, 69),
     light: color(38, 99, 87),
     rubber: dark ? '#f3a56e' : '#b96437',
+    shaft: dark ? '#54dbbb' : '#006e62',
   };
 }
 
@@ -67,6 +68,8 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
   ctx.fillStyle = colors.wall;
   ctx.fillRect(10, top, 8, bottom - top);
   ctx.fillRect(width - 18, top, 8, bottom - top);
+  ctx.fillStyle = colors.shaft;
+  ctx.fillRect(6, top, 2, Math.min(course.finishLine, bottom) - Math.min(course.finishLine, top));
 
   if (!mini) {
     ctx.beginPath();
@@ -100,14 +103,22 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
       ctx.moveTo(x - dx, y - dy);
       ctx.lineTo(x + dx, y + dy);
       ctx.lineWidth = size * 2;
-      ctx.strokeStyle = face;
+      ctx.strokeStyle = obstacle.swing ? colors.shaft : face;
       ctx.stroke();
+      if (obstacle.swing) {
+        dot(ctx, 7, y, 4, colors.shaft);
+        if (!mini) {
+          dot(ctx, x - dx, y - dy, size * .52, colors.light);
+          dot(ctx, x + dx, y + dy, size * .52, colors.light);
+          dot(ctx, x, y, 6, colors.background);
+        }
+      }
     } else {
       dot(ctx, x, y, size, obstacle.restitution ? colors.rubber : face);
     }
     if (!mini) {
-      if (obstacle.restitution) dot(ctx, x, y, size * .72, colors.background);
-      dot(ctx, x, y, half ? 4 : size * .36, colors.light);
+      if (!half && obstacle.restitution) dot(ctx, x, y, size * .72, colors.background);
+      dot(ctx, x, y, half ? (obstacle.swing ? 3 : 4) : size * .36, colors.light);
     }
   }
   if (bottom >= course.finishLine) {
