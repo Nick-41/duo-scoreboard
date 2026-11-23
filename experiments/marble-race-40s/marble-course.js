@@ -299,6 +299,7 @@ export function makeMarbles(names, random = randomIndex) {
     spin: 0,
     bestY: 0,
     lastProgressAt: 0,
+    lastRecoveryAt: -Infinity,
     recoveryCount: 0,
     finished: false,
   }));
@@ -429,6 +430,53 @@ function bounceTogether(first, second) {
   }
 }
 
+
+function unobstructed(course, moving, ball, x, y) {
+  for (const other of moving) {
+    if (other === ball) continue;
+    if ((other.x - x) ** 2 + (other.y - y) ** 2 < (radius * 2 + 4) ** 2) return false;
+  }
+  for (const obstacle of course.obstacles) {
+    const dx = x - obstacle.x;
+    const dy = y - obstacle.y;
+    const reach = radius + obstacle.radius + 4;
+    if (Math.abs(dx) > Math.abs(obstacle.dx) + reach ||
+        Math.abs(dy) > Math.abs(obstacle.dy) + reach) continue;
+    const along = obstacle.half
+      ? clamp((dx * obstacle.dx + dy * obstacle.dy) / obstacle.half ** 2, -1, 1)
+      : 0;
+    if ((dx - obstacle.dx * along) ** 2 + (dy - obstacle.dy * along) ** 2 < reach ** 2)
+      return false;
+  }
+  return true;
+}
+
+// As a last-resort physics correction, separate marbles from impossible
+// collision pockets. This is not a gameplay speed boost or teleport mechanic.
+function resolveDeadlock(ball, moving, course) {
+  const offsets = [0, 24, 48, 72, 100, 135, 175, 220];
+  for (const offset of offsets) {
+    const y = Math.min(course.finishLine - radius - 4, Math.max(30, ball.y + offset));
+    const left = Math.max(...[-radius - 4, 0, radius + 4]
+      .map(delta => wallXAt(course.walls[0], y + delta))) + radius + 4;
+    const right = Math.min(...[-radius - 4, 0, radius + 4]
+      .map(delta => wallXAt(course.walls[1], y + delta))) - radius - 4;
+    if (right <= left) continue;
+    const targets = [clamp(ball.x, left, right)];
+    for (let i = 1; i <= 12; i++) targets.push(left + (right - left) * i / 13);
+    targets.sort((a, b) => Math.abs(a - ball.x) - Math.abs(b - ball.x));
+    for (const x of targets) {
+      if (!unobstructed(course, moving, ball, x, y)) continue;
+      ball.x = x;
+      ball.y = y;
+      ball.vx = (left + right - 2 * x) * .3;
+      ball.vy = Math.max(90, ball.vy);
+      return true;
+    }
+  }
+  return false;
+}
+
 function bounceOffWall(ball, boundary) {
   const { edge, direction, slopes } = boundary;
   const inset = (ball.x - edge) * direction;
@@ -485,15 +533,24 @@ export function advanceRace(marbles, course, time) {
     if (ball.y > ball.bestY + 5) {
       ball.bestY = ball.y;
       ball.lastProgressAt = time;
-    } else if (time - ball.lastProgressAt > 5.5) {
-      const left = wallXAt(course.walls[0], ball.y);
-      const right = wallXAt(course.walls[1], ball.y);
-      const middle = (left + right) / 2;
-      const direction = ball.x < middle ? 1 : -1;
-      ball.vx = direction * (95 + ball.recoveryCount % 3 * 37);
-      ball.vy = Math.max(ball.vy, 135);
+    } else if (time - ball.lastProgressAt > 5.5 &&
+               time - ball.lastRecoveryAt > 2.5) {
+      // First retry is a physical impulse; later retries use collision-safe
+      // separation if the same obstacle pocket keeps the marble stationary.
+      const rescued = ball.recoveryCount % 2 === 1 &&
+        resolveDeadlock(ball, moving, course);
+      if (!rescued) {
+        const middle = (wallXAt(course.walls[0], ball.y) +
+          wallXAt(course.walls[1], ball.y)) / 2;
+        const direction = ball.x < middle ? 1 : -1;
+        ball.vx = direction * (105 + ball.recoveryCount % 3 * 35);
+        ball.vy = Math.max(ball.vy, 140);
+      } else {
+        ball.bestY = Math.max(ball.bestY, ball.y);
+        ball.lastProgressAt = time;
+      }
       ball.recoveryCount++;
-      ball.lastProgressAt = time;
+      ball.lastRecoveryAt = time;
     }
 
     if (ball.y >= finishLine) {
