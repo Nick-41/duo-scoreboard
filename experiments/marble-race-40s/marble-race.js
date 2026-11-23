@@ -7,6 +7,7 @@ import { nameLines, randomNickname } from '../../assets/nicknames.js?v=distinct-
 const storageKey = 'moadeck-marble-race-40s-test-v1';
 const courseKey = 'moadeck-marble-course-40s-test-v1';
 const limit = 32;
+const raceDeadline = 100; // Hard stop: no race can wait indefinitely for a trapped marble.
 const defaults = ['참가자 A', '참가자 B', '참가자 C', '참가자 D', '참가자 E', '참가자 F'];
 const track = id('track');
 const panel = id('race-panel');
@@ -141,7 +142,7 @@ function updateRanks() {
   for (const [index, ball] of standings.entries()) {
     const row = rows.get(ball) ?? makeRankRow(ball);
     const rank = index + 1 + '위';
-    const elapsed = ball.finished ? ball.time.toFixed(2) + '초' : '';
+    const elapsed = ball.timedOut ? '미도착' : ball.finished ? ball.time.toFixed(2) + '초' : '';
     if (row.rank.textContent !== rank) row.rank.textContent = rank;
     if (row.elapsed.textContent !== elapsed) row.elapsed.textContent = elapsed;
 
@@ -180,6 +181,7 @@ function resetPreview(message = '') {
   pausedPhase = null;
   countdown.hidden = true;
   countdown.textContent = '';
+  course = makeCourse(mapSelect.value);
   marbles = makeMarbles(parseNames(names.value).labels ?? []);
   finishers = [];
   time = accumulator = countdownElapsed = 0;
@@ -193,13 +195,16 @@ function resetPreview(message = '') {
 }
 
 function finishRace() {
+  const timedOut = finishers.some(ball => ball.timedOut);
   const winner = finishers[0];
   updateRaceElapsed(finishers.at(-1).time);
   time += .28;
   updateRanks();
   const gap = finishers[1].time - winner.time;
   const closeFinish = gap < .2 ? ' · ' + (gap < .01 ? '0.01초 미만' : gap.toFixed(2) + '초') + ' 차' : '';
-  setPhase('finished', '종료', '1위 · ' + winner.name + closeFinish);
+  setPhase('finished', timedOut ? '제한 시간 종료' : '종료',
+    timedOut ? '100초 종료 · 미도착 구슬은 진행 거리순으로 순위를 확정했습니다.'
+      : '1위 · ' + winner.name + closeFinish);
   progress.value = 1;
   stopClock = null;
   paint();
@@ -219,8 +224,21 @@ function simulate(seconds) {
       finishers.push(ball);
     }
   }
+  if (time >= raceDeadline && finishers.length < marbles.length) {
+    // Guaranteed completion: rank the remaining marbles by actual course progress.
+    // Do not report an uncompleted crossing as a genuine finish time.
+    for (const ball of marbles.filter(ball => !ball.finished)
+      .sort((a, b) => b.y - a.y || a.bib - b.bib)) {
+      ball.finished = true;
+      ball.timedOut = true;
+      ball.time = time;
+      ball.finishX = ball.x;
+      ball.finishY = ball.y;
+      finishers.push(ball);
+    }
+  }
   if (previousCount === finishers.length) return false;
-  arrived.textContent = finishers.length + '/' + marbles.length;
+  arrived.textContent = finishers.filter(ball => !ball.timedOut).length + '/' + marbles.length;
   return true;
 }
 
@@ -284,7 +302,12 @@ roster.addEventListener('submit', event => {
 
   setFeedback();
   write(storageKey, parsed.labels);
-  marbles = makeMarbles(parsed.labels);
+  const previewMatches = racePhase === 'idle' && marbles.length === parsed.labels.length &&
+    marbles.every(ball => ball.name === parsed.labels[ball.bib - 1]);
+  if (!previewMatches) {
+    course = makeCourse(mapSelect.value);
+    marbles = makeMarbles(parsed.labels);
+  }
   finishers = [];
   time = accumulator = nextRankUpdate = 0;
   nextLeadUpdate = 1.3;
@@ -327,7 +350,6 @@ reset.addEventListener('click', () => {
 });
 
 mapSelect.addEventListener('change', () => {
-  course = makeCourse(mapSelect.value);
   write(courseKey, mapSelect.value);
   resetPreview();
 });
