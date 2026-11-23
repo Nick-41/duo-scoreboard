@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=40s-test';
+import { radius, width } from './marble-course.js?v=40s-random-stallfix-1';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
