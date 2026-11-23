@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=long-bars';
+import { radius, width } from './marble-course.js?v=bottlenecks';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -58,6 +58,30 @@ function dot(ctx, x, y, radius, color) {
   ctx.fill();
 }
 
+function paintWalls(ctx, course, colors) {
+  const end = courseHeight(course);
+  for (const { edge, direction, points } of course.walls) {
+    const outside = edge - direction * 8;
+    ctx.beginPath();
+    ctx.moveTo(outside, 0);
+    ctx.lineTo(edge, 0);
+    for (const point of points) ctx.lineTo(point.x, point.y);
+    ctx.lineTo(edge, end);
+    ctx.lineTo(outside, end);
+    ctx.closePath();
+    ctx.fillStyle = colors.wall;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(edge, 0);
+    for (const point of points) ctx.lineTo(point.x, point.y);
+    ctx.lineTo(edge, end);
+    ctx.strokeStyle = colors.peg;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+  }
+}
+
 function paintTrack(ctx, course, view, top, colors, mini = false) {
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, view.w, view.h);
@@ -67,9 +91,6 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
   const bottom = Math.min(courseHeight(course), top + view.visible);
   ctx.fillStyle = colors.road;
   ctx.fillRect(18, top, width - 36, bottom - top);
-  ctx.fillStyle = colors.wall;
-  ctx.fillRect(10, top, 8, bottom - top);
-  ctx.fillRect(width - 18, top, 8, bottom - top);
   ctx.fillStyle = colors.shaft;
   ctx.fillRect(6, top, 2, Math.min(course.finishLine, bottom) - Math.min(course.finishLine, top));
 
@@ -141,6 +162,7 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
       dot(ctx, x, y, half ? (obstacle.swing ? 3 : 4) : size * .36, colors.light);
     }
   }
+  paintWalls(ctx, course, colors);
   if (bottom >= course.finishLine) {
     for (let column = 0; column < 34; column++) {
       for (let row = 0; row < 2; row++) {

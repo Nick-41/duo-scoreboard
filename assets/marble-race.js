@@ -1,6 +1,6 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=long-bars';
-import { createRaceView } from './marble-view.js?v=long-bars';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=bottlenecks';
+import { createRaceView } from './marble-view.js?v=bottlenecks';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
 
 const storageKey = 'moadeck-marble-race-v1';
