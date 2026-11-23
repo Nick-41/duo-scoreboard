@@ -2,7 +2,7 @@ import { id, parseLabels, read, write } from './utility.js';
 import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=late-obstacles';
 import { createRaceView } from './marble-view.js?v=late-obstacles';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
-import { nameLines, randomNickname } from './nicknames.js?v=playful-names';
+import { nameLines, randomNickname } from './nicknames.js?v=distinct-names';
 
 const storageKey = 'moadeck-marble-race-v1';
 const courseKey = 'moadeck-marble-course-v1';

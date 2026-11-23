@@ -1,5 +1,5 @@
 import { $, id, read, write } from './utility.js';
-import { randomNickname } from './nicknames.js?v=playful-names';
+import { randomNickname } from './nicknames.js?v=distinct-names';
 
 const vote = document.body.dataset.tool === 'vote';
 const key = vote ? 'moadeck-vote-v1' : 'moadeck-counters-v1';
