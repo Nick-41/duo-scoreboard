@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=bottlenecks';
+import { radius, width } from './marble-course.js?v=course-shapes';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -13,7 +13,6 @@ function palette(course) {
     wall: color(40, 75, 38),
     ink: color(47, 35, 87),
     peg: color(50, 56, 67),
-    rotor: color(66, 42, 69),
     light: color(38, 99, 87),
     rubber: dark ? '#f3a56e' : '#b96437',
     shaft: dark ? '#54dbbb' : '#006e62',
@@ -118,16 +117,27 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
 
   ctx.lineCap = 'round';
   for (const obstacle of course.obstacles) {
-    const { x, y, dx, dy, radius: size, half = 0, spin, longBar } = obstacle;
+    const { x, y, dx, dy, radius: size, half = 0, longBar, divider } = obstacle;
     const verticalReach = Math.abs(dy) + size;
     if (y + verticalReach < top || y - verticalReach > bottom) continue;
-    const face = spin || obstacle.slide ? colors.rotor : colors.peg;
+    if (divider) {
+      ctx.beginPath();
+      ctx.moveTo(x - dx, y - dy);
+      ctx.lineTo(x + dx, y + dy);
+      ctx.lineWidth = size * 2;
+      ctx.strokeStyle = colors.peg;
+      ctx.stroke();
+      ctx.lineWidth = size * 2 - 4;
+      ctx.strokeStyle = colors.wall;
+      ctx.stroke();
+      continue;
+    }
     if (half) {
       ctx.beginPath();
       ctx.moveTo(x - dx, y - dy);
       ctx.lineTo(x + dx, y + dy);
       ctx.lineWidth = size * 2;
-      ctx.strokeStyle = longBar ? colors.bar : obstacle.swing ? colors.shaft : face;
+      ctx.strokeStyle = longBar ? colors.bar : obstacle.swing ? colors.shaft : colors.peg;
       ctx.stroke();
       if (longBar && !mini) {
         ctx.save();
@@ -155,7 +165,7 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
         }
       }
     } else {
-      dot(ctx, x, y, size, obstacle.restitution ? colors.rubber : face);
+      dot(ctx, x, y, size, obstacle.restitution ? colors.rubber : colors.peg);
     }
     if (!mini) {
       if (!half && obstacle.restitution) dot(ctx, x, y, size * .72, colors.background);

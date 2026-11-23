@@ -1,6 +1,6 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=bottlenecks';
-import { createRaceView } from './marble-view.js?v=bottlenecks';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=course-shapes';
+import { createRaceView } from './marble-view.js?v=course-shapes';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
 
 const storageKey = 'moadeck-marble-race-v1';
@@ -157,7 +157,7 @@ function cameraTarget() {
     if (!leader || ball.y > leader.y || (ball.y === leader.y && ball.bib < leader.bib)) leader = ball;
     if (!last || ball.y < last.y || (ball.y === last.y && ball.bib > last.bib)) last = ball;
   }
-  if (viewMode === 'first') return finishers[0] ?? leader;
+  if (viewMode === 'first') return leader ?? finishers[0];
   if (viewMode === 'last') return last ?? finishers.at(-1);
   return leader ?? finishers.at(-1);
 }
@@ -209,9 +209,9 @@ function simulate(seconds) {
       finishers.push(ball);
     }
   }
-  if (previousCount !== finishers.length) {
-    arrived.textContent = finishers.length + '/' + marbles.length;
-  }
+  if (previousCount === finishers.length) return false;
+  arrived.textContent = finishers.length + '/' + marbles.length;
+  return true;
 }
 
 function frame(_sinceStart, frameDelta) {
@@ -228,7 +228,7 @@ function frame(_sinceStart, frameDelta) {
     return;
   }
 
-  simulate(Math.min(elapsed, 1));
+  const arrival = simulate(Math.min(elapsed, 1));
   if (finishers.length === marbles.length) {
     finishRace();
     return false;
@@ -239,8 +239,9 @@ function frame(_sinceStart, frameDelta) {
     updateRanks();
     nextRankUpdate = time + .12;
   }
-  if (!reducedMotion || time >= nextPaint) {
-    paint(elapsed);
+  const followArrival = arrival && viewMode === 'first';
+  if (!reducedMotion || time >= nextPaint || followArrival) {
+    paint(followArrival ? 0 : elapsed);
     nextPaint = time + .1;
   }
 }
