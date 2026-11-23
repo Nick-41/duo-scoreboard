@@ -1,4 +1,4 @@
-import { gateOpen, radius, width } from './marble-course.js?v=momentum';
+import { radius, width } from './marble-course.js?v=endurance';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -55,38 +55,54 @@ function dot(ctx, x, y, radius, color) {
 }
 
 const markings = {
-  warp: ['#ae78f5', '지름길'],
-  jump: ['#f486b6', '반동'],
-  boost: ['#57daca', '가속'],
-  gate: ['#f3af62', '신호 대기'],
+  boost: ['#55d8b6', '가속'],
+  wind: ['#a2a8ff', '횡풍'],
 };
 
-function paintZone(ctx, zone, time, mini) {
-  const { x1, x2, y, type } = zone;
-  const [base, label] = markings[type];
-  const open = type === 'gate' && gateOpen(zone, time);
-  const color = open ? '#57daca' : base;
+function paintLane(ctx, lane, top, bottom, mini) {
+  const { x1, x2, y1, y2, type } = lane;
+  const [color, label] = markings[type];
+  const from = Math.max(top, y1);
+  const to = Math.min(bottom, y2);
+  ctx.fillStyle = color + '43';
+  ctx.fillRect(x1, from, x2 - x1, to - from);
+  if (mini) return;
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
   const middle = (x1 + x2) / 2;
-  ctx.fillStyle = color + (open ? '70' : '41');
-  ctx.fillRect(x1, y - 9, x2 - x1, 18);
-  ctx.fillStyle = color;
-  ctx.fillRect(x1, y - 2, x2 - x1, 4);
-  if (!mini) {
-    ctx.save();
-    ctx.font = '750 15px system-ui, sans-serif';
+  const firstArrow = y1 + 32;
+  const separation = 48;
+  const firstVisible = firstArrow + separation * Math.max(0, Math.ceil((from - firstArrow) / separation));
+  const direction = lane.force > 0 ? 1 : -1;
+  for (let y = firstVisible; y + 10 < to; y += separation) {
+    ctx.beginPath();
+    if (type === 'boost') {
+      ctx.moveTo(middle - 14, y - 6);
+      ctx.lineTo(middle, y + 6);
+      ctx.lineTo(middle + 14, y - 6);
+    } else {
+      ctx.moveTo(middle - 7 * direction, y - 9);
+      ctx.lineTo(middle + 6 * direction, y);
+      ctx.lineTo(middle - 7 * direction, y + 9);
+    }
+    ctx.stroke();
+  }
+  if (y1 >= top && y1 + 17 < bottom) {
+    ctx.font = '750 17px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const title = open ? '통과' : label;
-    const textWidth = ctx.measureText(title).width + 16;
+    const textWidth = ctx.measureText(label).width + 16;
     ctx.fillStyle = '#161326e9';
-    ctx.fillRect(middle - textWidth / 2, y - 20, textWidth, 17);
+    ctx.fillRect(middle - textWidth / 2, y1 + 3, textWidth, 21);
     ctx.fillStyle = color;
-    ctx.fillText(title, middle, y - 12);
-    ctx.restore();
+    ctx.fillText(label, middle, y1 + 14);
   }
+  ctx.restore();
 }
 
-function paintTrack(ctx, course, view, top, colors, time, mini = false) {
+function paintTrack(ctx, course, view, top, colors, mini = false) {
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, view.w, view.h);
   ctx.save();
@@ -121,14 +137,8 @@ function paintTrack(ctx, course, view, top, colors, time, mini = false) {
     ctx.fillText('출발', width / 2, 25);
   }
 
-  for (const zone of course.zones) {
-    if (zone.y + 20 >= top && zone.y - 20 <= bottom) paintZone(ctx, zone, time, mini);
-    if (zone.type === 'warp' && zone.targetY >= top && zone.targetY <= bottom) {
-      dot(ctx, zone.targetX, zone.targetY, mini ? 10 : 16, '#ae78f548');
-      ctx.strokeStyle = '#ae78f5';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+  for (const lane of course.lanes) {
+    if (lane.y1 < bottom && lane.y2 > top) paintLane(ctx, lane, top, bottom, mini);
   }
 
   ctx.lineCap = 'round';
@@ -172,8 +182,8 @@ function marblePoint(ball, time) {
   };
 }
 
-function drawBall(ctx, ball, x, y, size, focused, time, scale) {
-  const effect = ball.effect;
+function drawBall(ctx, ball, x, y, size, focused, time, scale, effects) {
+  const effect = effects && ball.effect;
   if (effect && time - effect.at < .6 && time >= effect.at && !ball.finished) {
     const color = markings[effect.type][0];
     const strength = 1 - (time - effect.at) / .6;
@@ -300,6 +310,7 @@ export function createRaceView(track, minimap) {
   let positions = new WeakMap();
   let size, miniSize, course, mode = 'auto', camera = 0;
   let marbles = [], time = 0, focus = null, widthForNames = 0;
+  let effects = true;
 
   function projection() {
     return size && course && geometry(size, course, mode === 'overview');
@@ -310,7 +321,7 @@ export function createRaceView(track, minimap) {
     if (!view || !ctx) return;
     const colors = palette(course);
     const top = clamp(camera, 0, view.maxTop);
-    paintTrack(ctx, course, view, top, colors, time);
+    paintTrack(ctx, course, view, top, colors);
     const balls = [];
     for (const ball of marbles) {
       const point = marblePoint(ball, time);
@@ -318,7 +329,7 @@ export function createRaceView(track, minimap) {
       const y = view.y + (point.y - top) * view.scale;
       if (y < -8 || y > view.h + 8) continue;
       const size = Math.max(4.5, radius * view.scale);
-      drawBall(ctx, ball, x, y, size, ball === focus, time, view.scale);
+      drawBall(ctx, ball, x, y, size, ball === focus, time, view.scale, effects);
       const entry = { ball, x, y, size };
       if (ball === focus) balls.unshift(entry);
       else balls.push(entry);
@@ -327,7 +338,7 @@ export function createRaceView(track, minimap) {
 
     if (!mini || !miniSize) return;
     const map = geometry(miniSize, course, true);
-    paintTrack(mini, course, map, 0, colors, time, true);
+    paintTrack(mini, course, map, 0, colors, true);
     for (const ball of marbles) {
       const point = marblePoint(ball, time);
       dot(mini, map.x + point.x * map.scale, map.y + point.y * map.scale, ball === focus ? 3 : 2, ball.color);
@@ -351,9 +362,10 @@ export function createRaceView(track, minimap) {
     redraw();
   }
 
-  function scene(nextCourse, nextMarbles, resetCamera = true) {
+  function scene(nextCourse, nextMarbles, resetCamera = true, showEffects = true) {
     course = nextCourse;
     marbles = nextMarbles;
+    effects = showEffects;
     if (resetCamera) camera = 0;
     time = 0;
     focus = null;

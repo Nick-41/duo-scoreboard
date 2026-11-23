@@ -1,6 +1,6 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=momentum';
-import { createRaceView } from './marble-view.js?v=momentum';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=endurance';
+import { createRaceView } from './marble-view.js?v=endurance';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
 
 const storageKey = 'moadeck-marble-race-v1';
@@ -44,10 +44,23 @@ let accumulator = 0;
 let nextRankUpdate = 0;
 let nextLeadUpdate = 0;
 let racePhase = 'idle';
+let pausedPhase;
+let stopClock;
+let countdownElapsed = 0;
+let reducedMotion = false;
+let nextPaint = 0;
 let viewMode = 'auto';
 let fallbackFullscreen = false;
 const rows = new Map();
 let rankOrder = [];
+
+const startLabels = {
+  idle: '레이스 시작',
+  countdown: '일시정지',
+  running: '일시정지',
+  paused: '계속하기',
+  finished: '다시 출발',
+};
 
 const parseNames = value => parseLabels(value, limit, { allowDuplicates: true });
 const saved = read(storageKey);
@@ -57,6 +70,7 @@ names.value = Array.isArray(saved) && saved.every(name => typeof name === 'strin
 function setPhase(value, label, message) {
   racePhase = value;
   phase.textContent = label;
+  start.textContent = startLabels[value];
   status.textContent = message;
 }
 
@@ -155,7 +169,6 @@ function resetPreview() {
   viewer.scene(course, marbles);
   clearRanks();
   setPhase('idle', '출발 대기', '');
-  start.textContent = '레이스 시작';
   progress.value = 0;
   syncCount();
   paint();
@@ -169,8 +182,7 @@ function finishRace() {
   const closeFinish = gap < .2 ? ' · ' + (gap < .01 ? '0.01초 미만' : gap.toFixed(2) + '초') + ' 차' : '';
   setPhase('finished', '종료', '1위 · ' + winner.name + closeFinish);
   progress.value = 1;
-  start.textContent = '다시 출발';
-  start.setAttribute('aria-disabled', 'false');
+  stopClock = null;
   mapSelect.disabled = false;
   names.readOnly = false;
   paint();
@@ -195,12 +207,13 @@ function simulate(seconds) {
   }
 }
 
-function frame(sinceStart, frameDelta) {
+function frame(_sinceStart, frameDelta) {
   const elapsed = frameDelta / 1000;
   if (racePhase === 'countdown') {
-    const number = String(Math.max(1, 3 - Math.floor(sinceStart / 1000)));
+    countdownElapsed += frameDelta;
+    const number = String(Math.max(1, 3 - Math.floor(countdownElapsed / 1000)));
     if (countdown.textContent !== number) countdown.textContent = number;
-    if (sinceStart >= 3000) {
+    if (countdownElapsed >= 3000) {
       countdown.hidden = true;
       setPhase('running', '경주 중', '구슬이 출발했습니다.');
       updateRanks();
@@ -219,21 +232,27 @@ function frame(sinceStart, frameDelta) {
     updateRanks();
     nextRankUpdate = time + .12;
   }
-  paint(elapsed);
-}
-
-function finishQuietly() {
-  simulate(3);
-  if (finishers.length < marbles.length) {
-    setTimeout(finishQuietly, 0);
-    return;
+  if (!reducedMotion || time >= nextPaint) {
+    paint(elapsed);
+    nextPaint = time + .1;
   }
-  finishRace();
 }
 
 roster.addEventListener('submit', event => {
   event.preventDefault();
-  if (racePhase === 'running' || racePhase === 'countdown') return;
+  if (racePhase === 'running' || racePhase === 'countdown') {
+    pausedPhase = racePhase;
+    stopClock?.();
+    stopClock = null;
+    setPhase('paused', '일시정지', '레이스를 일시정지했습니다.');
+    return;
+  }
+  if (racePhase === 'paused') {
+    if (pausedPhase === 'countdown') setPhase('countdown', '출발 준비', '곧 출발합니다.');
+    else setPhase('running', '경주 중', '레이스를 계속합니다.');
+    stopClock = runFrames(frame);
+    return;
+  }
 
   const parsed = parseNames(names.value);
   if (parsed.error) {
@@ -250,27 +269,21 @@ roster.addEventListener('submit', event => {
   finishers = [];
   time = accumulator = nextRankUpdate = 0;
   nextLeadUpdate = 1.3;
+  countdownElapsed = nextPaint = 0;
+  reducedMotion = !fullMotion() || !viewer.ready;
+  if (reducedMotion) selectView('overview');
   positionCourse(course, 0);
-  viewer.scene(course, marbles, viewMode !== 'manual');
+  viewer.scene(course, marbles, viewMode !== 'manual', !reducedMotion);
   clearRanks();
   arrived.textContent = '0/' + marbles.length;
   progress.value = 0;
   names.readOnly = true;
   mapSelect.disabled = true;
-  start.textContent = '레이스 진행 중';
-  start.setAttribute('aria-disabled', 'true');
-
-  if (!fullMotion() || !viewer.ready) {
-    setPhase('running', '경주 중', '도착 순위를 계산하고 있습니다.');
-    finishQuietly();
-    return;
-  }
-
   setPhase('countdown', '출발 준비', '곧 출발합니다.');
   countdown.textContent = '3';
   countdown.hidden = false;
   paint();
-  runFrames(frame);
+  stopClock = runFrames(frame);
 });
 
 names.addEventListener('input', () => {

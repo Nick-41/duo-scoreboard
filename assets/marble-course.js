@@ -9,117 +9,127 @@ const gravity = 330;
 const maxSpeed = 295;
 const colors = ['#a078ed', '#f58c65', '#37bbb8', '#f9bd52', '#6e9ff4', '#eb77b0', '#8bc65c', '#b26de5'];
 
+const pegs = (y, spread, radius = 13) => ({ y, spread, radius });
+const rail = (x, y, half, angle, spin = 0) => ({ x, y, half, angle, spin, radius: 8 });
+const sweep = (y, slide, rate, angle) => ({ x: width / 2, y, slide, rate, angle, radius: 23 });
+const boost = (x1, x2, y1, y2, speed) => ({ type: 'boost', x1, x2, y1, y2, speed });
+const wind = (x1, x2, y1, y2, force) => ({ type: 'wind', x1, x2, y1, y2, force });
+
 export const courses = {
-  interchange: {
-    name: '네온 환승로',
-    finishLine: 1775,
-    hue: 278,
+  crossover: {
+    name: '교차 질주로',
+    finishLine: 3080,
+    hue: 279,
     obstacles: [
-      { spread: [74, 161, 256, 351, 438], y: 182, radius: 13 },
-      { x: 256, y: 327, half: 74, angle: .6, spin: 1.7, radius: 8 },
-      { x: 161, y: 521, half: 72, angle: .41, radius: 8 },
-      { x: 351, y: 521, half: 72, angle: -.41, radius: 8 },
-      { spread: [94, 256, 418], y: 655, radius: 24 },
-      { x: 256, y: 826, radius: 24, slide: 140, rate: 2, angle: .6 },
-      { spread: [76, 172, 340, 436], y: 954, radius: 14 },
-      { x: 256, y: 1138, half: 81, angle: 1.8, spin: -1.7, radius: 8 },
-      { x: 176, y: 1354, half: 64, angle: .6, radius: 8 },
-      { x: 336, y: 1354, half: 64, angle: -.6, radius: 8 },
-      { x: 256, y: 1544, radius: 22, slide: 119, rate: 2.3, angle: 2 },
+      pegs(188, [74, 174, 262, 360, 440]),
+      rail(127, 340, 61, -.48), rail(378, 414, 72, .51),
+      sweep(690, 139, 1.7, .3),
+      rail(256, 865, 86, 1.3, 1.94),
+      rail(147, 1150, 82, .52), rail(365, 1240, 77, -.45),
+      pegs(1380, [83, 209, 303, 429], 15),
+      sweep(1710, 148, 1.63, 1.2),
+      rail(161, 1842, 74, -.58, .88), rail(359, 1960, 73, .61, -1.02),
+      pegs(2175, [82, 173, 340, 431], 14),
+      rail(256, 2345, 83, 1.2, -2),
+      rail(145, 2570, 67, .56), rail(368, 2655, 73, -.53),
+      sweep(2790, 133, 1.92, 2.1),
     ],
-    zones: [
-      { type: 'warp', x1: 25, x2: 144, y: 446, targetX: 336, targetY: 737 },
-      { type: 'warp', x1: 368, x2: 487, y: 446, targetX: 176, targetY: 737 },
-      { type: 'jump', x1: 179, x2: 333, y: 1052 },
-      { type: 'warp', x1: 105, x2: 192, y: 1260, targetX: 378, targetY: 1479 },
-      { type: 'warp', x1: 320, x2: 407, y: 1260, targetX: 134, targetY: 1479 },
-      { type: 'boost', x1: 153, x2: 359, y: 1661, speed: 510 },
+    lanes: [
+      boost(25, 155, 445, 625, 452), boost(357, 487, 445, 625, 452),
+      boost(186, 326, 975, 1120, 505),
+      wind(25, 197, 1460, 1610, 485), wind(315, 487, 1460, 1610, -485),
+      boost(174, 338, 1960, 2160, 523),
+      boost(25, 136, 2390, 2575, 555), boost(376, 487, 2390, 2575, 555),
+      boost(166, 346, 2850, 3060, 670),
     ],
   },
-  signals: {
-    name: '신호등 스프린트',
-    finishLine: 1850,
-    hue: 193,
+  crosswind: {
+    name: '바람 협곡',
+    finishLine: 3380,
+    hue: 198,
     obstacles: [
-      { x: 256, y: 229, radius: 30, slide: 131, rate: 2.4, angle: .1 },
-      { spread: [75, 184, 328, 437], y: 382, radius: 15 },
-      { x: 156, y: 517, half: 82, angle: -.51, radius: 8 },
-      { x: 356, y: 517, half: 82, angle: .51, radius: 8 },
-      { x: 256, y: 782, half: 79, angle: 1.45, spin: 1.65, radius: 8 },
-      { spread: [86, 171, 341, 426], y: 930, radius: 12 },
-      { x: 256, y: 1070, radius: 28, slide: 142, rate: 1.9, angle: 1 },
-      { x: 173, y: 1258, half: 66, angle: .55, radius: 8 },
-      { x: 339, y: 1258, half: 66, angle: -.55, radius: 8 },
-      { spread: [116, 256, 396], y: 1615, radius: 16 },
+      rail(138, 230, 69, .45), rail(377, 306, 66, -.45),
+      pegs(500, [74, 160, 256, 352, 438]),
+      sweep(776, 146, 2.15, 1.1),
+      rail(171, 958, 91, .49), rail(365, 1115, 78, -.5),
+      pegs(1300, [95, 214, 310, 422], 16),
+      rail(256, 1595, 90, .78, -1.72),
+      sweep(1870, 144, 1.9, 2),
+      rail(140, 2110, 76, -.51), rail(378, 2285, 74, .56),
+      pegs(2486, [74, 176, 336, 438], 14),
+      rail(257, 2735, 86, 1.9, 1.94),
+      sweep(3030, 145, 2.03, .9),
     ],
-    zones: [
-      { type: 'gate', x1: 25, x2: 252, y: 648, period: 2.4, phase: 0, speed: 350 },
-      { type: 'gate', x1: 252, x2: 487, y: 648, period: 2.4, phase: 1.2, speed: 350 },
-      { type: 'boost', x1: 190, x2: 322, y: 1176, speed: 440 },
-      { type: 'gate', x1: 25, x2: 251, y: 1445, period: 2.75, phase: .25, speed: 405 },
-      { type: 'gate', x1: 251, x2: 487, y: 1445, period: 2.75, phase: 1.63, speed: 405 },
-      { type: 'boost', x1: 42, x2: 148, y: 1742, speed: 495 },
-      { type: 'boost', x1: 364, x2: 470, y: 1742, speed: 495 },
+    lanes: [
+      wind(25, 230, 345, 510, 547), wind(282, 487, 345, 510, -547),
+      boost(183, 329, 540, 728, 497),
+      wind(25, 317, 1130, 1290, 468), boost(357, 487, 1170, 1400, 514),
+      wind(198, 487, 1710, 1845, -478), boost(25, 147, 1740, 1950, 530),
+      boost(157, 355, 2310, 2460, 532),
+      wind(25, 191, 2790, 2960, 575), wind(321, 487, 2790, 2960, -575),
+      boost(26, 147, 3065, 3340, 688), boost(365, 486, 3065, 3340, 688),
     ],
   },
-  springs: {
-    name: '반동 지대',
-    finishLine: 1925,
-    hue: 27,
+  triple: {
+    name: '삼단 추월로',
+    finishLine: 3600,
+    hue: 30,
     obstacles: [
-      { spread: [88, 202, 310, 424], y: 176, radius: 12 },
-      { x: 256, y: 317, half: 77, angle: 1.4, spin: -2.2, radius: 9 },
-      { x: 174, y: 518, half: 103, angle: .52, radius: 8 },
-      { x: 338, y: 580, half: 97, angle: -.52, radius: 8 },
-      { spread: [80, 256, 432], y: 733, radius: 20 },
-      { x: 256, y: 927, radius: 24, slide: 149, rate: 2.5, angle: 0 },
-      { x: 149, y: 1139, half: 68, angle: .7, spin: 1.88, radius: 8 },
-      { x: 363, y: 1139, half: 68, angle: 2.44, spin: -1.88, radius: 8 },
-      { x: 256, y: 1368, half: 83, angle: 2, spin: 1.76, radius: 8 },
-      { spread: [82, 174, 338, 430], y: 1531, radius: 16 },
-      { x: 256, y: 1720, radius: 22, slide: 130, rate: 2.75, angle: .2 },
+      pegs(175, [65, 165, 256, 347, 447]),
+      sweep(400, 153, 2.05, .4),
+      rail(169, 690, 85, -.52), rail(346, 790, 75, .51),
+      rail(256, 1060, 82, .9, 1.74),
+      pegs(1290, [74, 205, 308, 437], 16),
+      sweep(1520, 126, 2.31, 1.72),
+      rail(149, 1850, 78, .5), rail(366, 1940, 77, -.48),
+      pegs(2260, [68, 170, 342, 444]),
+      rail(258, 2500, 89, 1.07, -1.95),
+      sweep(2800, 143, 2.13, .6),
+      rail(145, 3090, 63, -.48), rail(367, 3165, 64, .48),
     ],
-    zones: [
-      { type: 'jump', x1: 179, x2: 333, y: 415 },
-      { type: 'jump', x1: 25, x2: 158, y: 844 },
-      { type: 'jump', x1: 354, x2: 487, y: 844 },
-      { type: 'boost', x1: 184, x2: 328, y: 1012, speed: 490 },
-      { type: 'jump', x1: 171, x2: 341, y: 1450 },
-      { type: 'boost', x1: 63, x2: 190, y: 1811, speed: 520 },
-      { type: 'boost', x1: 322, x2: 449, y: 1811, speed: 520 },
+    lanes: [
+      boost(25, 149, 430, 660, 500), boost(363, 487, 430, 660, 500),
+      boost(177, 331, 821, 1045, 492),
+      wind(25, 176, 1590, 1810, 412), wind(336, 487, 1590, 1810, -412),
+      boost(160, 353, 1710, 1990, 560),
+      boost(25, 135, 2310, 2570, 570), boost(377, 487, 2310, 2570, 570),
+      boost(183, 329, 2860, 3090, 620),
+      boost(34, 181, 3250, 3560, 703), boost(331, 478, 3250, 3560, 703),
     ],
   },
-  photo: {
-    name: '막판 역전로',
-    finishLine: 2090,
-    hue: 150,
+  rapids: {
+    name: '급류 스프린트',
+    finishLine: 3870,
+    hue: 155,
     obstacles: [
-      { spread: [86, 199, 313, 426], y: 178, radius: 13 },
-      { x: 166, y: 322, half: 71, angle: .48, radius: 9 },
-      { x: 346, y: 322, half: 71, angle: -.48, radius: 9 },
-      { x: 256, y: 477, half: 83, angle: .81, spin: 1.78, radius: 8 },
-      { spread: [77, 164, 348, 435], y: 657, radius: 16 },
-      { x: 256, y: 816, radius: 27, slide: 153, rate: 2.3, angle: 1.1 },
-      { x: 256, y: 993, half: 92, angle: 1.83, spin: -1.53, radius: 8 },
-      { x: 177, y: 1195, half: 63, angle: -.55, radius: 8 },
-      { x: 335, y: 1195, half: 63, angle: .55, radius: 8 },
-      { spread: [82, 172, 340, 430], y: 1458, radius: 14 },
-      { x: 256, y: 1644, radius: 25, slide: 145, rate: 2.55, angle: .7 },
-      { x: 256, y: 1820, half: 71, angle: .8, spin: 1.95, radius: 8 },
+      pegs(193, [87, 194, 318, 425]),
+      rail(256, 395, 85, .83, -1.81),
+      rail(147, 618, 75, .57), rail(366, 701, 75, -.57),
+      sweep(885, 151, 1.86, .3),
+      pegs(1150, [72, 169, 343, 439], 15),
+      rail(256, 1410, 85, 1.8, 2.03),
+      rail(145, 1720, 73, -.56), rail(370, 1820, 72, .56),
+      sweep(2140, 147, 1.82, 2.05),
+      pegs(2410, [82, 201, 311, 430], 14),
+      rail(148, 2675, 62, .55, 1.41), rail(363, 2795, 62, -.55, -1.41),
+      rail(253, 3115, 86, 1.1, -2.17),
+      sweep(3470, 152, 2.05, .7),
     ],
-    zones: [
-      { type: 'boost', x1: 186, x2: 326, y: 560, speed: 415 },
-      { type: 'jump', x1: 162, x2: 350, y: 1094 },
-      { type: 'gate', x1: 25, x2: 487, y: 1360, period: 3, phase: .62, speed: 360 },
-      { type: 'warp', x1: 25, x2: 141, y: 1543, targetX: 350, targetY: 1764 },
-      { type: 'warp', x1: 371, x2: 487, y: 1543, targetX: 162, targetY: 1764 },
-      { type: 'gate', x1: 25, x2: 487, y: 1930, period: 2.55, phase: .9, speed: 392 },
-      { type: 'boost', x1: 169, x2: 343, y: 2005, speed: 555 },
+    lanes: [
+      boost(25, 158, 305, 568, 488), boost(354, 487, 305, 568, 488),
+      wind(25, 185, 960, 1105, 529), wind(327, 487, 960, 1105, -529),
+      boost(170, 342, 1130, 1390, 515),
+      boost(25, 128, 1550, 1750, 541), boost(384, 487, 1550, 1750, 541),
+      wind(25, 291, 1870, 2075, 428), boost(366, 487, 1920, 2180, 584),
+      wind(236, 487, 2200, 2350, -437), boost(25, 152, 2210, 2420, 576),
+      boost(166, 346, 2840, 3090, 619),
+      boost(28, 150, 3180, 3470, 650), boost(362, 484, 3180, 3470, 650),
+      boost(172, 340, 3520, 3840, 725),
     ],
   },
 };
 
-export const defaultCourse = 'interchange';
+export const defaultCourse = 'crossover';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -136,7 +146,6 @@ export function makeMarbles(names, random = randomIndex) {
     vy: 0,
     spin: 0,
     finished: false,
-    visited: new Set(),
   }));
   for (let end = marbles.length - 1; end > 0; end--) {
     const index = random(end + 1);
@@ -240,62 +249,33 @@ function bounceTogether(first, second) {
   }
 }
 
-export function gateCycle(zone, time) {
-  return (time + zone.phase) % zone.period;
-}
-
-export function gateOpen(zone, time) {
-  return gateCycle(zone, time) < zone.period * .21;
-}
-
-function launch(ball, speed, time, type) {
-  ball.vy = Math.max(ball.vy, speed);
-  ball.boostUntil = time + .75;
-  ball.effect = { type, at: time };
-}
-
-function applyZones(ball, zones, time) {
-  for (const zone of zones) {
-    if (ball.previousY >= zone.y || ball.y < zone.y || ball.x < zone.x1 || ball.x >= zone.x2 ||
-        ball.visited.has(zone)) continue;
-    ball.visited.add(zone);
-    if (zone.type === 'warp') {
-      ball.x = zone.targetX;
-      ball.y = zone.targetY;
-      ball.vx *= -.55;
-      launch(ball, 350, time, 'warp');
-      ball.previousY = ball.y;
-    } else if (zone.type === 'jump') {
-      ball.vy = -180;
-      ball.vx += ball.x < width / 2 ? 118 : -118;
-      ball.effect = { type: 'jump', at: time };
-    } else if (zone.type === 'gate' && !gateOpen(zone, time)) {
-      ball.y = zone.y - 3;
-      ball.vy = 0;
-      ball.held = { until: time + zone.period - gateCycle(zone, time), speed: zone.speed };
+function applyLanes(ball, lanes, time) {
+  let speed = maxSpeed;
+  let acceleration = gravity;
+  let lateral = 0;
+  for (const lane of lanes) {
+    if (ball.y < lane.y1 || ball.y >= lane.y2 || ball.x < lane.x1 || ball.x >= lane.x2) continue;
+    if (lane.type === 'boost') {
+      speed = lane.speed;
+      acceleration = 1050;
     } else {
-      launch(ball, zone.speed, time, zone.type);
+      lateral += lane.force;
     }
+    ball.effect = { type: lane.type, at: time };
   }
+  ball.vx = clamp(ball.vx * .998 + lateral * step, -maxSpeed, maxSpeed);
+  ball.vy = ball.vy > speed
+    ? Math.max(speed, ball.vy - 415 * step)
+    : Math.min(speed, ball.vy + acceleration * step);
 }
 
 export function advanceRace(marbles, course, time) {
   const { finishLine } = course;
   positionCourse(course, time);
-  const moving = marbles.filter(ball => {
-    if (ball.finished) return false;
-    if (ball.held && ball.held.until > time) return false;
-    if (ball.held) {
-      launch(ball, ball.held.speed, time, 'gate');
-      ball.held = null;
-    }
-    return true;
-  });
+  const moving = marbles.filter(ball => !ball.finished);
   for (const ball of moving) {
     ball.previousY = ball.y;
-    ball.vx = clamp(ball.vx * .998, -maxSpeed, maxSpeed);
-    const speedLimit = ball.boostUntil > time ? Math.max(maxSpeed, ball.vy * .999) : maxSpeed;
-    ball.vy = Math.min(ball.vy + gravity * step, speedLimit);
+    applyLanes(ball, course.lanes, time);
     ball.x += ball.vx * step;
     ball.y += ball.vy * step;
     ball.spin += ball.vx * step / radius;
@@ -314,9 +294,6 @@ export function advanceRace(marbles, course, time) {
       ball.x = clamp(ball.x, edge, width - edge);
       ball.vx = Math.abs(ball.vx) * (ball.x === edge ? .66 : -.66);
     }
-
-    applyZones(ball, course.zones, time);
-    if (ball.held) continue;
 
     if (ball.y >= finishLine) {
       ball.finished = true;
