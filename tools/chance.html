@@ -53,6 +53,8 @@
     .stepper input::-webkit-inner-spin-button { appearance: none; }
     .roll { flex: 1 1 120px; padding: 8px 15px; border: 0; border-radius: 10px; background: #6042ac; color: white; font-weight: 750; }
     .summary { min-height: 1.5em; margin: 21px 0 10px; color: var(--muted); font-size: 14px; }
+    .summary strong { display: block; color: var(--ink); font-size: 24px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+    .summary strong + span { display: block; margin-top: 5px; }
     .roll[aria-disabled="true"] { opacity: .72; cursor: default; }
     .results {
       display: grid;
@@ -176,7 +178,7 @@
         </div>
         <button id="roll" class="roll" type="submit">동전 던지기</button>
       </form>
-      <p id="summary" class="summary" role="status"></p>
+      <p id="summary" class="summary" role="status" aria-atomic="true"></p>
       <ol id="results" class="results" aria-label="개별 결과"></ol>
     </section>
   </main>
@@ -292,12 +294,19 @@
     function announceResults(values) {
       if (!values.length) {
         summary.textContent = '개수를 정한 뒤 던지세요.';
-      } else if (active === 'coin') {
-        const heads = values.filter(value => value === 1).length;
-        summary.textContent = '앞면 ' + heads + '개 · 뒷면 ' + (values.length - heads) + '개';
-      } else {
-        summary.textContent = values.length + '개 · 합계 ' + values.reduce((sum, value) => sum + value, 0);
+        return;
       }
+      const total = document.createElement('strong');
+      const detail = document.createElement('span');
+      if (active === 'coin') {
+        const heads = values.filter(value => value === 1).length;
+        total.textContent = '합계 ' + heads + '점';
+        detail.textContent = '앞면 ' + heads + '개 (1점) · 뒷면 ' + (values.length - heads) + '개 (0점)';
+      } else {
+        total.textContent = '합계 ' + values.reduce((sum, value) => sum + value, 0);
+        detail.textContent = '주사위 ' + values.length + '개';
+      }
+      summary.replaceChildren(total, detail);
     }
 
     for (const button of modeButtons) {

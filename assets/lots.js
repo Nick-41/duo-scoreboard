@@ -135,8 +135,8 @@ function drawDeck() {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'ticket';
-    button.innerHTML = '<span class="ticket-flip" aria-hidden="true"><span class="ticket-face ticket-front"></span><span class="ticket-face ticket-back"><span class="ticket-label"></span></span></span>';
-    button.querySelector('.ticket-front').textContent = slot + 1;
+    button.innerHTML = '<span class="ticket-flip" aria-hidden="true"><span class="ticket-face ticket-front"><span class="ticket-number"></span></span><span class="ticket-face ticket-back"><span class="ticket-label"></span></span></span>';
+    button.querySelector('.ticket-number').textContent = slot + 1;
     button.setAttribute('aria-label', (slot + 1) + '번 제비 뽑기');
     button.addEventListener('click', () => draw(slot));
     return button;

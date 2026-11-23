@@ -56,6 +56,20 @@ html { scrollbar-gutter:stable; }
 .s-editbar select { flex:1 1 130px; max-width:340px; min-width:0; min-height:44px; border:1px solid var(--line); border-radius:9px; background:var(--panel); color:var(--text); font:inherit; font-size:16px; padding:4px 8px; }
 .s-room-actions, .s-status { margin-left:auto; }
 .s-viewbar { position:sticky; top:env(safe-area-inset-top); z-index:6; background:var(--panel); border-bottom:1px solid var(--line); }
+.s-fullscreen-button { margin-inline-start:auto; background:var(--soft); color:var(--accent); }
+.s-fullscreen {
+  position:fixed; inset:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; border:0;
+  padding:max(10px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+          max(14px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  background:var(--stage); color:var(--text); overflow:hidden;
+}
+.s-fullscreen[open] { display:grid; grid-template-rows:auto minmax(0, 1fr); gap:12px; }
+.s-fullscreen-header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.s-fullscreen-header h2 { margin:0; font-size:16px; }
+.s-fullscreen-stage { display:grid; place-items:center; container-type:size; }
+.s-fullscreen .s-board { width:min(100cqw, calc(100cqh * var(--room-ratio))); aspect-ratio:var(--room-ratio); overflow:hidden; }
+.s-fullscreen .s-shape { cursor:default; }
+body:has(.s-fullscreen[open]) { overflow:hidden; }
 .s-options { border-top:1px solid var(--line); }
 .s-options summary { display:flex; align-items:center; min-height:44px; padding:0 12px; cursor:pointer; color:var(--text); font-size:13px; font-weight:700; }
 .s-options summary::before { content:'›'; margin-right:7px; font-size:20px; }
@@ -103,9 +117,10 @@ html { scrollbar-gutter:stable; }
    <button type="button" class="s-btn" data-action="zoom-out" aria-label="축소">−</button>
    <output data-zoom aria-label="화면 맞춤 대비 배율">100%</output>
    <button type="button" class="s-btn" data-action="zoom-in" aria-label="확대">＋</button>
-   <button type="button" class="s-btn" data-action="zoom-fit">전체 보기</button>
+   <button type="button" class="s-btn" data-action="zoom-fit">화면 맞춤</button>
    <button type="button" class="s-btn" data-action="zoom-width">너비 맞춤</button>
   </div>
+  <button type="button" class="s-btn s-fullscreen-button" data-action="fullscreen" aria-haspopup="dialog" aria-controls="roomFullscreen">전체 화면</button>
  </div>
  <div class="s-stage">
   <div class="s-surface" data-surface><div class="s-board" data-board></div></div>
@@ -139,6 +154,13 @@ html { scrollbar-gutter:stable; }
  </div>
  <div class="s-settings"><label>공간 가로 <input type="number" min="200" max="2500" value="600" data-room="w">cm</label><label>세로 <input type="number" min="200" max="2500" value="400" data-room="h">cm</label><label><input type="checkbox" data-snap>5cm 맞춤</label></div>
  </details>
+ <dialog id="roomFullscreen" class="s-fullscreen" aria-labelledby="roomFullscreenTitle">
+  <header class="s-fullscreen-header">
+   <h2 id="roomFullscreenTitle">배치도</h2>
+   <form method="dialog"><button type="submit" class="s-btn" autofocus>닫기</button></form>
+  </header>
+  <div class="s-fullscreen-stage"><div class="s-board" data-fullscreen-board></div></div>
+ </dialog>
 </div>
 <script>
 (()=>{
@@ -150,6 +172,7 @@ html { scrollbar-gutter:stable; }
  const snapshot=()=>JSON.parse(JSON.stringify(state));const remember=()=>{undo.push(snapshot());if(undo.length>40)undo.shift()};
  const zoomOut=$('[data-action="zoom-out"]'),zoomIn=$('[data-action="zoom-in"]');
  const zoomOutput=$('[data-zoom]'),editButton=$('[data-action="edit"]');
+ const fullscreen=$('#roomFullscreen'),fullscreenBoard=$('[data-fullscreen-board]');
  const minZoom=0.6;
  const viewportMeasure=$('[data-viewport-measure]');
  let zoom=1, visibleZoom=1, previousSize;
@@ -250,10 +273,25 @@ html { scrollbar-gutter:stable; }
  }
  const chosen=()=>state.rects.find(r=>r.id===state.selectedId);const sn=n=>state.snap?Math.round(n/5)*5:Math.round(n);
  function loc(el,r){el.style.left=(100*r.x/state.room.w)+'%';el.style.top=(100*r.y/state.room.h)+'%';el.style.width=(100*r.w/state.room.w)+'%';el.style.height=(100*r.h/state.room.h)+'%';}
- function draw(){sizeBoard();board.style.backgroundSize=`${2000/state.room.w}% ${2000/state.room.h}%`;board.replaceChildren();
-  for(const r of state.rects){const el=document.createElement('div');el.className='s-shape'+(r.id===state.selectedId?' s-selected':'');el.dataset.id=r.id;el.style.background=r.color;loc(el,r);
+ function drawBoard(target){
+  target.style.backgroundSize=`${2000/state.room.w}% ${2000/state.room.h}%`;
+  target.replaceChildren();
+  for(const r of state.rects){
+   const selected=target===board&&r.id===state.selectedId;
+   const el=document.createElement('div');el.className='s-shape'+(selected?' s-selected':'');el.dataset.id=r.id;el.style.background=r.color;loc(el,r);
    const label=document.createElement('b');label.textContent=r.name;const size=document.createElement('small');size.textContent=r.w+' × '+r.h;el.append(label,size);
-   if(r.id===state.selectedId){for(const corner of ['nw','ne','sw','se']){const h=document.createElement('div');h.className='s-handle';h.dataset.corner=corner;el.append(h)}}board.append(el)}
+   if(selected){for(const corner of ['nw','ne','sw','se']){const h=document.createElement('div');h.className='s-handle';h.dataset.corner=corner;el.append(h)}}
+   target.append(el);
+  }
+ }
+ function drawFullscreen(){
+  fullscreenBoard.style.setProperty('--room-ratio',state.room.w/state.room.h);
+  drawBoard(fullscreenBoard);
+ }
+ function draw(){
+  sizeBoard();
+  drawBoard(board);
+  if(fullscreen.open)drawFullscreen();
   picker.replaceChildren(new Option('개체 선택',''),...state.rects.map(r=>new Option(r.name,r.id)));
   picker.value=state.selectedId??'';
   picker.disabled=state.rects.length===0;
@@ -284,6 +322,7 @@ html { scrollbar-gutter:stable; }
    if(popup.hidden)openPopup();
    else close();
   }
+  if(action==='fullscreen'){drawFullscreen();fullscreen.showModal();return}
   if(action==='add'){if(state.rects.length>=150)return;remember();const id='n'+state.nextId,w=Math.min(140,state.room.w),h=Math.min(90,state.room.h);state.rects.push({id,name:'네모 '+state.nextId,x:clamp(state.nextId*34,0,state.room.w-w),y:clamp(state.nextId*26,0,state.room.h-h),w,h,color:colors[(state.nextId-1)%colors.length]});state.nextId++;state.selectedId=id;close();draw();}
   if(action==='undo'&&undo.length){state=undo.pop();close();draw()}
   if(action==='reset'){remember();state=first();close();draw()}

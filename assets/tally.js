@@ -164,10 +164,7 @@ add.addEventListener('click', () => {
   const item = { id: nextId++, label: noun + ' ' + (nextId - 1), count: 0 };
   state.items.push(item);
   render();
-  const input = $('[data-role="name"]', rows.get(item.id));
-  input.focus();
-  input.select();
-  save();
+  save(item.label + ' 추가됨');
 });
 
 undo.addEventListener('click', () => {
