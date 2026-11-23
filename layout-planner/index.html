@@ -204,7 +204,7 @@ $("applyItem").addEventListener("click",function(){
 $("rotate").addEventListener("click",function(){var a=findItem();if(a)applyChange(function(){a.rotation=(a.rotation+90)%360;restrict(a)})});
 $("duplicate").addEventListener("click",function(){var a=findItem();if(!a)return;applyChange(function(){var copy=Object.assign({},a,{id:newId(),x:a.x+15,y:a.y+15});restrict(copy);state.items.push(copy);selected=copy.id})});
 $("deleteItem").addEventListener("click",function(){if(!findItem())return;applyChange(function(){state.items=state.items.filter(function(a){return a.id!==selected});selected=null})});
-$("resetAll").addEventListener("click",function(){if(!confirm("모든 물체와 공간 설정을 초기화하시겠습니까?"))return;applyChange(function(){state={room:{w:500,h:400},items:[],grid:true,snap:true};selected=null});fit();toast("초기화됨")});
+$("resetAll").addEventListener("click",function(){applyChange(function(){state={room:{w:500,h:400},items:[],grid:true,snap:true};selected=null});fit()});
 $("undo").addEventListener("click",function(){if(!undoStack.length)return;redoStack.push(snapshot());state=normalise(JSON.parse(undoStack.pop()));selected=null;save();render();refreshControls();fit()});
 $("redo").addEventListener("click",function(){if(!redoStack.length)return;undoStack.push(snapshot());state=normalise(JSON.parse(redoStack.pop()));selected=null;save();render();refreshControls();fit()});
 $("snap").addEventListener("change",function(e){applyChange(function(){state.snap=e.target.checked})});

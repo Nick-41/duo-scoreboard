@@ -28,16 +28,6 @@
       <p id="activity" class="sr-only" role="status"></p>
     </section>
     <section id="entries" class="tally-grid" aria-label="투표 선택지"></section>
-    <dialog id="confirmReset">
-      <form method="dialog">
-        <h2>득표수를 초기화할까요?</h2>
-        <p class="muted">선택지와 주제는 보관됩니다.</p>
-        <div class="row">
-          <button type="submit" value="cancel" class="btn" autofocus>취소</button>
-          <button type="submit" value="reset" class="btn primary">초기화</button>
-        </div>
-      </form>
-    </dialog>
   </main>
   <template id="entryTemplate">
     <article class="panel tally-item">
@@ -56,6 +46,6 @@
       </div>
     </article>
   </template>
-  <script type="module" src="../assets/tally.js?v=edit-focus"></script>
+  <script type="module" src="../assets/tally.js?v=undo-reset"></script>
 </body>
 </html>

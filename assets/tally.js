@@ -15,7 +15,6 @@ const edit = id('edit');
 const add = id('add');
 const undo = id('undo');
 const reset = id('reset');
-const confirmReset = id('confirmReset');
 const total = id('total');
 const saved = id('saved');
 const savedMessage = vote ? '이 기기에서 투표 결과를 자동 저장합니다.' : '이 기기에 자동 저장됩니다.';
@@ -41,9 +40,20 @@ function restore() {
         !Number.isInteger(item.count) || item.count < 0 || item.count > countLimit) return null;
     ids.add(item.id);
   }
-  const history = Array.isArray(data.history) ? data.history.slice(-100).filter(change =>
-    ids.has(change?.id) && (change.delta === 1 || (!vote && change.delta === -1))
-  ) : [];
+  const history = [];
+  const savedHistory = Array.isArray(data.history) ? data.history.slice(-100) : [];
+  for (const change of savedHistory) {
+    if (change?.counts && typeof change.counts === 'object') {
+      const counts = {};
+      for (const id of ids) {
+        const count = change.counts[id];
+        if (Number.isInteger(count) && count > 0 && count <= countLimit) counts[id] = count;
+      }
+      if (Object.keys(counts).length) history.push({ counts });
+    } else if (ids.has(change?.id) && (change.delta === 1 || (!vote && change.delta === -1))) {
+      history.push({ id: change.id, delta: change.delta });
+    }
+  }
   return { items: data.items, topic: typeof data.topic === 'string' ? data.topic.slice(0, 70) : '', history };
 }
 
@@ -112,12 +122,16 @@ function render() {
   updateCounts();
 }
 
+function remember(change) {
+  state.history.push(change);
+  if (state.history.length > 100) state.history.shift();
+}
+
 function changeCount(item, delta) {
   const next = item.count + delta;
   if (next < 0 || next > countLimit) return;
   item.count = next;
-  state.history.push({ id: item.id, delta });
-  if (state.history.length > 100) state.history.shift();
+  remember({ id: item.id, delta });
   updateCounts();
   save(item.label + ' ' + format.format(item.count) + unit);
 }
@@ -133,7 +147,11 @@ entries.addEventListener('click', event => {
   if (button.dataset.action === 'remove') {
     if (state.items.length <= minimum || (item.count && !window.confirm(item.label + '의 ' + (vote ? '득표수' : '수량') + '와 함께 삭제할까요?'))) return;
     state.items.splice(itemIndex, 1);
-    state.history = state.history.filter(change => change.id !== item.id);
+    state.history = state.history.filter(change => {
+      if (!change.counts) return change.id !== item.id;
+      delete change.counts[item.id];
+      return Object.keys(change.counts).length > 0;
+    });
     render();
     const next = state.items[Math.min(itemIndex, state.items.length - 1)];
     const nextRemove = $('[data-action="remove"]:enabled', rows.get(next.id));
@@ -171,25 +189,32 @@ add.addEventListener('click', () => {
 undo.addEventListener('click', () => {
   const change = state.history.pop();
   if (!change) return;
-  const item = state.items.find(item => item.id === change.id);
-  if (!item) return;
-  item.count = Math.min(countLimit, Math.max(0, item.count - change.delta));
+  let message;
+  if (change.counts) {
+    for (const item of state.items) item.count = change.counts[item.id] ?? 0;
+    message = vote ? '초기화 전 득표수로 복원했습니다.' : '초기화 전 수량으로 복원했습니다.';
+  } else {
+    const item = state.items.find(item => item.id === change.id);
+    if (!item) return;
+    item.count = Math.min(countLimit, Math.max(0, item.count - change.delta));
+    message = '실행 취소 · ' + item.label + ' ' + format.format(item.count) + unit;
+  }
   updateCounts();
-  save('실행 취소 · ' + item.label + ' ' + format.format(item.count) + unit);
+  save(message);
 });
 
 reset.addEventListener('click', () => {
-  confirmReset.returnValue = '';
-  confirmReset.showModal();
-});
-
-confirmReset.addEventListener('close', () => {
-  if (confirmReset.returnValue !== 'reset') return;
-  for (const item of state.items) item.count = 0;
-  state.history = [];
+  const counts = {};
+  for (const item of state.items) {
+    if (item.count > 0) counts[item.id] = item.count;
+    item.count = 0;
+  }
+  if (!Object.keys(counts).length) return;
+  remember({ counts });
+  const resetHadFocus = document.activeElement === reset;
   updateCounts();
+  if (resetHadFocus) undo.focus({ preventScroll: true });
   save(vote ? '득표수를 초기화했습니다.' : '수량을 초기화했습니다.');
-  edit.focus();
 });
 
 if (topic) {

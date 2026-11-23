@@ -152,8 +152,9 @@ document.getElementById('undo').addEventListener('click',()=>{
  state.scores=old;persist();draw();
 });
 document.getElementById('reset').addEventListener('click',()=>{
- if(!confirm('모든 팀의 점수를 0으로 초기화할까요?'))return;
+ if(state.scores.every(score=>score===0))return;
  checkpoint();state.scores=[0,0,0,0];persist();draw();
+ document.getElementById('announce').textContent='점수를 초기화했습니다.';
 });
 window.addEventListener('keydown',ev=>{
  if(ev.target instanceof HTMLInputElement)return;

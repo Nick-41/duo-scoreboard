@@ -102,7 +102,11 @@
     .ticket.latest .ticket-back { border-color: var(--accent); }
     .ticket.drawing { z-index: 2; }
     .ticket.drawing .ticket-face { box-shadow: 0 10px 22px #130b3344; }
-    .ticket-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .ticket-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+    @media (max-width: 400px) {
+      .ticket-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .ticket-actions .primary { grid-column: 1 / -1; }
+    }
     .draw-result {
       min-block-size: 55px;
       margin: 0;
@@ -138,6 +142,7 @@
         <div class="ticket-actions">
           <button id="pick" disabled type="button" class="btn primary">무작위로 한 장</button>
           <button id="reset" disabled type="button" class="btn">다시 섞기</button>
+          <button id="undo" disabled type="button" class="btn">실행 취소</button>
         </div>
         <p id="result" class="draw-result" role="status">번호표를 고르세요.</p>
         <details id="drawHistory" hidden>
@@ -158,6 +163,6 @@
       </form>
     </div>
   </main>
-  <script type="module" src="../assets/lots.js?v=cards"></script>
+  <script type="module" src="../assets/lots.js?v=undo-shuffle"></script>
 </body>
 </html>

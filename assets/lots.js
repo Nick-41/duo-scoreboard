@@ -11,6 +11,7 @@ const remaining = id('remaining');
 const result = id('result');
 const pick = id('pick');
 const reset = id('reset');
+const undo = id('undo');
 const history = id('history');
 const drawHistory = id('drawHistory');
 const labelsForm = id('labelsForm');
@@ -27,6 +28,7 @@ if (restored && restored.drawn.length === 0 && restored.labels.join('\n') === le
 }
 let buttons = [];
 let drawing = false;
+let previousDeck = null;
 
 function validIndexes(values, total) {
   return Array.isArray(values) && new Set(values).size === values.length &&
@@ -76,6 +78,7 @@ function draftLabels() {
 function updateControls() {
   pick.setAttribute('aria-disabled', String(drawing || state.drawn.length === state.deck.length));
   reset.setAttribute('aria-disabled', String(drawing));
+  undo.disabled = drawing || previousDeck === null;
   for (const [slot, button] of buttons.entries()) {
     button.setAttribute('aria-disabled', String(drawing || state.drawn.includes(slot)));
   }
@@ -168,6 +171,7 @@ async function animateTicket(button) {
 async function draw(slot) {
   if (drawing || state.drawn.includes(slot)) return;
   drawing = true;
+  previousDeck = null;
   const last = state.drawn.at(-1);
   if (last !== undefined) buttons[last].classList.remove('latest');
   state.drawn.push(slot);
@@ -198,7 +202,16 @@ pick.addEventListener('click', () => {
 
 reset.addEventListener('click', () => {
   if (drawing) return;
+  previousDeck = state;
   state = fresh(state.labels);
+  drawDeck();
+  write(key, state);
+});
+
+undo.addEventListener('click', () => {
+  if (drawing || !previousDeck) return;
+  state = previousDeck;
+  previousDeck = null;
   drawDeck();
   write(key, state);
 });
@@ -237,6 +250,7 @@ labelsForm.addEventListener('submit', event => {
   }
   fields().forEach((input, index) => { input.value = parsed.labels[index]; });
   if (parsed.labels.join('\n') !== state.labels.join('\n')) {
+    previousDeck = null;
     state = fresh(parsed.labels);
     drawDeck();
     write(key, state);

@@ -27,14 +27,15 @@ h1{margin:0;font-size:clamp(18px,3vw,25px);letter-spacing:-.04em}
 .settings{margin:25px auto 19px;display:flex;gap:10px;justify-content:center;align-items:center}
 .settings label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
 .settings input{width:75px;background:#171124;color:#fff;border:1px solid var(--line);border-radius:11px;padding:10px;text-align:center;font-size:19px;font-variant-numeric:tabular-nums}
-.actions{display:flex;justify-content:center;gap:10px;margin-top:27px}
-.actions button{border:1px solid var(--line);border-radius:13px;min-width:105px;min-height:54px;padding:0 24px;font-weight:800;font-size:15px;background:#2d2241}
-.actions .primary{background:var(--accent);border:0;color:#241b0e;min-width:146px}
+.actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr);gap:8px;max-width:430px;margin:27px auto 0}
+.actions button{border:1px solid var(--line);border-radius:13px;min-height:54px;padding:0 5px;font-weight:800;font-size:15px;background:#2d2241}
+.actions button:disabled{opacity:.5;cursor:default}
+.actions .primary{background:var(--accent);border:0;color:#241b0e}
 .presets{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:20px}
 .presets button{border:1px solid var(--line);border-radius:10px;background:transparent;padding:10px 14px;color:var(--muted);font-size:12px;font-weight:700}
 .note{text-align:center;line-height:1.6;color:var(--muted);font-size:12px;margin:24px auto 0}
 [hidden]{display:none!important}
-@media(max-width:480px){header{margin-bottom:17px}.panel{padding:20px 16px}.dial{width:min(76vw,320px);height:min(76vw,320px)}.readout{font-size:clamp(40px,11vw,58px)}.settings input{width:65px}.actions button{min-width:0;flex:1}.actions .primary{min-width:0;flex:1.5}}
+@media(max-width:480px){header{margin-bottom:17px}.panel{padding:20px 16px}.dial{width:min(76vw,320px);height:min(76vw,320px)}.readout{font-size:clamp(40px,11vw,58px)}.settings input{width:65px}}
 @media(prefers-reduced-motion:reduce){.progress{transition:none}}
 </style><link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
 <link rel="stylesheet" href="../assets/brand.css">
@@ -44,7 +45,7 @@ h1{margin:0;font-size:clamp(18px,3vw,25px);letter-spacing:-.04em}
 <div class="mode" role="group" aria-label="측정 방식"><button type="button" data-mode="timer" aria-pressed="true">타이머</button><button type="button" data-mode="stopwatch" aria-pressed="false">스톱워치</button></div>
 <div class="dial"><svg viewBox="0 0 240 240" aria-hidden="true"><circle class="track" cx="120" cy="120" r="100"></circle><circle id="progress" class="progress" cx="120" cy="120" r="100"></circle></svg><div class="dial-inner"><div id="readout" class="readout" role="timer" aria-live="off">05:00</div><div id="status" class="status" aria-live="polite">준비됨</div></div></div>
 <div id="settings" class="settings"><label>분 <input id="mins" type="number" inputmode="numeric" min="0" max="999" value="5" aria-label="분"></label><label>초 <input id="secs" type="number" inputmode="numeric" min="0" max="59" value="0" aria-label="초"></label></div>
-<div class="actions"><button id="reset" type="button">초기화</button><button id="start" class="primary" type="button">시작</button></div>
+<div class="actions"><button id="reset" type="button">초기화</button><button id="undo" type="button" disabled>실행 취소</button><button id="start" class="primary" type="button">시작</button></div>
 <div id="presets" class="presets" aria-label="빠른 타이머"><button type="button" data-seconds="60">1분</button><button type="button" data-seconds="300">5분</button><button type="button" data-seconds="600">10분</button><button type="button" data-seconds="1500">25분</button></div>
 <p class="note">시간은 기기에서 직접 측정됩니다. 화면을 잠그거나 앱을 전환해도 돌아오면 경과 시간이 반영되지만, 백그라운드에서 종료 알림이 보장되지는 않습니다.</p>
 </main></div>
@@ -52,7 +53,9 @@ h1{margin:0;font-size:clamp(18px,3vw,25px);letter-spacing:-.04em}
 'use strict';
 const circumference=2*Math.PI*100;
 let mode='timer',running=false,startedAt=0,accumulated=0,duration=300000,finished=false,interval=null;
+let resetSnapshot=null;
 const mins=document.getElementById('mins'),secs=document.getElementById('secs'),readout=document.getElementById('readout'),status=document.getElementById('status'),progress=document.getElementById('progress');
+const start=document.getElementById('start'),undo=document.getElementById('undo');
 progress.style.strokeDasharray=String(circumference);
 try{const saved=Number(localStorage.getItem('duo-hub-timer-duration-v1'));if(Number.isFinite(saved)&&saved>0&&saved<=599999000)duration=saved}catch(e){}
 function formatTime(ms,stopwatch){
@@ -67,7 +70,8 @@ function render(){
  const e=mode==='timer'?Math.min(passed,duration):passed,remaining=mode==='timer'?Math.max(0,duration-e):e;
  readout.textContent=formatTime(remaining,mode==='stopwatch');
  status.textContent=finished?'시간 종료':running?'측정 중':accumulated>0?'일시 정지':'준비됨';
- document.getElementById('start').textContent=running?'일시 정지':finished?'다시 시작':accumulated>0?'계속':'시작';
+ start.textContent=running?'일시 정지':finished?'다시 시작':accumulated>0?'계속':'시작';
+ undo.disabled=resetSnapshot===null;
  const ratio=mode==='timer'?(duration?remaining/duration:0):((e%60000)/60000);
  progress.style.strokeDashoffset=String(circumference*(1-Math.max(0,Math.min(1,ratio))));
 }
@@ -76,24 +80,42 @@ function fromInputs(){
  duration=(Math.floor(m)*60+Math.floor(s))*1000;
  if(duration<=0)duration=1000;
  mins.value=String(Math.floor(duration/60000));secs.value=String(Math.floor(duration%60000/1000));
- try{localStorage.setItem('duo-hub-timer-duration-v1',String(duration))}catch(e){}
+ saveDuration();
 }
+function saveDuration(){try{localStorage.setItem('duo-hub-timer-duration-v1',String(duration))}catch(e){}}
 function syncInputs(){mins.value=String(Math.floor(duration/60000));secs.value=String(Math.floor(duration%60000/1000))}
 function stop(){if(running){accumulated=elapsed();running=false}clearInterval(interval);interval=null}
+function resume(){startedAt=Date.now();running=true;interval=setInterval(render,120)}
 function reset(){stop();accumulated=0;finished=false;if(mode==='timer')fromInputs();render()}
-document.getElementById('start').addEventListener('click',()=>{
- if(running){stop()}else{if(finished){accumulated=0;finished=false}if(mode==='timer'&&accumulated===0)fromInputs();startedAt=Date.now();running=true;interval=setInterval(render,120)}
+start.addEventListener('click',()=>{
+ if(running){stop()}else{resetSnapshot=null;if(finished){accumulated=0;finished=false}if(mode==='timer'&&accumulated===0)fromInputs();resume()}
  render();
 });
-document.getElementById('reset').addEventListener('click',reset);
+document.getElementById('reset').addEventListener('click',()=>{
+ if(running||accumulated>0||finished)resetSnapshot={elapsed:elapsed(),duration,finished,running};
+ reset();
+});
+undo.addEventListener('click',()=>{
+ if(!resetSnapshot)return;
+ const previous=resetSnapshot;
+ resetSnapshot=null;
+ stop();
+ accumulated=previous.elapsed;
+ duration=previous.duration;
+ finished=previous.finished;
+ syncInputs();
+ if(mode==='timer')saveDuration();
+ if(previous.running)resume();
+ render();
+});
 document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{
- if(btn.dataset.mode===mode)return;stop();mode=btn.dataset.mode;accumulated=0;finished=false;
+ if(btn.dataset.mode===mode)return;stop();mode=btn.dataset.mode;accumulated=0;finished=false;resetSnapshot=null;
  document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));
  document.getElementById('settings').hidden=mode!=='timer';document.getElementById('presets').hidden=mode!=='timer';render();
 }));
-document.querySelectorAll('[data-seconds]').forEach(btn=>btn.addEventListener('click',()=>{duration=Number(btn.dataset.seconds)*1000;syncInputs();reset()}));
-[mins,secs].forEach(input=>input.addEventListener('change',()=>{if(!running){accumulated=0;finished=false;fromInputs();render()}}));
-document.addEventListener('keydown',ev=>{if(ev.code==='Space'&&ev.target===document.body){ev.preventDefault();document.getElementById('start').click()}});
+document.querySelectorAll('[data-seconds]').forEach(btn=>btn.addEventListener('click',()=>{resetSnapshot=null;duration=Number(btn.dataset.seconds)*1000;syncInputs();reset()}));
+[mins,secs].forEach(input=>input.addEventListener('change',()=>{if(!running){accumulated=0;finished=false;resetSnapshot=null;fromInputs();render()}}));
+document.addEventListener('keydown',ev=>{if(ev.code==='Space'&&ev.target===document.body){ev.preventDefault();start.click()}});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
 syncInputs();render();
 </script></body></html>
