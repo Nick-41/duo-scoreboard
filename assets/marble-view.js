@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=endurance';
+import { radius, width } from './marble-course.js?v=collision';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -15,6 +15,7 @@ function palette(course) {
     peg: color(50, 56, 67),
     rotor: color(66, 42, 69),
     light: color(38, 99, 87),
+    rubber: dark ? '#f3a56e' : '#b96437',
   };
 }
 
@@ -54,54 +55,6 @@ function dot(ctx, x, y, radius, color) {
   ctx.fill();
 }
 
-const markings = {
-  boost: ['#55d8b6', '가속'],
-  wind: ['#a2a8ff', '횡풍'],
-};
-
-function paintLane(ctx, lane, top, bottom, mini) {
-  const { x1, x2, y1, y2, type } = lane;
-  const [color, label] = markings[type];
-  const from = Math.max(top, y1);
-  const to = Math.min(bottom, y2);
-  ctx.fillStyle = color + '43';
-  ctx.fillRect(x1, from, x2 - x1, to - from);
-  if (mini) return;
-
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  const middle = (x1 + x2) / 2;
-  const firstArrow = y1 + 32;
-  const separation = 48;
-  const firstVisible = firstArrow + separation * Math.max(0, Math.ceil((from - firstArrow) / separation));
-  const direction = lane.force > 0 ? 1 : -1;
-  for (let y = firstVisible; y + 10 < to; y += separation) {
-    ctx.beginPath();
-    if (type === 'boost') {
-      ctx.moveTo(middle - 14, y - 6);
-      ctx.lineTo(middle, y + 6);
-      ctx.lineTo(middle + 14, y - 6);
-    } else {
-      ctx.moveTo(middle - 7 * direction, y - 9);
-      ctx.lineTo(middle + 6 * direction, y);
-      ctx.lineTo(middle - 7 * direction, y + 9);
-    }
-    ctx.stroke();
-  }
-  if (y1 >= top && y1 + 17 < bottom) {
-    ctx.font = '750 17px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    const textWidth = ctx.measureText(label).width + 16;
-    ctx.fillStyle = '#161326e9';
-    ctx.fillRect(middle - textWidth / 2, y1 + 3, textWidth, 21);
-    ctx.fillStyle = color;
-    ctx.fillText(label, middle, y1 + 14);
-  }
-  ctx.restore();
-}
-
 function paintTrack(ctx, course, view, top, colors, mini = false) {
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, view.w, view.h);
@@ -137,10 +90,6 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
     ctx.fillText('출발', width / 2, 25);
   }
 
-  for (const lane of course.lanes) {
-    if (lane.y1 < bottom && lane.y2 > top) paintLane(ctx, lane, top, bottom, mini);
-  }
-
   ctx.lineCap = 'round';
   for (const obstacle of course.obstacles) {
     const { x, y, dx, dy, radius: size, half = 0, spin } = obstacle;
@@ -154,9 +103,12 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
       ctx.strokeStyle = face;
       ctx.stroke();
     } else {
-      dot(ctx, x, y, size, face);
+      dot(ctx, x, y, size, obstacle.restitution ? colors.rubber : face);
     }
-    if (!mini) dot(ctx, x, y, half ? 4 : size * .36, colors.light);
+    if (!mini) {
+      if (obstacle.restitution) dot(ctx, x, y, size * .72, colors.background);
+      dot(ctx, x, y, half ? 4 : size * .36, colors.light);
+    }
   }
   if (bottom >= course.finishLine) {
     for (let column = 0; column < 34; column++) {
@@ -182,22 +134,7 @@ function marblePoint(ball, time) {
   };
 }
 
-function drawBall(ctx, ball, x, y, size, focused, time, scale, effects) {
-  const effect = effects && ball.effect;
-  if (effect && time - effect.at < .6 && time >= effect.at && !ball.finished) {
-    const color = markings[effect.type][0];
-    const strength = 1 - (time - effect.at) / .6;
-    ctx.save();
-    ctx.globalAlpha = strength * .82;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x - ball.vx * scale * .085, y - ball.vy * scale * .11);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = size * 1.45;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    ctx.restore();
-  }
+function drawBall(ctx, ball, x, y, size, focused) {
   if (focused) {
     ctx.beginPath();
     ctx.arc(x, y, size + 4, 0, 2 * Math.PI);
@@ -310,7 +247,6 @@ export function createRaceView(track, minimap) {
   let positions = new WeakMap();
   let size, miniSize, course, mode = 'auto', camera = 0;
   let marbles = [], time = 0, focus = null, widthForNames = 0;
-  let effects = true;
 
   function projection() {
     return size && course && geometry(size, course, mode === 'overview');
@@ -329,7 +265,7 @@ export function createRaceView(track, minimap) {
       const y = view.y + (point.y - top) * view.scale;
       if (y < -8 || y > view.h + 8) continue;
       const size = Math.max(4.5, radius * view.scale);
-      drawBall(ctx, ball, x, y, size, ball === focus, time, view.scale, effects);
+      drawBall(ctx, ball, x, y, size, ball === focus);
       const entry = { ball, x, y, size };
       if (ball === focus) balls.unshift(entry);
       else balls.push(entry);
@@ -362,10 +298,9 @@ export function createRaceView(track, minimap) {
     redraw();
   }
 
-  function scene(nextCourse, nextMarbles, resetCamera = true, showEffects = true) {
+  function scene(nextCourse, nextMarbles, resetCamera = true) {
     course = nextCourse;
     marbles = nextMarbles;
-    effects = showEffects;
     if (resetCamera) camera = 0;
     time = 0;
     focus = null;

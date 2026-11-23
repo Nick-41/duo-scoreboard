@@ -1,6 +1,6 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=endurance';
-import { createRaceView } from './marble-view.js?v=endurance';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=collision';
+import { createRaceView } from './marble-view.js?v=collision';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
 
 const storageKey = 'moadeck-marble-race-v1';
@@ -32,10 +32,11 @@ const fullMotion = gameMotion(id('game-motion'));
 const viewer = createRaceView(track, minimap);
 
 const savedCourse = read(courseKey);
+const selectedCourse = savedCourse === 'crosswind' ? 'ravine' : savedCourse;
 for (const [key, definition] of Object.entries(courses)) {
   mapSelect.add(new Option(definition.name, key));
 }
-mapSelect.value = typeof savedCourse === 'string' && Object.hasOwn(courses, savedCourse) ? savedCourse : defaultCourse;
+mapSelect.value = typeof selectedCourse === 'string' && Object.hasOwn(courses, selectedCourse) ? selectedCourse : defaultCourse;
 let course = makeCourse(mapSelect.value);
 let marbles = [];
 let finishers = [];
@@ -72,6 +73,9 @@ function setPhase(value, label, message) {
   phase.textContent = label;
   start.textContent = startLabels[value];
   status.textContent = message;
+  const moving = value === 'running' || value === 'countdown';
+  mapSelect.disabled = moving;
+  names.readOnly = moving || value === 'paused';
 }
 
 function syncCount() {
@@ -163,9 +167,14 @@ function paint(elapsed = 0) {
 }
 
 function resetPreview() {
+  stopClock?.();
+  stopClock = null;
+  pausedPhase = null;
+  countdown.hidden = true;
+  countdown.textContent = '';
   marbles = makeMarbles(parseNames(names.value).labels ?? []);
   finishers = [];
-  time = 0;
+  time = accumulator = countdownElapsed = 0;
   viewer.scene(course, marbles);
   clearRanks();
   setPhase('idle', '출발 대기', '');
@@ -183,8 +192,6 @@ function finishRace() {
   setPhase('finished', '종료', '1위 · ' + winner.name + closeFinish);
   progress.value = 1;
   stopClock = null;
-  mapSelect.disabled = false;
-  names.readOnly = false;
   paint();
 }
 
@@ -273,12 +280,10 @@ roster.addEventListener('submit', event => {
   reducedMotion = !fullMotion() || !viewer.ready;
   if (reducedMotion) selectView('overview');
   positionCourse(course, 0);
-  viewer.scene(course, marbles, viewMode !== 'manual', !reducedMotion);
+  viewer.scene(course, marbles, viewMode !== 'manual');
   clearRanks();
   arrived.textContent = '0/' + marbles.length;
   progress.value = 0;
-  names.readOnly = true;
-  mapSelect.disabled = true;
   setPhase('countdown', '출발 준비', '곧 출발합니다.');
   countdown.textContent = '3';
   countdown.hidden = false;
