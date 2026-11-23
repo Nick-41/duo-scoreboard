@@ -75,7 +75,8 @@ html { scrollbar-gutter: stable; }
   inline-size: min(44%, 190px);
   max-block-size: calc(3 * 1.4em + 10px);
   margin: 0;
-  padding: 5px 7px;
+  padding-inline: 7px;
+  border-block: 5px solid transparent;
   overflow: auto;
   overflow-anchor: none;
   overscroll-behavior: contain;
