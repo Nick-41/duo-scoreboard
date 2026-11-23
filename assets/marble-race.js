@@ -1,8 +1,8 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=race-refresh';
-import { createRaceView } from './marble-view.js?v=race-refresh';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=long-course';
+import { createRaceView } from './marble-view.js?v=long-course';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
-import { nameLines, randomNickname } from './nicknames.js';
+import { nameLines, randomNickname } from './nicknames.js?v=nickname-mix';
 
 const storageKey = 'moadeck-marble-race-v1';
 const courseKey = 'moadeck-marble-course-v1';

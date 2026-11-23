@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=race-refresh';
+import { radius, width } from './marble-course.js?v=long-course';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;

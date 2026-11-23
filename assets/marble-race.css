@@ -120,6 +120,7 @@ html { scrollbar-gutter: stable; }
 }
 .panel-heading { min-height: 25px; }
 #roster label { font-size: 17px; letter-spacing: -.03em; }
+#roster #names { font-size: 18px; line-height: 1.5; }
 #name-count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .roster-hint { margin: 0; }
 .roster-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; }

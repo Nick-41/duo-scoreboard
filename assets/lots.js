@@ -1,6 +1,6 @@
 import { id, parseLabels, randomIndex, read, write } from './utility.js';
 import { gameMotion, playFrames } from './game-motion.js?v=momentum';
-import { randomNickname } from './nicknames.js';
+import { randomNickname } from './nicknames.js?v=nickname-mix';
 
 const key = 'moadeck-lots-v1';
 const limit = 24;
