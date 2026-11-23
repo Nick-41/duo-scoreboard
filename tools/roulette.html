@@ -11,11 +11,23 @@
   <link rel="stylesheet" href="../assets/utility.css">
   <script src="../assets/tool-theme.js"></script>
   <style>
+    html { scrollbar-gutter: stable; }
     .wheel-area { position: relative; width: min(100%, 415px); margin: 8px auto 0; isolation: isolate; }
     #wheel { display: block; width: 100%; height: auto; border-radius: 50%; box-shadow: 0 7px 24px #160e3533; }
     .needle { position: absolute; z-index: 2; top: -8px; left: calc(50% - 12px); width: 24px; height: 29px; background: var(--accent); clip-path: polygon(0 0, 100% 0, 50% 100%); }
     .hub { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 9%; aspect-ratio: 1; border-radius: 50%; border: 3px solid #f8efff; background: #503383; box-shadow: 0 2px 7px #301d5d44; }
-    .play-panel .result { text-align: center; color: var(--success); }
+    .spin-result {
+      block-size: 3.9em;
+      margin: 0;
+      overflow: auto;
+      overflow-wrap: anywhere;
+      text-align: center;
+      color: var(--success);
+      font-size: clamp(16px, 4vw, 19px);
+      font-weight: 800;
+      line-height: 1.3;
+    }
+    .list-form .muted { margin: 0; }
   </style>
 </head>
 <body data-tool="roulette">
@@ -28,17 +40,18 @@
           <canvas id="wheel" width="720" height="720" aria-hidden="true"></canvas>
           <span class="hub" aria-hidden="true"></span>
         </div>
-        <p id="result" class="result" role="status"></p>
         <button id="spin" class="btn primary" type="button">돌리기</button>
+        <p id="result" class="spin-result" role="status"></p>
       </section>
       <form id="labelsForm" class="panel list-form">
-        <label for="labels">항목 목록 (2~12개)</label>
-        <textarea id="labels" class="field" rows="4" maxlength="1100" placeholder="한 줄에 하나씩 입력하세요" spellcheck="false"></textarea>
+        <label for="labels">항목 목록 (2~12줄)</label>
+        <textarea id="labels" class="field" rows="4" maxlength="1100" placeholder="한 줄에 하나씩 입력하세요" aria-describedby="labelsHint" spellcheck="false"></textarea>
+        <p id="labelsHint" class="muted">같은 이름을 여러 줄에 입력하면 칸이 더 넓어집니다.</p>
         <button class="btn" type="submit">목록 적용</button>
         <p id="listError" class="error" role="alert"></p>
       </form>
     </div>
   </main>
-  <script type="module" src="../assets/roulette.js"></script>
+  <script type="module" src="../assets/roulette.js?v=weighted"></script>
 </body>
 </html>

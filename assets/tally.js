@@ -136,8 +136,9 @@ entries.addEventListener('click', event => {
     state.history = state.history.filter(change => change.id !== item.id);
     render();
     const next = state.items[Math.min(itemIndex, state.items.length - 1)];
-    $('[data-role="name"]', rows.get(next.id)).focus();
-    save();
+    const nextRemove = $('[data-action="remove"]:enabled', rows.get(next.id));
+    (nextRemove ?? add).focus({ preventScroll: true });
+    save(item.label + ' 삭제됨');
   }
 });
 

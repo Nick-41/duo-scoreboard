@@ -32,6 +32,7 @@
       --active: #362650;
     }
     * { box-sizing: border-box; }
+    html { scrollbar-gutter: stable; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
     main { max-width: 720px; margin: auto; padding: calc(12px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
     header { display: flex; justify-content: space-between; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-bottom: 14px; }
@@ -52,14 +53,22 @@
     .stepper input { width: 56px; padding: 0; color: var(--ink); text-align: center; appearance: textfield; }
     .stepper input::-webkit-inner-spin-button { appearance: none; }
     .roll { flex: 1 1 120px; padding: 8px 15px; border: 0; border-radius: 10px; background: #6042ac; color: white; font-weight: 750; }
-    .summary { min-height: 1.5em; margin: 21px 0 10px; color: var(--muted); font-size: 14px; }
+    .summary { margin-top: 16px; color: var(--muted); font-size: 14px; }
+    .summary:empty { margin-top: 0; }
     .summary strong { display: block; color: var(--ink); font-size: 24px; line-height: 1.2; font-variant-numeric: tabular-nums; }
     .summary strong + span { display: block; margin-top: 5px; }
+    .face-counts { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; margin: 12px 0 0; }
+    .face-counts div { padding: 7px 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); text-align: center; }
+    .face-counts dt { font-size: 12px; }
+    .face-counts dd { margin: 3px 0 0; color: var(--ink); font-weight: 750; font-variant-numeric: tabular-nums; }
     .roll[aria-disabled="true"] { opacity: .72; cursor: default; }
+    .throw-stage { position: relative; margin-top: 18px; }
     .results {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+      align-content: center;
       gap: 10px;
+      min-height: 138px;
       margin: 0;
       padding: 32px 12px 16px;
       border: 1px solid var(--line);
@@ -67,7 +76,17 @@
       background: radial-gradient(ellipse at center, var(--surface), var(--active));
       list-style: none;
     }
-    .results:empty { display: none; }
+    .stage-placeholder { display: none; }
+    .results:empty + .stage-placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
     .results li {
       --piece-size: 38px;
       position: relative;
@@ -178,8 +197,11 @@
         </div>
         <button id="roll" class="roll" type="submit">동전 던지기</button>
       </form>
-      <p id="summary" class="summary" role="status" aria-atomic="true"></p>
-      <ol id="results" class="results" aria-label="개별 결과"></ol>
+      <div class="throw-stage">
+        <ol id="results" class="results" aria-label="개별 결과"></ol>
+        <p class="stage-placeholder">개수를 정한 뒤 던지세요.</p>
+      </div>
+      <div id="summary" class="summary" role="status" aria-atomic="true"></div>
     </section>
   </main>
   <script>
@@ -293,7 +315,7 @@
 
     function announceResults(values) {
       if (!values.length) {
-        summary.textContent = '개수를 정한 뒤 던지세요.';
+        summary.replaceChildren();
         return;
       }
       const total = document.createElement('strong');
@@ -302,11 +324,26 @@
         const heads = values.filter(value => value === 1).length;
         total.textContent = '합계 ' + heads + '점';
         detail.textContent = '앞면 ' + heads + '개 (1점) · 뒷면 ' + (values.length - heads) + '개 (0점)';
+        summary.replaceChildren(total, detail);
       } else {
         total.textContent = '합계 ' + values.reduce((sum, value) => sum + value, 0);
         detail.textContent = '주사위 ' + values.length + '개';
+        const counts = Array(6).fill(0);
+        for (const value of values) counts[value - 1]++;
+        const distribution = document.createElement('dl');
+        distribution.className = 'face-counts';
+        distribution.setAttribute('aria-label', '눈별 개수');
+        for (const [index, count] of counts.entries()) {
+          const group = document.createElement('div');
+          const face = document.createElement('dt');
+          face.textContent = (index + 1) + ' 눈';
+          const quantity = document.createElement('dd');
+          quantity.textContent = count + '개';
+          group.append(face, quantity);
+          distribution.append(group);
+        }
+        summary.replaceChildren(total, detail, distribution);
       }
-      summary.replaceChildren(total, detail);
     }
 
     for (const button of modeButtons) {

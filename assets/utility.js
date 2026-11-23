@@ -23,12 +23,12 @@ export function write(key, value) {
   }
 }
 
-export function parseLabels(value, limit) {
+export function parseLabels(value, limit, { allowDuplicates = false } = {}) {
   const labels = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
   if (labels.length < 2 || labels.length > limit) {
     return { error: '항목을 2~' + limit + '개 입력하세요.' };
   }
   if (labels.some(label => label.length > 40)) return { error: '항목 이름은 40자까지 입력할 수 있습니다.' };
-  if (new Set(labels).size !== labels.length) return { error: '같은 이름이 있습니다. 서로 다른 이름을 입력하세요.' };
+  if (!allowDuplicates && new Set(labels).size !== labels.length) return { error: '같은 이름이 있습니다. 서로 다른 이름을 입력하세요.' };
   return { labels };
 }

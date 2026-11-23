@@ -1,4 +1,4 @@
-import { id, parseLabels, randomIndex, read, write } from './utility.js';
+import { id, parseLabels, randomIndex, read, write } from './utility.js?v=weighted';
 
 const key = 'moadeck-roulette-v1';
 const limit = 12;
@@ -13,17 +13,33 @@ const wheel = id('wheel');
 const ctx = wheel.getContext('2d');
 const colors = ['#d9c9ff', '#f9d1df', '#f9dfae', '#c7ece0', '#cbdcff', '#dfd2ee'];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const parseEntries = value => parseLabels(value, limit, { allowDuplicates: true });
 const saved = read(key);
 const savedLabels = Array.isArray(saved?.labels) &&
   saved.labels.every(label => typeof label === 'string') &&
-  parseLabels(saved.labels.join('\n'), limit).labels;
+  parseEntries(saved.labels.join('\n')).labels;
 let labels = savedLabels || fallback;
-let winner = savedLabels && labels.includes(saved.winner) ? saved.winner : null;
-let rotation = winner ? stopAngle(labels.indexOf(winner)) : 0;
+let sectors = buildSectors(labels);
+const savedSector = savedLabels && sectors.find(sector => sector.label === saved.winner);
+let winner = savedSector ? savedSector.label : null;
+let rotation = savedSector ? stopAngle(savedSector) : 0;
 let spinning = false;
 
-function stopAngle(index) {
-  return (360 - (index + .5) * (360 / labels.length) + 360) % 360;
+function buildSectors(entries) {
+  const weights = new Map();
+  for (const label of entries) weights.set(label, (weights.get(label) ?? 0) + 1);
+  let start = 0;
+  return Array.from(weights, ([label, weight]) => {
+    const end = start + weight;
+    const sector = { label, start, end };
+    start = end;
+    return sector;
+  });
+}
+
+function stopAngle({ start, end }) {
+  const midpoint = (start + end) / 2;
+  return (360 - 360 * midpoint / labels.length) % 360;
 }
 
 function drawWheel() {
@@ -34,18 +50,19 @@ function drawWheel() {
   ctx.font = '750 34px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  labels.forEach((label, index) => {
-    const start = -Math.PI / 2 + slice * index;
-    const middle = start + slice / 2;
+  sectors.forEach(({ label, start, end }, index) => {
+    const startAngle = -Math.PI / 2 + slice * start;
+    const endAngle = -Math.PI / 2 + slice * end;
+    const middle = (startAngle + endAngle) / 2;
     ctx.beginPath();
     ctx.moveTo(center, center);
-    ctx.arc(center, center, radius, start, start + slice);
+    ctx.arc(center, center, radius, startAngle, endAngle);
     ctx.closePath();
     ctx.fillStyle = colors[index % colors.length];
     ctx.fill();
     ctx.strokeStyle = '#fff9';
     ctx.lineWidth = 3;
-    ctx.stroke();
+    if (sectors.length > 1) ctx.stroke();
 
     ctx.save();
     ctx.translate(center, center);
@@ -65,7 +82,7 @@ function save() {
 }
 
 function applyLabels() {
-  const parsed = parseLabels(input.value, limit);
+  const parsed = parseEntries(input.value);
   error.textContent = parsed.error || '';
   if (!parsed.labels) {
     input.focus();
@@ -75,6 +92,7 @@ function applyLabels() {
   input.value = list;
   if (list !== labels.join('\n')) {
     labels = parsed.labels;
+    sectors = buildSectors(labels);
     winner = null;
     rotation = 0;
     drawWheel();
@@ -97,7 +115,8 @@ spin.addEventListener('click', async () => {
   input.readOnly = true;
   result.textContent = '룰렛을 돌리는 중…';
 
-  const selected = randomIndex(labels.length);
+  const draw = randomIndex(labels.length);
+  const selected = sectors.find(sector => draw < sector.end);
   const target = stopAngle(selected);
   const changed = (target - rotation + 360) % 360;
   if (!reducedMotion.matches && typeof wheel.animate === 'function') {
@@ -113,7 +132,7 @@ spin.addEventListener('click', async () => {
     rotation = target;
     wheel.style.transform = 'rotate(' + rotation + 'deg)';
   }
-  winner = labels[selected];
+  winner = selected.label;
   result.textContent = '선택 결과 · ' + winner;
   input.readOnly = false;
   apply.disabled = false;
