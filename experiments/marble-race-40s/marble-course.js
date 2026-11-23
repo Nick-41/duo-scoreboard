@@ -297,6 +297,9 @@ export function makeMarbles(names, random = randomIndex) {
     vx: 0,
     vy: 0,
     spin: 0,
+    bestY: 0,
+    lastProgressAt: 0,
+    recoveryCount: 0,
     finished: false,
   }));
   for (let end = marbles.length - 1; end > 0; end--) {
@@ -304,25 +307,36 @@ export function makeMarbles(names, random = randomIndex) {
     [marbles[end], marbles[index]] = [marbles[index], marbles[end]];
   }
 
-  const columns = marbles.length > 21 ? Math.ceil(marbles.length / 2) : marbles.length;
+  const columns = marbles.length > 18 ? Math.ceil(marbles.length / 2) : marbles.length;
   const spacing = (width - 2 * (wall + radius + 5)) / columns;
+  const jitter = Math.max(0, Math.min(30, (spacing - radius * 2 - 2) / 2));
   for (const [slot, ball] of marbles.entries()) {
     const row = Math.floor(slot / columns);
-    ball.x = wall + radius + 5 + (slot % columns + .5) * spacing + random(7) - 3;
-    ball.y = 108 - row * 24;
+    ball.x = wall + radius + 5 + (slot % columns + .5) * spacing + (random(10001) / 10000 * 2 - 1) * jitter;
+    ball.y = 108 - row * 27 + random(7) - 3;
     ball.vx = ((random(1024) + .5) / 1024 - .5) * 78;
+    ball.bestY = ball.y;
   }
   return marbles;
 }
 
-export function makeCourse(id = defaultCourse) {
+export function makeCourse(id = defaultCourse, random = randomIndex) {
   const definition = Object.hasOwn(courses, id) ? courses[id] : courses[defaultCourse];
   const profile = [[0, wall, width - wall], ...definition.profile, [definition.finishLine, wall, width - wall]];
   const walls = [makeWall(profile, 1), makeWall(profile, -1)];
   const dividers = definition.obstacles.filter(obstacle => obstacle.divider).sort((a, b) => a.x - b.x);
   const obstacles = definition.obstacles.flatMap(({ spread, y, radius, ...rest }) =>
     spread ? spread.map(x => ({ x, y, radius, ...rest })) : [{ y, radius, ...rest }]
-  );
+  ).map(obstacle => {
+    if (!obstacle.spin && !obstacle.swing) return obstacle;
+    return {
+      ...obstacle,
+      // Spinner position, initial orientation, and rotation direction vary per race.
+      angle: (obstacle.angle ?? 0) + random(100000) / 100000 * Math.PI * 2,
+      spin: obstacle.spin && random(2) ? -obstacle.spin : obstacle.spin,
+      y: obstacle.y + (obstacle.longBar ? random(37) - 18 : 0),
+    };
+  });
   const course = {
     ...definition,
     walls,
@@ -465,6 +479,22 @@ export function advanceRace(marbles, course, time) {
   for (const ball of moving) {
     for (const obstacle of course.obstacles) bounceOff(ball, obstacle);
     for (const boundary of course.walls) bounceOffWall(ball, boundary);
+
+    // Recover a wedged marble by redirecting its velocity within its corridor.
+    // The 5.5 second watchdog reacts only to an actual progress stall.
+    if (ball.y > ball.bestY + 5) {
+      ball.bestY = ball.y;
+      ball.lastProgressAt = time;
+    } else if (time - ball.lastProgressAt > 5.5) {
+      const left = wallXAt(course.walls[0], ball.y);
+      const right = wallXAt(course.walls[1], ball.y);
+      const middle = (left + right) / 2;
+      const direction = ball.x < middle ? 1 : -1;
+      ball.vx = direction * (95 + ball.recoveryCount % 3 * 37);
+      ball.vy = Math.max(ball.vy, 135);
+      ball.recoveryCount++;
+      ball.lastProgressAt = time;
+    }
 
     if (ball.y >= finishLine) {
       ball.finished = true;
