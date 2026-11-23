@@ -14,3 +14,21 @@
 .brand small { font-size: 13px; letter-spacing: -.03em; opacity: .8; }
 .brand img { display: block; border-radius: 12px; }
 .brand:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 6px; }
+
+.game-motion {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+.game-motion label { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650; }
+.game-motion select {
+  min-height: 34px;
+  padding: 3px 5px;
+  border: 1px solid var(--line, #cabee1);
+  border-radius: 8px;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+}

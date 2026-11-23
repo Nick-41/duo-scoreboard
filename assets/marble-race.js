@@ -1,6 +1,7 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=spectate';
-import { createRaceView } from './marble-view.js?v=spectate';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=momentum';
+import { createRaceView } from './marble-view.js?v=momentum';
+import { gameMotion, runFrames } from './game-motion.js?v=momentum';
 
 const storageKey = 'moadeck-marble-race-v1';
 const courseKey = 'moadeck-marble-course-v1';
@@ -27,7 +28,7 @@ const rankToggle = id('rank-toggle');
 const rankPreview = id('rank-preview');
 const fullscreen = id('fullscreen');
 const viewButtons = [...panel.querySelectorAll('[data-view]')];
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const fullMotion = gameMotion(id('game-motion'));
 const viewer = createRaceView(track, minimap);
 
 const savedCourse = read(courseKey);
@@ -40,9 +41,8 @@ let marbles = [];
 let finishers = [];
 let time = 0;
 let accumulator = 0;
-let lastFrame = 0;
-let frameTimer;
 let nextRankUpdate = 0;
+let nextLeadUpdate = 0;
 let racePhase = 'idle';
 let viewMode = 'auto';
 let fallbackFullscreen = false;
@@ -108,6 +108,10 @@ function updateRanks() {
   emptyResults.hidden = true;
   const leader = standings[0];
   const summary = '1위 ' + leader.name;
+  if (!finishers.length && rankOrder[0] && rankOrder[0] !== leader && time > nextLeadUpdate) {
+    status.textContent = '선두 교체 · ' + leader.name;
+    nextLeadUpdate = time + 1.15;
+  }
   if (rankPreview.textContent !== summary) {
     rankPreview.textContent = summary;
     rankPreview.title = summary;
@@ -161,7 +165,9 @@ function finishRace() {
   const winner = finishers[0];
   time += .28;
   updateRanks();
-  setPhase('finished', '종료', '1위 · ' + winner.name);
+  const gap = finishers[1].time - winner.time;
+  const closeFinish = gap < .2 ? ' · ' + (gap < .01 ? '0.01초 미만' : gap.toFixed(2) + '초') + ' 차' : '';
+  setPhase('finished', '종료', '1위 · ' + winner.name + closeFinish);
   progress.value = 1;
   start.textContent = '다시 출발';
   start.setAttribute('aria-disabled', 'false');
@@ -189,16 +195,12 @@ function simulate(seconds) {
   }
 }
 
-function frame() {
-  const now = performance.now();
-  const elapsed = (now - lastFrame) / 1000;
-  lastFrame = now;
+function frame(sinceStart, frameDelta) {
+  const elapsed = frameDelta / 1000;
   if (racePhase === 'countdown') {
-    accumulator += elapsed;
-    const number = String(Math.max(1, 3 - Math.floor(accumulator)));
+    const number = String(Math.max(1, 3 - Math.floor(sinceStart / 1000)));
     if (countdown.textContent !== number) countdown.textContent = number;
-    if (accumulator >= 3) {
-      accumulator = 0;
+    if (sinceStart >= 3000) {
       countdown.hidden = true;
       setPhase('running', '경주 중', '구슬이 출발했습니다.');
       updateRanks();
@@ -208,9 +210,8 @@ function frame() {
 
   simulate(Math.min(elapsed, 1));
   if (finishers.length === marbles.length) {
-    clearInterval(frameTimer);
     finishRace();
-    return;
+    return false;
   }
   const leadY = marbles.reduce((furthest, ball) => Math.max(furthest, ball.y), 0);
   progress.value = Math.max(0, (leadY - 108) / (course.finishLine - 108));
@@ -248,6 +249,7 @@ roster.addEventListener('submit', event => {
   marbles = makeMarbles(parsed.labels);
   finishers = [];
   time = accumulator = nextRankUpdate = 0;
+  nextLeadUpdate = 1.3;
   positionCourse(course, 0);
   viewer.scene(course, marbles, viewMode !== 'manual');
   clearRanks();
@@ -258,7 +260,7 @@ roster.addEventListener('submit', event => {
   start.textContent = '레이스 진행 중';
   start.setAttribute('aria-disabled', 'true');
 
-  if (reduceMotion.matches || !viewer.ready) {
+  if (!fullMotion() || !viewer.ready) {
     setPhase('running', '경주 중', '도착 순위를 계산하고 있습니다.');
     finishQuietly();
     return;
@@ -268,8 +270,7 @@ roster.addEventListener('submit', event => {
   countdown.textContent = '3';
   countdown.hidden = false;
   paint();
-  lastFrame = performance.now();
-  frameTimer = setInterval(frame, 1000 / 60);
+  runFrames(frame);
 });
 
 names.addEventListener('input', () => {

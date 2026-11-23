@@ -1,4 +1,4 @@
-import { radius, width } from './marble-course.js?v=spectate';
+import { gateOpen, radius, width } from './marble-course.js?v=momentum';
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const courseHeight = course => course.finishLine + 132;
@@ -54,7 +54,39 @@ function dot(ctx, x, y, radius, color) {
   ctx.fill();
 }
 
-function paintTrack(ctx, course, view, top, colors, mini = false) {
+const markings = {
+  warp: ['#ae78f5', '지름길'],
+  jump: ['#f486b6', '반동'],
+  boost: ['#57daca', '가속'],
+  gate: ['#f3af62', '신호 대기'],
+};
+
+function paintZone(ctx, zone, time, mini) {
+  const { x1, x2, y, type } = zone;
+  const [base, label] = markings[type];
+  const open = type === 'gate' && gateOpen(zone, time);
+  const color = open ? '#57daca' : base;
+  const middle = (x1 + x2) / 2;
+  ctx.fillStyle = color + (open ? '70' : '41');
+  ctx.fillRect(x1, y - 9, x2 - x1, 18);
+  ctx.fillStyle = color;
+  ctx.fillRect(x1, y - 2, x2 - x1, 4);
+  if (!mini) {
+    ctx.save();
+    ctx.font = '750 15px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const title = open ? '통과' : label;
+    const textWidth = ctx.measureText(title).width + 16;
+    ctx.fillStyle = '#161326e9';
+    ctx.fillRect(middle - textWidth / 2, y - 20, textWidth, 17);
+    ctx.fillStyle = color;
+    ctx.fillText(title, middle, y - 12);
+    ctx.restore();
+  }
+}
+
+function paintTrack(ctx, course, view, top, colors, time, mini = false) {
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, view.w, view.h);
   ctx.save();
@@ -89,11 +121,21 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
     ctx.fillText('출발', width / 2, 25);
   }
 
+  for (const zone of course.zones) {
+    if (zone.y + 20 >= top && zone.y - 20 <= bottom) paintZone(ctx, zone, time, mini);
+    if (zone.type === 'warp' && zone.targetY >= top && zone.targetY <= bottom) {
+      dot(ctx, zone.targetX, zone.targetY, mini ? 10 : 16, '#ae78f548');
+      ctx.strokeStyle = '#ae78f5';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
   ctx.lineCap = 'round';
   for (const obstacle of course.obstacles) {
     const { x, y, dx, dy, radius: size, half = 0, spin } = obstacle;
     if (y + half + size < top || y - half - size > bottom) continue;
-    const face = spin ? colors.rotor : colors.peg;
+    const face = spin || obstacle.slide ? colors.rotor : colors.peg;
     if (half) {
       ctx.beginPath();
       ctx.moveTo(x - dx, y - dy);
@@ -130,7 +172,22 @@ function marblePoint(ball, time) {
   };
 }
 
-function drawBall(ctx, ball, x, y, size, focused) {
+function drawBall(ctx, ball, x, y, size, focused, time, scale) {
+  const effect = ball.effect;
+  if (effect && time - effect.at < .6 && time >= effect.at && !ball.finished) {
+    const color = markings[effect.type][0];
+    const strength = 1 - (time - effect.at) / .6;
+    ctx.save();
+    ctx.globalAlpha = strength * .82;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - ball.vx * scale * .085, y - ball.vy * scale * .11);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size * 1.45;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.restore();
+  }
   if (focused) {
     ctx.beginPath();
     ctx.arc(x, y, size + 4, 0, 2 * Math.PI);
@@ -224,7 +281,8 @@ function drawNames(ctx, balls, view, nameSizes, positions, focus) {
   }
   for (const { x, y, w, h, label, ball } of labels) {
     ctx.beginPath();
-    ctx.roundRect(x, y, w, h, 5);
+    if (typeof ctx.roundRect === 'function') ctx.roundRect(x, y, w, h, 5);
+    else ctx.rect(x, y, w, h);
     ctx.fillStyle = ball === focus ? '#181026' : '#292037ed';
     ctx.fill();
     ctx.strokeStyle = ball.color;
@@ -252,7 +310,7 @@ export function createRaceView(track, minimap) {
     if (!view || !ctx) return;
     const colors = palette(course);
     const top = clamp(camera, 0, view.maxTop);
-    paintTrack(ctx, course, view, top, colors);
+    paintTrack(ctx, course, view, top, colors, time);
     const balls = [];
     for (const ball of marbles) {
       const point = marblePoint(ball, time);
@@ -260,7 +318,7 @@ export function createRaceView(track, minimap) {
       const y = view.y + (point.y - top) * view.scale;
       if (y < -8 || y > view.h + 8) continue;
       const size = Math.max(4.5, radius * view.scale);
-      drawBall(ctx, ball, x, y, size, ball === focus);
+      drawBall(ctx, ball, x, y, size, ball === focus, time, view.scale);
       const entry = { ball, x, y, size };
       if (ball === focus) balls.unshift(entry);
       else balls.push(entry);
@@ -269,7 +327,7 @@ export function createRaceView(track, minimap) {
 
     if (!mini || !miniSize) return;
     const map = geometry(miniSize, course, true);
-    paintTrack(mini, course, map, 0, colors, true);
+    paintTrack(mini, course, map, 0, colors, time, true);
     for (const ball of marbles) {
       const point = marblePoint(ball, time);
       dot(mini, map.x + point.x * map.scale, map.y + point.y * map.scale, ball === focus ? 3 : 2, ball.color);

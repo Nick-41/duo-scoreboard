@@ -1,11 +1,12 @@
 import { id, parseLabels, randomIndex, read, write } from './utility.js';
+import { gameMotion, playFrames } from './game-motion.js?v=momentum';
 
 const key = 'moadeck-lots-v1';
 const limit = 24;
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const defaults = [...alphabet.slice(0, 4)];
 const legacyDefaults = ['제비 1', '제비 2', '제비 3', '제비 4'];
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const fullMotion = gameMotion(id('game-motion'));
 const tickets = id('tickets');
 const remaining = id('remaining');
 const result = id('result');
@@ -151,21 +152,14 @@ function drawDeck() {
   updateLatest();
 }
 
-async function animateTicket(button) {
+function animateTicket(button) {
   const flip = button.querySelector('.ticket-flip');
-  const lift = button.animate([
-    { transform: 'translateY(0) scale(1)' },
-    { transform: 'translateY(-21px) rotate(-5deg) scale(1.12)', offset: .43 },
-    { transform: 'translateY(3px) scale(1.03)', offset: .83 },
-    { transform: 'translateY(0) scale(1)' }
-  ], { duration: 700, easing: 'ease-in-out' });
-  const turn = flip.animate([
-    { transform: 'rotateY(0deg)' },
-    { transform: 'rotateY(0deg)', offset: .22 },
-    { transform: 'rotateY(180deg)' }
-  ], { duration: 650, easing: 'ease-in-out', fill: 'forwards' });
-  await Promise.allSettled([lift.finished, turn.finished]);
-  return turn;
+  return playFrames(660, progress => {
+    const lift = Math.sin(Math.PI * progress);
+    const turn = Math.max(0, (progress - .15) / .85);
+    button.style.transform = 'translateY(' + (-22 * lift) + 'px) scale(' + (1 + .12 * lift) + ')';
+    flip.style.transform = 'rotateY(' + (180 * (.5 - .5 * Math.cos(Math.PI * turn))) + 'deg)';
+  });
 }
 
 async function draw(slot) {
@@ -177,19 +171,19 @@ async function draw(slot) {
   state.drawn.push(slot);
   write(key, state);
   const button = buttons[slot];
-  let turn;
-  if (!reducedMotion.matches && typeof button.animate === 'function') {
+  if (fullMotion()) {
     result.dataset.revealed = 'false';
     result.textContent = '제비를 뽑는 중…';
     button.classList.add('drawing');
     button.querySelector('.ticket-label').textContent = labelAt(slot);
     updateControls();
-    try { turn = await animateTicket(button); } catch {}
+    await animateTicket(button);
   }
   revealButton(slot);
   button.classList.remove('drawing');
   button.classList.add('latest');
-  turn?.cancel();
+  button.style.transform = '';
+  button.querySelector('.ticket-flip').style.transform = '';
   drawing = false;
   updateLatest();
 }

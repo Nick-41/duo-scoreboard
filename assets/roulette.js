@@ -1,4 +1,5 @@
 import { id, parseLabels, randomIndex, read, write } from './utility.js?v=weighted';
+import { gameMotion, playFrames } from './game-motion.js?v=momentum';
 
 const key = 'moadeck-roulette-v1';
 const limit = 12;
@@ -12,7 +13,7 @@ const spin = id('spin');
 const wheel = id('wheel');
 const ctx = wheel.getContext('2d');
 const colors = ['#d9c9ff', '#f9d1df', '#f9dfae', '#c7ece0', '#cbdcff', '#dfd2ee'];
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const fullMotion = gameMotion(id('game-motion'));
 const parseEntries = value => parseLabels(value, limit, { allowDuplicates: true });
 const saved = read(key);
 const savedLabels = Array.isArray(saved?.labels) &&
@@ -46,6 +47,13 @@ function drawWheel() {
   const center = wheel.width / 2;
   const radius = center - 2;
   const slice = Math.PI * 2 / labels.length;
+  if (!ctx) {
+    const stops = sectors.map(({ start, end }, index) =>
+      colors[index % colors.length] + ' ' + start / labels.length * 100 + '% ' + end / labels.length * 100 + '%');
+    wheel.style.background = 'conic-gradient(' + stops.join(',') + ')';
+    wheel.style.transform = 'rotate(' + rotation + 'deg)';
+    return;
+  }
   ctx.clearRect(0, 0, wheel.width, wheel.height);
   ctx.font = '750 34px system-ui, sans-serif';
   ctx.textAlign = 'center';
@@ -119,19 +127,18 @@ spin.addEventListener('click', async () => {
   const selected = sectors.find(sector => draw < sector.end);
   const target = stopAngle(selected);
   const changed = (target - rotation + 360) % 360;
-  if (!reducedMotion.matches && typeof wheel.animate === 'function') {
-    const animation = wheel.animate(
-      [{ transform: 'rotate(' + rotation + 'deg)' }, { transform: 'rotate(' + (rotation + 1800 + changed) + 'deg)' }],
-      { duration: 2450, easing: 'cubic-bezier(.12,.65,.11,1)', fill: 'forwards' }
-    );
-    try { await animation.finished; } catch {}
-    rotation = target;
-    wheel.style.transform = 'rotate(' + rotation + 'deg)';
-    animation.cancel();
+  if (fullMotion()) {
+    const distance = 1800 + changed;
+    await playFrames(2450, progress => {
+      const angle = rotation + distance * (1 - (1 - progress) ** 3.4);
+      wheel.style.transform = 'rotate(' + angle + 'deg)';
+    });
   } else {
-    rotation = target;
-    wheel.style.transform = 'rotate(' + rotation + 'deg)';
+    await playFrames(190, progress => { wheel.style.opacity = .65 + .35 * progress; });
   }
+  rotation = target;
+  wheel.style.transform = 'rotate(' + rotation + 'deg)';
+  wheel.style.opacity = '';
   winner = selected.label;
   result.textContent = '선택 결과 · ' + winner;
   input.readOnly = false;
