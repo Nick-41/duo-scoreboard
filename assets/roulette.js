@@ -1,6 +1,6 @@
 import { id, parseLabels, randomIndex, read, write } from './utility.js?v=weighted';
 import { gameMotion, playFrames } from './game-motion.js?v=momentum';
-import { nameLines, randomNickname } from './nicknames.js?v=nickname-mix';
+import { nameLines, randomNickname } from './nicknames.js?v=two-word';
 
 const key = 'moadeck-roulette-v1';
 const limit = 12;

@@ -20,6 +20,7 @@ html { scrollbar-gutter: stable; }
   font-variant-numeric: tabular-nums;
 }
 .race-meter #phase { flex: 0 0 5em; }
+.race-meter #race-elapsed { flex: 0 0 4.7em; color: var(--ink); text-align: end; white-space: nowrap; }
 .race-meter #arrived { flex: 0 0 3.5em; text-align: end; }
 .race-meter progress {
   flex: 1;

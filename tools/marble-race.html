@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
   <link rel="stylesheet" href="../assets/brand.css?v=game-motion">
   <link rel="stylesheet" href="../assets/utility.css">
-  <link rel="stylesheet" href="../assets/marble-race.css?v=long-course">
+  <link rel="stylesheet" href="../assets/marble-race.css?v=race-clock">
   <script src="../assets/tool-theme.js"></script>
 </head>
 <body>
@@ -28,6 +28,7 @@
         <div class="race-meter">
           <span id="phase">출발 대기</span>
           <progress id="progress" max="1" value="0" aria-label="선두 구슬의 코스 진행률"></progress>
+          <span id="race-elapsed" role="timer" aria-label="경과 시간">0.00초</span>
           <span id="arrived" aria-label="도착한 구슬 수">0/6</span>
         </div>
         <div class="race-stage">
@@ -63,6 +64,6 @@
       </aside>
     </div>
   </main>
-  <script type="module" src="../assets/marble-race.js?v=long-course"></script>
+  <script type="module" src="../assets/marble-race.js?v=race-clock"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@ import { id, parseLabels, read, write } from './utility.js';
 import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=long-course';
 import { createRaceView } from './marble-view.js?v=long-course';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
-import { nameLines, randomNickname } from './nicknames.js?v=nickname-mix';
+import { nameLines, randomNickname } from './nicknames.js?v=two-word';
 
 const storageKey = 'moadeck-marble-race-v1';
 const courseKey = 'moadeck-marble-course-v1';
@@ -18,6 +18,7 @@ const nameCount = id('name-count');
 const namesError = id('names-error');
 const phase = id('phase');
 const progress = id('progress');
+const raceElapsed = id('race-elapsed');
 const arrived = id('arrived');
 const countdown = id('countdown');
 const start = id('start');
@@ -168,6 +169,11 @@ function paint(elapsed = 0) {
   viewer.draw(time, cameraTarget(), elapsed);
 }
 
+function updateRaceElapsed(seconds) {
+  const label = seconds.toFixed(2) + '초';
+  if (raceElapsed.textContent !== label) raceElapsed.textContent = label;
+}
+
 function resetPreview(message = '') {
   stopClock?.();
   stopClock = null;
@@ -182,11 +188,13 @@ function resetPreview(message = '') {
   clearRanks();
   setPhase('idle', '출발 대기', message);
   progress.value = 0;
+  updateRaceElapsed(0);
   paint();
 }
 
 function finishRace() {
   const winner = finishers[0];
+  updateRaceElapsed(finishers.at(-1).time);
   time += .28;
   updateRanks();
   const gap = finishers[1].time - winner.time;
@@ -235,6 +243,7 @@ function frame(_sinceStart, frameDelta) {
     finishRace();
     return false;
   }
+  updateRaceElapsed(time);
   const leadY = marbles.reduce((furthest, ball) => Math.max(furthest, ball.y), 0);
   progress.value = Math.max(0, (leadY - 108) / (course.finishLine - 108));
   if (time >= nextRankUpdate) {
@@ -287,6 +296,7 @@ roster.addEventListener('submit', event => {
   clearRanks();
   arrived.textContent = '0/' + marbles.length;
   progress.value = 0;
+  updateRaceElapsed(0);
   setPhase('countdown', '출발 준비', '곧 출발합니다.');
   countdown.textContent = '3';
   countdown.hidden = false;
