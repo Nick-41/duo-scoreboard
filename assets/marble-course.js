@@ -1,7 +1,6 @@
 import { randomIndex } from './utility.js';
 
 export const width = 512;
-export const finishLine = 1150;
 export const radius = 10;
 export const step = 1 / 120;
 
@@ -10,37 +9,97 @@ const gravity = 380;
 const maxSpeed = 360;
 const colors = ['#a078ed', '#f58c65', '#37bbb8', '#f9bd52', '#6e9ff4', '#eb77b0', '#8bc65c', '#b26de5'];
 
-const obstacles = [
-  { spread: [86, 170, 256, 342, 426], y: 169, radius: 10 },
-  { spread: [60, 138, 216, 296, 374, 452], y: 224, radius: 10 },
-  { spread: [85, 170, 256, 342, 427], y: 279, radius: 12 },
-  { x: 132, y: 372, half: 67, angle: .36, radius: 8 },
-  { x: 380, y: 372, half: 67, angle: -.36, radius: 8 },
-  { x: 256, y: 435, half: 68, angle: .55, spin: 1.15, radius: 8 },
-  { spread: [66, 154, 256, 358, 446], y: 535, radius: 15 },
-  { x: 125, y: 655, half: 56, angle: .7, spin: -.96, radius: 8 },
-  { x: 387, y: 655, half: 56, angle: 2.44, spin: .96, radius: 8 },
-  { x: 256, y: 721, radius: 25 },
-  { spread: [64, 151, 361, 448], y: 790, radius: 12 },
-  { x: 134, y: 884, half: 65, angle: .37, radius: 8 },
-  { x: 378, y: 884, half: 65, angle: -.37, radius: 8 },
-  { x: 256, y: 937, half: 77, angle: 1.65, spin: -1.24, radius: 8 },
-  { spread: [89, 171, 341, 423], y: 1031, radius: 10 },
-].flatMap(({ spread, y, radius, ...rest }) =>
-  spread ? spread.map(x => ({ x, y, radius })) : [{ y, radius, ...rest }]
-);
+export const courses = {
+  pinball: {
+    name: '핀볼 광장',
+    finishLine: 1150,
+    hue: 267,
+    obstacles: [
+      { spread: [86, 170, 256, 342, 426], y: 169, radius: 10 },
+      { spread: [60, 138, 216, 296, 374, 452], y: 224, radius: 10 },
+      { spread: [85, 170, 256, 342, 427], y: 279, radius: 12 },
+      { x: 132, y: 372, half: 67, angle: .36, radius: 8 },
+      { x: 380, y: 372, half: 67, angle: -.36, radius: 8 },
+      { x: 256, y: 435, half: 68, angle: .55, spin: 1.15, radius: 8 },
+      { spread: [66, 154, 256, 358, 446], y: 535, radius: 15 },
+      { x: 125, y: 655, half: 56, angle: .7, spin: -.96, radius: 8 },
+      { x: 387, y: 655, half: 56, angle: 2.44, spin: .96, radius: 8 },
+      { x: 256, y: 721, radius: 25 },
+      { spread: [64, 151, 361, 448], y: 790, radius: 12 },
+      { x: 134, y: 884, half: 65, angle: .37, radius: 8 },
+      { x: 378, y: 884, half: 65, angle: -.37, radius: 8 },
+      { x: 256, y: 937, half: 77, angle: 1.65, spin: -1.24, radius: 8 },
+      { spread: [89, 171, 341, 423], y: 1031, radius: 10 },
+    ],
+  },
+  rotors: {
+    name: '회전 공장',
+    finishLine: 1310,
+    hue: 190,
+    obstacles: [
+      { spread: [72, 165, 256, 347, 440], y: 181, radius: 12 },
+      { x: 133, y: 284, half: 64, angle: .2, spin: 1.55, radius: 8 },
+      { x: 379, y: 284, half: 64, angle: 2.94, spin: -1.55, radius: 8 },
+      { x: 256, y: 405, half: 88, angle: 1, spin: -1.5, radius: 9 },
+      { spread: [82, 174, 338, 430], y: 536, radius: 13 },
+      { x: 144, y: 660, half: 64, angle: 2, spin: 1.4, radius: 8 },
+      { x: 368, y: 660, half: 64, angle: 1.14, spin: -1.4, radius: 8 },
+      { x: 256, y: 779, half: 76, angle: 1.5, spin: 1.7, radius: 8 },
+      { spread: [92, 420], y: 852, radius: 20 },
+      { spread: [152, 256, 360], y: 950, radius: 20 },
+      { x: 136, y: 1072, half: 64, angle: .5, spin: -1.4, radius: 8 },
+      { x: 376, y: 1072, half: 64, angle: 2.64, spin: 1.4, radius: 8 },
+      { spread: [81, 167, 256, 345, 431], y: 1190, radius: 13 },
+    ],
+  },
+  canyon: {
+    name: '지그재그 협곡',
+    finishLine: 1460,
+    hue: 26,
+    obstacles: [
+      { spread: [94, 190, 322, 418], y: 175, radius: 10 },
+      { x: 177, y: 301, half: 117, angle: .55, radius: 9 },
+      { x: 335, y: 477, half: 117, angle: 2.59, radius: 9 },
+      { spread: [84, 424], y: 568, radius: 15 },
+      { x: 187, y: 654, half: 111, angle: .56, radius: 9 },
+      { x: 325, y: 826, half: 111, angle: 2.58, radius: 9 },
+      { x: 256, y: 958, half: 65, angle: .54, spin: 1.18, radius: 8 },
+      { x: 172, y: 1103, half: 107, angle: .52, radius: 9 },
+      { x: 340, y: 1254, half: 107, angle: 2.62, radius: 9 },
+      { spread: [112, 256, 400], y: 1350, radius: 14 },
+    ],
+  },
+  garden: {
+    name: '범퍼 정원',
+    finishLine: 950,
+    hue: 149,
+    obstacles: [
+      { spread: [81, 167, 256, 345, 431], y: 177, radius: 15 },
+      { spread: [122, 209, 303, 390], y: 258, radius: 18 },
+      { spread: [83, 256, 429], y: 354, radius: 24 },
+      { spread: [164, 348], y: 436, radius: 30 },
+      { x: 256, y: 529, half: 66, angle: .7, spin: 1.16, radius: 9 },
+      { spread: [89, 423], y: 572, radius: 25 },
+      { spread: [133, 256, 379], y: 670, radius: 20 },
+      { spread: [79, 196, 316, 433], y: 766, radius: 14 },
+      { spread: [133, 256, 379], y: 850, radius: 12 },
+    ],
+  },
+};
+
+export const defaultCourse = 'pinball';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-function bibColor(index) {
-  return colors[index % colors.length];
+function marbleColor(index) {
+  return colors[index] ?? 'hsl(' + Math.round(index * 137.508 % 360) + ' 68% 61%)';
 }
 
 export function makeMarbles(names, random = randomIndex) {
   const marbles = names.map((name, index) => ({
     name,
     bib: index + 1,
-    color: bibColor(index),
+    color: marbleColor(index),
     vx: 0,
     vy: 0,
     spin: 0,
@@ -65,12 +124,18 @@ export function makeMarbles(names, random = randomIndex) {
   return marbles;
 }
 
-export function makeCourse() {
-  return obstacles.map(obstacle => ({ ...obstacle }));
+export function makeCourse(id = defaultCourse) {
+  const definition = Object.hasOwn(courses, id) ? courses[id] : courses[defaultCourse];
+  const obstacles = definition.obstacles.flatMap(({ spread, y, radius, ...rest }) =>
+    spread ? spread.map(x => ({ x, y, radius })) : [{ y, radius, ...rest }]
+  );
+  const course = { ...definition, obstacles };
+  positionCourse(course, 0);
+  return course;
 }
 
 export function positionCourse(course, time) {
-  for (const obstacle of course) {
+  for (const obstacle of course.obstacles) {
     const angle = (obstacle.angle ?? 0) + (obstacle.spin ?? 0) * time;
     obstacle.dx = Math.cos(angle) * (obstacle.half ?? 0);
     obstacle.dy = Math.sin(angle) * (obstacle.half ?? 0);
@@ -135,6 +200,7 @@ function bounceTogether(first, second) {
 }
 
 export function advanceRace(marbles, course, time) {
+  const { finishLine } = course;
   positionCourse(course, time);
   const moving = marbles.filter(ball => !ball.finished);
   for (const ball of moving) {
@@ -153,7 +219,7 @@ export function advanceRace(marbles, course, time) {
 
   const arrivals = [];
   for (const ball of moving) {
-    for (const obstacle of course) bounceOff(ball, obstacle);
+    for (const obstacle of course.obstacles) bounceOff(ball, obstacle);
     const edge = wall + radius;
     if (ball.x < edge || ball.x > width - edge) {
       ball.x = clamp(ball.x, edge, width - edge);

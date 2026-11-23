@@ -4,35 +4,66 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f7f5fc">
-  <meta name="description" content="참가자마다 색 구슬을 배정하고 장애물 코스를 내려와 도착한 순서대로 등수를 매깁니다.">
+  <meta name="description" content="참가자 이름을 입력해 네 가지 2D 코스에서 구슬 레이스를 열고 실시간 순위를 확인하세요.">
   <title>구슬 레이스 · 모아덱</title>
   <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
   <link rel="stylesheet" href="../assets/brand.css">
   <link rel="stylesheet" href="../assets/utility.css">
-  <link rel="stylesheet" href="../assets/marble-race.css">
+  <link rel="stylesheet" href="../assets/marble-race.css?v=spectate">
   <script src="../assets/tool-theme.js"></script>
 </head>
 <body>
   <main class="shell">
-    <header>
+    <header id="page-header">
       <a class="brand" href="../" aria-label="모아덱 MoaDeck 홈"><img src="../assets/icon.svg?v=moadeck" width="38" height="38" alt=""><span>모아덱</span><small>MoaDeck</small></a>
       <h1>구슬 레이스</h1>
     </header>
     <div class="race-grid">
-      <section class="panel race-panel" aria-label="레이스 코스">
+      <section id="race-panel" class="panel race-panel" aria-label="레이스 코스">
+        <div class="race-toolbar">
+          <label for="course">코스</label>
+          <select id="course" class="field"></select>
+          <button class="btn" id="fullscreen" type="button" aria-pressed="false">전체화면</button>
+        </div>
         <div class="race-meter">
           <span id="phase">출발 대기</span>
           <progress id="progress" max="1" value="0" aria-label="선두 구슬의 코스 진행률"></progress>
           <span id="arrived" aria-label="도착한 구슬 수">0/6</span>
         </div>
-        <div class="track">
-          <canvas id="track" width="512" height="480" role="img" aria-label="구슬이 장애물 사이를 내려가는 2D 코스"></canvas>
-          <div id="countdown" class="countdown" aria-hidden="true" hidden></div>
+        <div class="race-stage" id="race-stage">
+          <div class="track">
+            <canvas id="track" width="512" height="480" tabindex="0" aria-label="2D 레이스 코스. 위아래로 끌거나 방향키를 눌러 이동"></canvas>
+            <div id="countdown" class="countdown" aria-hidden="true" hidden></div>
+          </div>
+          <aside class="spectator" aria-label="코스 관전 정보">
+            <section class="rank-widget" aria-label="레이스 순위">
+              <button id="rank-toggle" class="rank-toggle" type="button" aria-expanded="false" aria-controls="result-scroll">
+                <strong>순위</strong><span id="rank-preview">출발 대기</span>
+                <span class="rank-chevron" aria-hidden="true"></span>
+              </button>
+              <h2 class="rank-heading">실시간 순위</h2>
+              <div id="result-scroll" class="result-scroll" tabindex="0" aria-label="전체 순위">
+                <p id="empty-results" class="muted">출발하면 순위를 표시합니다.</p>
+                <ol id="rankings" class="rankings"></ol>
+              </div>
+            </section>
+            <div class="map-widget">
+              <h2>코스 미니맵</h2>
+              <canvas id="minimap" width="144" height="210" tabindex="0" aria-label="전체 코스와 현재 화면 범위. 원하는 위치를 누르거나 방향키로 이동"></canvas>
+            </div>
+          </aside>
         </div>
-        <p id="race-status" class="race-status" role="status" aria-atomic="true"></p>
-        <button class="btn primary" id="start" type="submit" form="roster">레이스 시작</button>
+        <div class="view-controls" role="group" aria-label="카메라 보기">
+          <button class="btn" id="focus-first" type="button" data-view="first" aria-pressed="false">일등 보기</button>
+          <button class="btn" id="focus-last" type="button" data-view="last" aria-pressed="false">꼴찌 보기</button>
+          <button class="btn" id="overview" type="button" data-view="overview" aria-pressed="false">전체 코스</button>
+        </div>
+        <div class="race-actions">
+          <p id="race-status" class="race-status" role="status" aria-atomic="true"></p>
+          <button class="btn primary" id="start" type="submit" form="roster">레이스 시작</button>
+        </div>
       </section>
-      <aside class="race-sidebar">
+      <aside class="race-sidebar" id="race-sidebar">
         <form id="roster" class="panel list-form">
           <div class="panel-heading">
             <label for="names">참가자</label>
@@ -42,16 +73,9 @@
           <p class="muted roster-hint" id="names-hint">한 줄에 한 명씩 · 2~32명</p>
           <div class="roster-feedback"><p class="error" id="names-error" role="alert"></p></div>
         </form>
-        <section class="panel results-panel" aria-labelledby="results-heading">
-          <div class="panel-heading"><h2 id="results-heading">도착 순위</h2></div>
-          <div id="result-scroll" class="result-scroll">
-            <p id="empty-results" class="muted">결승선을 통과한 순서대로 표시됩니다.</p>
-            <ol id="rankings" class="rankings"></ol>
-          </div>
-        </section>
       </aside>
     </div>
   </main>
-  <script type="module" src="../assets/marble-race.js"></script>
+  <script type="module" src="../assets/marble-race.js?v=spectate"></script>
 </body>
 </html>
