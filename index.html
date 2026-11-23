@@ -36,6 +36,7 @@
   --accent: #6042ac;
   --selected: #eae1ff;
   --theme-color: #f7f5fc;
+  --tool-thumbnails: url("assets/tool-thumbnails-light.webp");
   font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
 }
 :root[data-theme="dark"] {
@@ -48,6 +49,7 @@
   --accent: #d1beff;
   --selected: #362650;
   --theme-color: #171124;
+  --tool-thumbnails: url("assets/tool-thumbnails-dark.webp");
 }
 * { box-sizing: border-box; }
 html { background: var(--background); }
@@ -136,16 +138,24 @@ a { color: inherit; text-decoration: none; }
   transition: border-color .18s, box-shadow .18s;
 }
 .tool-card:hover, .tool-card:focus-within { border-color: var(--accent); box-shadow: 0 5px 18px #39236012; }
-.tool-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; min-height: 123px; padding: 15px 8px 15px 17px; border-radius: 17px; }
-.tool-icon { width: 53px; height: 53px; display: grid; place-items: center; border-radius: 15px; background: #e6e5ff; color: #4a40a2; }
-.tool-card[data-tone="purple"] .tool-icon { background: #f4e0f7; color: #773982; }
-.tool-card[data-tone="orange"] .tool-icon { background: #ffeadb; color: #88451f; }
-.tool-card[data-tone="mint"] .tool-icon { background: #d9f3ea; color: #226b56; }
-.tool-card[data-tone="lavender"] .tool-icon { background: #e9e0fb; color: #6042ac; }
-.tool-icon svg { width: 25px; height: 25px; }
+.tool-main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  min-height: 110px;
+  padding: 12px 4px 12px 12px;
+  border-radius: 17px;
+}
+.tool-thumbnail {
+  width: 120px;
+  aspect-ratio: 3 / 2;
+  border-radius: 10px;
+  background: var(--background) var(--tool-thumbnails) var(--thumb-x) var(--thumb-y) / 300% 300% no-repeat;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
 .tool-card h3 { margin: 0; font-size: clamp(16px, 2vw, 20px); line-height: 1.28; letter-spacing: -.045em; word-break: keep-all; }
 .tool-card p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; word-break: keep-all; }
-.tool-arrow { width: 16px; height: 16px; color: var(--accent); }
 .favorite {
   display: grid;
   place-items: center;
@@ -177,11 +187,10 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 699px) {
   .tool-grid { grid-template-columns: 1fr; gap: 10px; }
   .tool-main { min-height: 94px; }
+  .tool-thumbnail { width: clamp(76px, 27vw, 104px); }
 }
 @media (max-width: 420px) {
   .tool-main { gap: 10px; padding-left: 12px; }
-  .tool-icon { width: 44px; height: 44px; border-radius: 12px; }
-  .tool-icon svg { width: 22px; height: 22px; }
   .favorite { margin-right: 4px; }
   .filters button { padding-inline: 10px; }
 }
@@ -190,17 +199,7 @@ a { color: inherit; text-decoration: none; }
 </head>
 <body>
 <svg style="display:none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-<symbol id="i-score" viewBox="0 0 24 24"><path d="M4 19V10M10 19V5M16 19v-8M22 19v-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/></symbol>
-<symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V5h16v2M12 5v14M8 19h8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9v4l3 2M9 2h6M18 6l2-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-<symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 3v18M9 12h12" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
-<symbol id="i-dice" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/></symbol>
-<symbol id="i-wheel" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M6 18 18 6"/></g></symbol>
-<symbol id="i-ticket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4zM14 8v1m0 3v1m0 3v1"/></g></symbol>
-<symbol id="i-counter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M7 12h4m-2-2v4m5-2h3"/></g></symbol>
-<symbol id="i-vote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12H5l-2 3v5h18v-5l-2-3h-2M3 15h18M8 11l-1-6 8-2 2 8zM10 7l2 1 2-3"/></g></symbol>
 <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
-<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
 <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14a8.5 8.5 0 0 1-10.5-10A8.5 8.5 0 1 0 20.5 14z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
 <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
@@ -244,16 +243,17 @@ a { color: inherit; text-decoration: none; }
 <script>
 'use strict';
 
+// Thumbnail indices are fixed positions in the two 3 × 3 image sheets.
 const tools = [
-  { id: 'scoreboard', name: '점수판', description: '2~4팀 점수 기록과 실행 취소', category: '게임', tone: 'blue', icon: 'score', path: 'tools/scoreboard.html' },
-  { id: 'bigtext', name: '대형 글씨', description: '메시지를 화면 가득 표시', category: '일상', tone: 'purple', icon: 'type', path: 'tools/bigtext.html' },
-  { id: 'timer', name: '타이머 · 스톱워치', description: '카운트다운과 경과 시간 측정', category: '일상', tone: 'orange', icon: 'clock', path: 'tools/timer.html' },
-  { id: 'chance', name: '동전 · 주사위', description: '1~20개 던지기와 결과 합계', category: '게임', tone: 'mint', icon: 'dice', path: 'tools/chance.html' },
-  { id: 'roulette', name: '룰렛', description: '항목을 넣고 돌려서 하나 고르기', category: '게임', tone: 'purple', icon: 'wheel', path: 'tools/roulette.html' },
-  { id: 'lots', name: '제비뽑기', description: '번호표를 골라 중복 없이 뽑기', category: '게임', tone: 'orange', icon: 'ticket', path: 'tools/lots.html' },
-  { id: 'counters', name: '멀티카운터', description: '여러 항목의 수량을 따로 세고 합산', category: '일상', tone: 'blue', icon: 'counter', path: 'tools/counters.html' },
-  { id: 'vote', name: '투표판', description: '한 기기에서 표를 모아 득표율 확인', category: '일상', tone: 'mint', icon: 'vote', path: 'tools/vote.html' },
-  { id: 'layout', name: '공간 배치 스튜디오', description: '가구 이동, 5cm 정렬, 배치 저장', category: '작업', tone: 'lavender', icon: 'layout', path: 'space-studio/index.html' }
+  { id: 'scoreboard', name: '점수판', description: '2~4팀 점수 기록과 실행 취소', category: '게임', thumbnail: 0, path: 'tools/scoreboard.html' },
+  { id: 'bigtext', name: '대형 글씨', description: '메시지를 화면 가득 표시', category: '일상', thumbnail: 1, path: 'tools/bigtext.html' },
+  { id: 'timer', name: '타이머 · 스톱워치', description: '카운트다운과 경과 시간 측정', category: '일상', thumbnail: 2, path: 'tools/timer.html' },
+  { id: 'chance', name: '동전 · 주사위', description: '1~20개 던지기와 결과 합계', category: '게임', thumbnail: 3, path: 'tools/chance.html' },
+  { id: 'roulette', name: '룰렛', description: '항목을 넣고 돌려서 하나 고르기', category: '게임', thumbnail: 4, path: 'tools/roulette.html' },
+  { id: 'lots', name: '제비뽑기', description: '번호표를 골라 중복 없이 뽑기', category: '게임', thumbnail: 5, path: 'tools/lots.html' },
+  { id: 'counters', name: '멀티카운터', description: '여러 항목의 수량을 따로 세고 합산', category: '일상', thumbnail: 6, path: 'tools/counters.html' },
+  { id: 'vote', name: '투표판', description: '한 기기에서 표를 모아 득표율 확인', category: '일상', thumbnail: 7, path: 'tools/vote.html' },
+  { id: 'layout', name: '공간 배치 스튜디오', description: '가구 이동, 5cm 정렬, 배치 저장', category: '작업', thumbnail: 8, path: 'space-studio/index.html' }
 ];
 
 const favoriteKey = 'duo-hub-favorites-v1';
@@ -289,15 +289,16 @@ function svgIcon(name, className) {
 function createCard(tool) {
   const card = document.createElement('article');
   card.className = 'tool-card';
-  card.dataset.tone = tool.tone;
 
   const link = document.createElement('a');
   link.className = 'tool-main';
   link.href = tool.path;
 
-  const icon = document.createElement('span');
-  icon.className = 'tool-icon';
-  icon.innerHTML = svgIcon(tool.icon, '');
+  const thumbnail = document.createElement('span');
+  thumbnail.className = 'tool-thumbnail';
+  thumbnail.setAttribute('aria-hidden', 'true');
+  thumbnail.style.setProperty('--thumb-x', (tool.thumbnail % 3) * 50 + '%');
+  thumbnail.style.setProperty('--thumb-y', Math.floor(tool.thumbnail / 3) * 50 + '%');
 
   const text = document.createElement('div');
   const title = document.createElement('h3');
@@ -305,8 +306,7 @@ function createCard(tool) {
   const description = document.createElement('p');
   description.textContent = tool.description;
   text.append(title, description);
-  link.append(icon, text);
-  link.insertAdjacentHTML('beforeend', svgIcon('arrow', 'tool-arrow'));
+  link.append(thumbnail, text);
 
   const star = document.createElement('button');
   star.className = 'favorite';
