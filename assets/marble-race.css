@@ -85,8 +85,9 @@ html { scrollbar-gutter: stable; }
   scrollbar-color: #ffffff70 transparent;
   list-style: none;
   border-radius: 6px;
-  background: #1b152ad9;
+  background: #1b152a80;
   color: #fff;
+  text-shadow: 0 1px 3px #150e24;
   font-size: 13px;
   line-height: 1.4;
   font-variant-numeric: tabular-nums;
@@ -104,8 +105,8 @@ html { scrollbar-gutter: stable; }
 .view-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .view-controls .btn { padding-inline: 4px; word-break: keep-all; }
 .view-controls .btn[aria-pressed="true"] { background: var(--wash); border-color: var(--accent); color: var(--accent); }
-.race-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
-.race-actions .btn { min-width: 128px; }
+.race-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px; }
+#start { min-inline-size: 102px; }
 .race-status {
   block-size: 2.8em;
   margin: 0;
@@ -122,6 +123,8 @@ html { scrollbar-gutter: stable; }
 #roster label { font-size: 17px; letter-spacing: -.03em; }
 #name-count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
 .roster-hint { margin: 0; }
+.roster-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.roster-actions .btn { flex: none; padding-inline: 8px; }
 .roster-feedback { min-block-size: 2.8em; font-size: 13px; }
 html.race-expanded { overflow: hidden; scrollbar-gutter: auto; }
 .race-panel.is-fullscreen {

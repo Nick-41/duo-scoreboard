@@ -1,10 +1,10 @@
 import { id, parseLabels, randomIndex, read, write } from './utility.js';
 import { gameMotion, playFrames } from './game-motion.js?v=momentum';
+import { randomNickname } from './nicknames.js';
 
 const key = 'moadeck-lots-v1';
 const limit = 24;
-const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const defaults = [...alphabet.slice(0, 4)];
+const defaults = ['A', 'B', 'C', 'D'];
 const legacyDefaults = ['제비 1', '제비 2', '제비 3', '제비 4'];
 const fullMotion = gameMotion(id('game-motion'));
 const tickets = id('tickets');
@@ -212,11 +212,7 @@ undo.addEventListener('click', () => {
 
 add.addEventListener('click', () => {
   if (drawing || rows.children.length >= limit) return;
-  const labels = new Set(draftLabels().map(label => label.toUpperCase()));
-  const start = rows.children.length;
-  const names = alphabet.slice(start) + alphabet.slice(0, start);
-  const label = [...names].find(name => !labels.has(name));
-  rows.append(createLabelRow(label));
+  rows.append(createLabelRow(randomNickname(draftLabels())));
   error.textContent = '';
   updateControls();
 });

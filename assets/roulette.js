@@ -1,12 +1,14 @@
 import { id, parseLabels, randomIndex, read, write } from './utility.js?v=weighted';
 import { gameMotion, playFrames } from './game-motion.js?v=momentum';
+import { nameLines, randomNickname } from './nicknames.js';
 
 const key = 'moadeck-roulette-v1';
 const limit = 12;
 const fallback = ['항목 1', '항목 2', '항목 3', '항목 4'];
 const input = id('labels');
 const form = id('labelsForm');
-const apply = form.querySelector('button');
+const apply = form.querySelector('button[type="submit"]');
+const add = id('addLabel');
 const error = id('listError');
 const result = id('result');
 const spin = id('spin');
@@ -89,6 +91,10 @@ function save() {
   write(key, { labels, winner });
 }
 
+function syncAdd() {
+  add.disabled = spinning || nameLines(input.value).length >= limit;
+}
+
 function applyLabels() {
   const parsed = parseEntries(input.value);
   error.textContent = parsed.error || '';
@@ -115,12 +121,25 @@ form.addEventListener('submit', event => {
   if (!spinning) applyLabels();
 });
 
+input.addEventListener('input', syncAdd);
+add.addEventListener('click', () => {
+  const entries = nameLines(input.value);
+  if (spinning || entries.length >= limit) return;
+  entries.push(randomNickname(entries));
+  input.value = entries.join('\n');
+  if (entries.length >= 2) applyLabels();
+  else error.textContent = '';
+  input.scrollTop = input.scrollHeight;
+  syncAdd();
+});
+
 spin.addEventListener('click', async () => {
   if (spinning || !applyLabels()) return;
   spinning = true;
   spin.setAttribute('aria-disabled', 'true');
   apply.disabled = true;
   input.readOnly = true;
+  syncAdd();
   result.textContent = '룰렛을 돌리는 중…';
 
   const draw = randomIndex(labels.length);
@@ -145,9 +164,11 @@ spin.addEventListener('click', async () => {
   apply.disabled = false;
   spin.removeAttribute('aria-disabled');
   spinning = false;
+  syncAdd();
   save();
 });
 
 input.value = labels.join('\n');
+syncAdd();
 if (winner) result.textContent = '선택 결과 · ' + winner;
 drawWheel();

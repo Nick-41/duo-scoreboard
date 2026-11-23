@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
   <link rel="stylesheet" href="../assets/brand.css?v=game-motion">
   <link rel="stylesheet" href="../assets/utility.css">
-  <link rel="stylesheet" href="../assets/marble-race.css?v=corner-ranks-2">
+  <link rel="stylesheet" href="../assets/marble-race.css?v=race-refresh">
   <script src="../assets/tool-theme.js"></script>
 </head>
 <body>
@@ -42,6 +42,7 @@
         </div>
         <div class="race-actions">
           <p id="race-status" class="race-status" role="status" aria-atomic="true"></p>
+          <button class="btn" id="reset" type="button" disabled>초기화</button>
           <button class="btn primary" id="start" type="submit" form="roster">레이스 시작</button>
         </div>
       </section>
@@ -53,12 +54,15 @@
           </div>
           <div class="game-motion" id="game-motion"></div>
           <textarea class="field" id="names" rows="4" maxlength="3000" spellcheck="false" placeholder="한 줄에 한 명씩 입력" aria-describedby="names-hint names-error"></textarea>
-          <p class="muted roster-hint" id="names-hint">한 줄에 한 명씩 · 2~32명</p>
+          <div class="roster-actions">
+            <p class="muted roster-hint" id="names-hint">한 줄에 한 명씩 · 2~32명</p>
+            <button class="btn" id="add-participant" type="button">참가자 추가</button>
+          </div>
           <div class="roster-feedback"><p class="error" id="names-error" role="alert"></p></div>
         </form>
       </aside>
     </div>
   </main>
-  <script type="module" src="../assets/marble-race.js?v=corner-ranks"></script>
+  <script type="module" src="../assets/marble-race.js?v=race-refresh"></script>
 </body>
 </html>

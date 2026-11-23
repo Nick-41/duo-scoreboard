@@ -48,11 +48,14 @@
         <label for="labels">항목 목록 (2~12줄)</label>
         <textarea id="labels" class="field" rows="4" maxlength="1100" placeholder="한 줄에 하나씩 입력하세요" aria-describedby="labelsHint" spellcheck="false"></textarea>
         <p id="labelsHint" class="muted">같은 이름을 여러 줄에 입력하면 칸이 더 넓어집니다.</p>
-        <button class="btn" type="submit">목록 적용</button>
+        <div class="row">
+          <button class="btn" id="addLabel" type="button">항목 추가</button>
+          <button class="btn" type="submit">목록 적용</button>
+        </div>
         <p id="listError" class="error" role="alert"></p>
       </form>
     </div>
   </main>
-  <script type="module" src="../assets/roulette.js?v=game-motion"></script>
+  <script type="module" src="../assets/roulette.js?v=nicknames"></script>
 </body>
 </html>

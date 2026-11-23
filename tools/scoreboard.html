@@ -86,20 +86,24 @@ main{gap:7px;padding-top:calc(env(safe-area-inset-top) + 4px);padding-bottom:cal
 <p class="note">팀 수를 줄여도 기존 점수는 유지됩니다. 점수와 팀 이름은 이 기기에 자동 저장됩니다.</p>
 <div id="announce" role="status" aria-live="polite"></div>
 </main>
-<script>
+<script type="module">
+import { randomNickname } from '../assets/nicknames.js';
 'use strict';
 const KEY='duo-scoreboard-v2';
 const OLD_KEY='duo-scoreboard-v1';
 const letters=['A','B','C','D'];
 const defaults={count:2,scores:[0,0,0,0],names:['A팀','B팀','C팀','D팀']};
-let state={count:defaults.count,scores:[...defaults.scores],names:[...defaults.names]};
+let state={count:defaults.count,maxTeams:defaults.count,scores:[...defaults.scores],names:[...defaults.names]};
 let history=[];
 try{
  const next=JSON.parse(localStorage.getItem(KEY));
  if(next&&Number.isInteger(next.count)&&next.count>=2&&next.count<=4&&
     Array.isArray(next.scores)&&next.scores.length===4&&next.scores.every(n=>Number.isSafeInteger(n)&&n>=0)&&
     Array.isArray(next.names)&&next.names.length===4&&next.names.every(n=>typeof n==='string')){
-   state={count:next.count,scores:[...next.scores],names:next.names.map(n=>n.slice(0,20))};
+   const knownTeams=next.names.reduce((count,name,i)=>
+     name!==defaults.names[i]||next.scores[i]!==0?Math.max(count,i+1):count,next.count);
+   const maxTeams=Number.isInteger(next.maxTeams)&&next.maxTeams<=4?Math.max(knownTeams,next.maxTeams):knownTeams;
+   state={count:next.count,maxTeams,scores:[...next.scores],names:next.names.map(n=>n.slice(0,20))};
  }else{
    const old=JSON.parse(localStorage.getItem(OLD_KEY));
    if(old&&Array.isArray(old.scores)&&old.scores.length===2&&old.scores.every(n=>Number.isSafeInteger(n)&&n>=0)&&
@@ -148,6 +152,8 @@ function change(team,delta){
 document.querySelectorAll('.team-count button[data-count]').forEach(btn=>btn.addEventListener('click',()=>{
  const count=Number(btn.dataset.count);
  if(count===state.count)return;
+ for(let i=state.maxTeams;i<count;i++)state.names[i]=randomNickname(state.names);
+ state.maxTeams=Math.max(state.maxTeams,count);
  state.count=count;persist();buildTeams();
 }));
 document.getElementById('undo').addEventListener('click',()=>{

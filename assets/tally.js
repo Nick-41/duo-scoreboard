@@ -1,4 +1,5 @@
 import { $, id, read, write } from './utility.js';
+import { randomNickname } from './nicknames.js';
 
 const vote = document.body.dataset.tool === 'vote';
 const key = vote ? 'moadeck-vote-v1' : 'moadeck-counters-v1';
@@ -180,7 +181,7 @@ edit.addEventListener('click', () => {
 
 add.addEventListener('click', () => {
   if (state.items.length >= maximum) return;
-  const item = { id: nextId++, label: noun + ' ' + (nextId - 1), count: 0 };
+  const item = { id: nextId++, label: randomNickname(state.items.map(entry => entry.label)), count: 0 };
   state.items.push(item);
   render();
   save(item.label + ' 추가됨');

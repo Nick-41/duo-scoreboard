@@ -1,7 +1,8 @@
 import { id, parseLabels, read, write } from './utility.js';
-import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=course-shapes';
-import { createRaceView } from './marble-view.js?v=corner-ranks';
+import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=race-refresh';
+import { createRaceView } from './marble-view.js?v=race-refresh';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
+import { nameLines, randomNickname } from './nicknames.js';
 
 const storageKey = 'moadeck-marble-race-v1';
 const courseKey = 'moadeck-marble-course-v1';
@@ -12,6 +13,7 @@ const panel = id('race-panel');
 const mapSelect = id('course');
 const roster = id('roster');
 const names = id('names');
+const addParticipant = id('add-participant');
 const nameCount = id('name-count');
 const namesError = id('names-error');
 const phase = id('phase');
@@ -19,6 +21,7 @@ const progress = id('progress');
 const arrived = id('arrived');
 const countdown = id('countdown');
 const start = id('start');
+const reset = id('reset');
 const status = id('race-status');
 const rankings = id('rankings');
 const fullscreen = id('fullscreen');
@@ -60,8 +63,9 @@ const startLabels = {
 
 const parseNames = value => parseLabels(value, limit, { allowDuplicates: true });
 const saved = read(storageKey);
-names.value = Array.isArray(saved) && saved.every(name => typeof name === 'string') &&
-  parseNames(saved.join('\n')).labels ? saved.join('\n') : defaults.join('\n');
+names.value = Array.isArray(saved) && saved.length >= 1 && saved.length <= limit &&
+  saved.every(name => typeof name === 'string' && name.trim() && name.length <= 40 && !/[\r\n]/.test(name))
+  ? saved.join('\n') : defaults.join('\n');
 
 function setPhase(value, label, message) {
   racePhase = value;
@@ -71,11 +75,14 @@ function setPhase(value, label, message) {
   const moving = value === 'running' || value === 'countdown';
   mapSelect.disabled = moving;
   names.readOnly = moving || value === 'paused';
+  reset.disabled = value === 'idle';
+  syncCount();
 }
 
 function syncCount() {
-  const count = names.value.split(/\r?\n/).filter(line => line.trim()).length;
+  const count = nameLines(names.value).length;
   nameCount.textContent = count + '명';
+  addParticipant.disabled = names.readOnly || count >= limit;
   if (racePhase === 'idle') arrived.textContent = '0/' + count;
 }
 
@@ -150,7 +157,7 @@ function paint(elapsed = 0) {
   viewer.draw(time, cameraTarget(), elapsed);
 }
 
-function resetPreview() {
+function resetPreview(message = '') {
   stopClock?.();
   stopClock = null;
   pausedPhase = null;
@@ -159,11 +166,11 @@ function resetPreview() {
   marbles = makeMarbles(parseNames(names.value).labels ?? []);
   finishers = [];
   time = accumulator = countdownElapsed = 0;
+  positionCourse(course, time);
   viewer.scene(course, marbles);
   clearRanks();
-  setPhase('idle', '출발 대기', '');
+  setPhase('idle', '출발 대기', message);
   progress.value = 0;
-  syncCount();
   paint();
 }
 
@@ -276,10 +283,26 @@ roster.addEventListener('submit', event => {
   stopClock = runFrames(frame);
 });
 
-names.addEventListener('input', () => {
+function refreshRoster() {
   setFeedback();
   if (racePhase === 'idle') resetPreview();
   else syncCount();
+}
+names.addEventListener('input', refreshRoster);
+
+addParticipant.addEventListener('click', () => {
+  const rosterNames = nameLines(names.value);
+  if (names.readOnly || rosterNames.length >= limit) return;
+  rosterNames.push(randomNickname(rosterNames));
+  names.value = rosterNames.join('\n');
+  names.scrollTop = names.scrollHeight;
+  if (rosterNames.every(name => name.length <= 40)) write(storageKey, rosterNames);
+  refreshRoster();
+});
+
+reset.addEventListener('click', () => {
+  resetPreview('레이스를 초기화했습니다.');
+  start.focus({ preventScroll: true });
 });
 
 mapSelect.addEventListener('change', () => {
