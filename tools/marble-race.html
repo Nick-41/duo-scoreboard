@@ -9,7 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="../assets/icon.svg?v=moadeck">
   <link rel="stylesheet" href="../assets/brand.css?v=game-motion">
   <link rel="stylesheet" href="../assets/utility.css">
-  <link rel="stylesheet" href="../assets/marble-race.css?v=momentum">
+  <link rel="stylesheet" href="../assets/marble-race.css?v=corner-ranks">
   <script src="../assets/tool-theme.js"></script>
 </head>
 <body>
@@ -30,28 +30,10 @@
           <progress id="progress" max="1" value="0" aria-label="선두 구슬의 코스 진행률"></progress>
           <span id="arrived" aria-label="도착한 구슬 수">0/6</span>
         </div>
-        <div class="race-stage" id="race-stage">
-          <div class="track">
-            <canvas id="track" width="512" height="480" tabindex="0" aria-label="2D 레이스 코스. 위아래로 끌거나 방향키를 눌러 이동"></canvas>
-            <div id="countdown" class="countdown" aria-hidden="true" hidden></div>
-          </div>
-          <aside class="spectator" aria-label="코스 관전 정보">
-            <section class="rank-widget" aria-label="레이스 순위">
-              <button id="rank-toggle" class="rank-toggle" type="button" aria-expanded="false" aria-controls="result-scroll">
-                <strong>순위</strong><span id="rank-preview">출발 대기</span>
-                <span class="rank-chevron" aria-hidden="true"></span>
-              </button>
-              <h2 class="rank-heading">실시간 순위</h2>
-              <div id="result-scroll" class="result-scroll" tabindex="0" aria-label="전체 순위">
-                <p id="empty-results" class="muted">출발하면 순위를 표시합니다.</p>
-                <ol id="rankings" class="rankings"></ol>
-              </div>
-            </section>
-            <div class="map-widget">
-              <h2>코스 미니맵</h2>
-              <canvas id="minimap" width="144" height="210" tabindex="0" aria-label="전체 코스와 현재 화면 범위. 원하는 위치를 누르거나 방향키로 이동"></canvas>
-            </div>
-          </aside>
+        <div class="race-stage">
+          <canvas id="track" width="512" height="480" tabindex="0" aria-label="2D 레이스 코스. 위아래로 끌거나 방향키를 눌러 이동"></canvas>
+          <div id="countdown" class="countdown" aria-hidden="true" hidden></div>
+          <ol id="rankings" class="corner-ranks" role="list" aria-label="레이스 순위" tabindex="0" hidden></ol>
         </div>
         <div class="view-controls" role="group" aria-label="카메라 보기">
           <button class="btn" id="focus-first" type="button" data-view="first" aria-pressed="false">일등 보기</button>
@@ -77,6 +59,6 @@
       </aside>
     </div>
   </main>
-  <script type="module" src="../assets/marble-race.js?v=course-shapes"></script>
+  <script type="module" src="../assets/marble-race.js?v=corner-ranks"></script>
 </body>
 </html>

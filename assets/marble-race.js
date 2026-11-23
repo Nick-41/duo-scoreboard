@@ -1,6 +1,6 @@
 import { id, parseLabels, read, write } from './utility.js';
 import { advanceRace, courses, defaultCourse, makeCourse, makeMarbles, positionCourse, step, width } from './marble-course.js?v=course-shapes';
-import { createRaceView } from './marble-view.js?v=course-shapes';
+import { createRaceView } from './marble-view.js?v=corner-ranks';
 import { gameMotion, runFrames } from './game-motion.js?v=momentum';
 
 const storageKey = 'moadeck-marble-race-v1';
@@ -8,7 +8,6 @@ const courseKey = 'moadeck-marble-course-v1';
 const limit = 32;
 const defaults = ['참가자 A', '참가자 B', '참가자 C', '참가자 D', '참가자 E', '참가자 F'];
 const track = id('track');
-const minimap = id('minimap');
 const panel = id('race-panel');
 const mapSelect = id('course');
 const roster = id('roster');
@@ -22,14 +21,10 @@ const countdown = id('countdown');
 const start = id('start');
 const status = id('race-status');
 const rankings = id('rankings');
-const emptyResults = id('empty-results');
-const resultScroll = id('result-scroll');
-const rankToggle = id('rank-toggle');
-const rankPreview = id('rank-preview');
 const fullscreen = id('fullscreen');
 const viewButtons = [...panel.querySelectorAll('[data-view]')];
 const fullMotion = gameMotion(id('game-motion'));
-const viewer = createRaceView(track, minimap);
+const viewer = createRaceView(track);
 
 const savedCourse = read(courseKey);
 const selectedCourse = savedCourse === 'crosswind' ? 'ravine' : savedCourse;
@@ -93,26 +88,20 @@ function clearRanks() {
   rows.clear();
   rankOrder = [];
   rankings.replaceChildren();
-  resultScroll.scrollTop = 0;
-  emptyResults.hidden = false;
-  rankPreview.textContent = '출발 대기';
-  rankPreview.removeAttribute('title');
+  rankings.scrollTop = 0;
+  rankings.hidden = true;
 }
 
 function makeRankRow(ball) {
   const entry = document.createElement('li');
-  entry.className = 'ranking';
   const rank = document.createElement('span');
-  const color = document.createElement('span');
-  color.className = 'ranking-color';
-  color.style.backgroundColor = ball.color;
-  color.setAttribute('aria-hidden', 'true');
   const label = document.createElement('span');
   label.className = 'ranking-name';
   label.textContent = ball.name;
+  label.title = ball.name;
   const elapsed = document.createElement('span');
   elapsed.className = 'ranking-time';
-  entry.append(rank, color, label, elapsed);
+  entry.append(rank, label, elapsed);
   const row = { entry, rank, elapsed };
   rows.set(ball, row);
   return row;
@@ -123,16 +112,11 @@ function updateRanks() {
   const standings = [...finishers, ...moving];
   if (!standings.length) return;
 
-  emptyResults.hidden = true;
+  rankings.hidden = false;
   const leader = standings[0];
-  const summary = '1위 ' + leader.name;
   if (!finishers.length && rankOrder[0] && rankOrder[0] !== leader && time > nextLeadUpdate) {
     status.textContent = '선두 교체 · ' + leader.name;
     nextLeadUpdate = time + 1.15;
-  }
-  if (rankPreview.textContent !== summary) {
-    rankPreview.textContent = summary;
-    rankPreview.title = summary;
   }
   const changed = standings.some((ball, index) => rankOrder[index] !== ball);
   for (const [index, ball] of standings.entries()) {
@@ -356,21 +340,7 @@ function navigateCourse(event) {
   viewer.pan(jumps[event.key]);
 }
 track.addEventListener('keydown', navigateCourse);
-minimap.addEventListener('keydown', navigateCourse);
-minimap.addEventListener('pointerdown', event => {
-  if (!event.isPrimary || event.button !== 0) return;
-  selectView('manual');
-  paint();
-  viewer.jump(event.clientY - minimap.getBoundingClientRect().top);
-});
 
-function setRankOpen(open) {
-  rankToggle.setAttribute('aria-expanded', String(open));
-}
-rankToggle.addEventListener('click', () => setRankOpen(rankToggle.getAttribute('aria-expanded') !== 'true'));
-document.addEventListener('pointerdown', event => {
-  if (!event.target.closest('.rank-widget')) setRankOpen(false);
-});
 function syncFullscreen() {
   const expanded = fallbackFullscreen || document.fullscreenElement === panel;
   panel.classList.toggle('is-fullscreen', expanded);
@@ -404,20 +374,14 @@ fullscreen.addEventListener('click', async () => {
 });
 document.addEventListener('fullscreenchange', syncFullscreen);
 document.addEventListener('keydown', event => {
-  if (event.key !== 'Escape') return;
-  if (rankToggle.getAttribute('aria-expanded') === 'true') {
-    setRankOpen(false);
-    rankToggle.focus();
-  } else if (fallbackFullscreen) {
-    fallbackFullscreen = false;
-    syncFullscreen();
-    fullscreen.focus();
-  }
+  if (event.key !== 'Escape' || !fallbackFullscreen) return;
+  fallbackFullscreen = false;
+  syncFullscreen();
+  fullscreen.focus();
 });
 
 resetPreview();
 viewer.resize();
 const resize = new ResizeObserver(viewer.resize);
 resize.observe(track);
-resize.observe(minimap);
 new MutationObserver(viewer.redraw).observe(document.documentElement, { attributeFilter: ['data-theme'] });

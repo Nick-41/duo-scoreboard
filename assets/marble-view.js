@@ -38,7 +38,7 @@ function prepare(canvas, ctx) {
 
 function geometry(size, course, overview) {
   const total = courseHeight(course);
-  const preferred = size.w < 380 ? 590 : size.w < 580 ? 815 : 1000;
+  const preferred = size.w < 420 ? 590 : size.w < 680 ? 720 : 780;
   const scale = Math.min(size.w / width,
     overview ? size.h / total : Math.max(.42, size.h / preferred));
   const visible = size.h / scale;
@@ -81,7 +81,7 @@ function paintWalls(ctx, course, colors) {
   }
 }
 
-function paintTrack(ctx, course, view, top, colors, mini = false) {
+function paintTrack(ctx, course, view, top, colors) {
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, view.w, view.h);
   ctx.save();
@@ -93,27 +93,25 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
   ctx.fillStyle = colors.shaft;
   ctx.fillRect(6, top, 2, Math.min(course.finishLine, bottom) - Math.min(course.finishLine, top));
 
-  if (!mini) {
-    ctx.beginPath();
-    for (let x = 40; x < width - 18; x += 24) {
-      ctx.moveTo(x, top);
-      ctx.lineTo(x, bottom);
-    }
-    for (let y = Math.ceil(top / 24) * 24; y < bottom; y += 24) {
-      ctx.moveTo(18, y);
-      ctx.lineTo(width - 18, y);
-    }
-    ctx.strokeStyle = colors.grid;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.fillStyle = colors.wall;
-    ctx.fillRect(18, 44, width - 36, 2);
-    ctx.fillStyle = colors.ink;
-    ctx.font = '750 22px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('출발', width / 2, 25);
+  ctx.beginPath();
+  for (let x = 40; x < width - 18; x += 24) {
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
   }
+  for (let y = Math.ceil(top / 24) * 24; y < bottom; y += 24) {
+    ctx.moveTo(18, y);
+    ctx.lineTo(width - 18, y);
+  }
+  ctx.strokeStyle = colors.grid;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = colors.wall;
+  ctx.fillRect(18, 44, width - 36, 2);
+  ctx.fillStyle = colors.ink;
+  ctx.font = '750 22px system-ui, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('출발', width / 2, 25);
 
   ctx.lineCap = 'round';
   for (const obstacle of course.obstacles) {
@@ -139,7 +137,7 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
       ctx.lineWidth = size * 2;
       ctx.strokeStyle = longBar ? colors.bar : obstacle.swing ? colors.shaft : colors.peg;
       ctx.stroke();
-      if (longBar && !mini) {
+      if (longBar) {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(Math.atan2(dy, dx));
@@ -158,19 +156,15 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
       }
       if (obstacle.swing) {
         dot(ctx, 7, y, 4, colors.shaft);
-        if (!mini) {
-          dot(ctx, x - dx, y - dy, size * .52, colors.light);
-          dot(ctx, x + dx, y + dy, size * .52, colors.light);
-          dot(ctx, x, y, 6, colors.background);
-        }
+        dot(ctx, x - dx, y - dy, size * .52, colors.light);
+        dot(ctx, x + dx, y + dy, size * .52, colors.light);
+        dot(ctx, x, y, 6, colors.background);
       }
     } else {
       dot(ctx, x, y, size, obstacle.restitution ? colors.rubber : colors.peg);
     }
-    if (!mini) {
-      if (!half && obstacle.restitution) dot(ctx, x, y, size * .72, colors.background);
-      dot(ctx, x, y, half ? (obstacle.swing ? 3 : 4) : size * .36, colors.light);
-    }
+    if (!half && obstacle.restitution) dot(ctx, x, y, size * .72, colors.background);
+    dot(ctx, x, y, half ? (obstacle.swing ? 3 : 4) : size * .36, colors.light);
   }
   paintWalls(ctx, course, colors);
   if (bottom >= course.finishLine) {
@@ -180,10 +174,8 @@ function paintTrack(ctx, course, view, top, colors, mini = false) {
         ctx.fillRect(18 + column * 14, course.finishLine + row * 10, 14, 10);
       }
     }
-    if (!mini) {
-      ctx.fillStyle = colors.ink;
-      ctx.fillText('결승', width / 2, course.finishLine - 18);
-    }
+    ctx.fillStyle = colors.ink;
+    ctx.fillText('결승', width / 2, course.finishLine - 18);
   }
   ctx.restore();
 }
@@ -303,12 +295,11 @@ function drawNames(ctx, balls, view, nameSizes, positions, focus) {
   }
 }
 
-export function createRaceView(track, minimap) {
+export function createRaceView(track) {
   const ctx = track.getContext('2d');
-  const mini = minimap.getContext('2d');
   const nameSizes = new Map();
   let positions = new WeakMap();
-  let size, miniSize, course, mode = 'auto', camera = 0;
+  let size, course, mode = 'auto', camera = 0;
   let marbles = [], time = 0, focus = null, widthForNames = 0;
 
   function projection() {
@@ -334,25 +325,10 @@ export function createRaceView(track, minimap) {
       else balls.push(entry);
     }
     drawNames(ctx, balls, view, nameSizes, positions, focus);
-
-    if (!mini || !miniSize) return;
-    const map = geometry(miniSize, course, true);
-    paintTrack(mini, course, map, 0, colors, true);
-    for (const ball of marbles) {
-      const point = marblePoint(ball, time);
-      dot(mini, map.x + point.x * map.scale, map.y + point.y * map.scale, ball === focus ? 3 : 2, ball.color);
-    }
-    const frameHeight = Math.min(view.visible, courseHeight(course)) * map.scale;
-    mini.fillStyle = '#ffffff25';
-    mini.strokeStyle = colors.ink;
-    mini.lineWidth = 1.5;
-    mini.fillRect(map.x, map.y + top * map.scale, width * map.scale, frameHeight);
-    mini.strokeRect(map.x, map.y + top * map.scale, width * map.scale, frameHeight);
   }
 
   function resize() {
     size = ctx && prepare(track, ctx);
-    miniSize = mini && prepare(minimap, mini);
     if (size && size.w !== widthForNames) {
       widthForNames = size.w;
       nameSizes.clear();
@@ -400,13 +376,5 @@ export function createRaceView(track, minimap) {
     redraw();
   }
 
-  function jump(y) {
-    const view = projection();
-    if (!view || !miniSize) return;
-    const map = geometry(miniSize, course, true);
-    camera = clamp((y - map.y) / map.scale - view.visible / 2, 0, view.maxTop);
-    redraw();
-  }
-
-  return { ready: Boolean(ctx), resize, scene, draw, setMode, pan, jump, redraw };
+  return { ready: Boolean(ctx), resize, scene, draw, setMode, pan, redraw };
 }
