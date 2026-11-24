@@ -158,6 +158,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--background) url("assets/marble-race-thumbnail.webp") center / cover no-repeat;
 }
 .tool-thumbnail-cafe-video-lab { background: var(--background) center / cover no-repeat; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 80'%3E%3Crect width='120' height='80' rx='10' fill='%23e5d8c8'/%3E%3Crect x='10' y='10' width='40' height='60' rx='5' fill='%23674d42'/%3E%3Ccircle cx='30' cy='37' r='12' fill='%23fff1df'/%3E%3Ccircle cx='30' cy='37' r='8' fill='%23976b4e'/%3E%3Cpath d='M28 31l8 6-8 6z' fill='white'/%3E%3Crect x='57' y='19' width='52' height='9' rx='3' fill='%23977564'/%3E%3Crect x='57' y='34' width='38' height='8' rx='3' fill='%23b59a89'/%3E%3Crect x='57' y='51' width='16' height='12' rx='2' fill='%237b956f'/%3E%3Crect x='76' y='51' width='16' height='12' rx='2' fill='%23b78861'/%3E%3Crect x='95' y='51' width='14' height='12' rx='2' fill='%23977564'/%3E%3C/svg%3E"); }
+.tool-thumbnail-morse { background: var(--background) url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20120%2080%27%3E%3Crect%20width%3D%27120%27%20height%3D%2780%27%20rx%3D%2710%27%20fill%3D%27%23eae1ff%27%2F%3E%3Crect%20x%3D%2710%27%20y%3D%2710%27%20width%3D%27100%27%20height%3D%2760%27%20rx%3D%278%27%20fill%3D%27%236042ac%27%2F%3E%3Cg%20fill%3D%27%23fff%27%3E%3Ccircle%20cx%3D%2724%27%20cy%3D%2730%27%20r%3D%274%27%2F%3E%3Ccircle%20cx%3D%2736%27%20cy%3D%2730%27%20r%3D%274%27%2F%3E%3Ccircle%20cx%3D%2748%27%20cy%3D%2730%27%20r%3D%274%27%2F%3E%3Crect%20x%3D%2759%27%20y%3D%2726%27%20width%3D%2715%27%20height%3D%278%27%20rx%3D%274%27%2F%3E%3Crect%20x%3D%2779%27%20y%3D%2726%27%20width%3D%2715%27%20height%3D%278%27%20rx%3D%274%27%2F%3E%3Ccircle%20cx%3D%2736%27%20cy%3D%2749%27%20r%3D%274%27%2F%3E%3Crect%20x%3D%2747%27%20y%3D%2745%27%20width%3D%2718%27%20height%3D%278%27%20rx%3D%274%27%2F%3E%3Ccircle%20cx%3D%2776%27%20cy%3D%2749%27%20r%3D%274%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center / cover no-repeat; }
 .tool-card h3 { margin: 0; font-size: clamp(16px, 2vw, 20px); line-height: 1.28; letter-spacing: -.045em; word-break: keep-all; }
 .tool-card p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; word-break: keep-all; }
 .favorite {
@@ -259,6 +260,7 @@ const tools = [
   { id: 'counters', name: '멀티카운터', description: '여러 항목의 수량을 따로 세고 합산', category: '일상', thumbnail: 6, path: 'tools/counters.html' },
   { id: 'vote', name: '투표판', description: '한 기기에서 표를 모아 득표율 확인', category: '일상', thumbnail: 7, path: 'tools/vote.html' },
   { id: 'cafe-video-lab', name: '카페 영상 스튜디오 (실험판)', description: '영상·사진 자동 편집과 GPT 스토리보드', category: '작업', path: 'tools/cafe-video-lab.html' },
+  { id: 'morse', name: '모스부호 학습기', description: '모스부호 암기·청음·송신 연습과 문자 변환', category: '일상', path: 'tools/morse.html' },
   { id: 'layout', name: '공간 배치 스튜디오', description: '가구 이동, 5cm 정렬, 배치 저장', category: '작업', thumbnail: 8, path: 'space-studio/index.html' }
 ];
 
